@@ -6,6 +6,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/{page}', function () {
-    return view('vue');
-});
+Route::get('/inicio', fn() => view('vue'));
+Route::get('/nosotros', fn() => view('vue'));
