@@ -63,3 +63,4 @@ Una rama por cada incremento (ej: incremento-1, incremento-2, etc.)
      git checkout tu_rama
 3. Solo trabaja en tu rama
 4. Cuando tu parte este lista se agrega al incremento correspondiente, no a la master
+5. Recuerda agregar el archivo .env al proyecto
