@@ -49,7 +49,7 @@ Antes de clonar el repositorio, asegúrate de tener lo siguiente instalado:
      php artisan serve
    - Vue
      ```
-     php artisan serve
+     npm run dev
 ## Uso de ramas
 Para mantener el proyecto organizado, se ha creado:
 Una rama principal: master
