@@ -36,6 +36,7 @@ Antes de clonar el repositorio, asegúrate de tener lo siguiente instalado:
 2. Descarga y cambiate a tu rama:
    ```
    git checkout -b tu_nombre origin/tu_nombre
+   git pull origin master
 3. Instalar dependencias de Laravel:
    ```bash
    composer install
@@ -50,6 +51,8 @@ Antes de clonar el repositorio, asegúrate de tener lo siguiente instalado:
    - Vue
      ```
      npm run dev
+    - En caso de que no se instale vue router
+      `npm install --save-dev vue-router`
 ## Uso de ramas
 Para mantener el proyecto organizado, se ha creado:
 Una rama principal: master
