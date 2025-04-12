@@ -33,14 +33,17 @@ Antes de clonar el repositorio, asegúrate de tener lo siguiente instalado:
    ```bash
    git clone https://github.com/tu_usuario/tu_repositorio.git
    cd tu_repositorio
-2. Instalar dependencias de Laravel:
+2. Descarga y cambiate a tu rama:
+   ```
+   git checkout -b tu_nombre origin/tu_nombre
+3. Instalar dependencias de Laravel:
    ```bash
    composer install
-3. Instalar dependencias de Vue:
+4. Instalar dependencias de Vue:
    ```bash
    npm install
-4. Añadir el archivo .env al proyecto
-5. Levantar el proyecto (terminales distintas)
+5. Añadir el archivo .env al proyecto
+6. Levantar el proyecto (terminales distintas)
    - Laravel
      ```
      php artisan serve
