@@ -43,6 +43,7 @@ Antes de clonar el repositorio, asegúrate de tener lo siguiente instalado:
 4. Instalar dependencias de Vue:
    ```bash
    npm install
+   npm install --save-dev vue-router
 5. Añadir el archivo .env al proyecto
 6. Levantar el proyecto (terminales distintas)
    - Laravel
