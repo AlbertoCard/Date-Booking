@@ -90,9 +90,6 @@ button:hover {
 
 .hero{
     width: 100%;
-    height: 100vh;
-    min-height: 600px;
-    max-height: 800px;
     position: relative;
     display: grid;
     grid-template-rows: 100px 1fr;
