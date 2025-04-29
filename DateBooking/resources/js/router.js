@@ -5,6 +5,7 @@ import Nosotros from "./components/Nosotros.vue";
 import NotFound from "./components/NotFound.vue";
 
 const routes = [
+  { path: "/", component: Inicio },
   { path: "/inicio", component: Inicio },
   { path: "/nosotros", component: Nosotros },
   { path: "/:pathMatch(.*)*", component: NotFound },
