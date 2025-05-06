@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('habitaciones', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id_habitacion')->primary();
             $table->unsignedBigInteger('id_servicio');
+            $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
             $table->string('tipo', 100);
             $table->unsignedInteger('numero');
             $table->unsignedTinyInteger('capacidad');

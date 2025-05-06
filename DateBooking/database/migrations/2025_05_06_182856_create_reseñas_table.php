@@ -14,14 +14,14 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('reseñas', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id_reseña')->primary();
             $table->string('id_usuario', 128);
             $table->foreign('id_usuario')->references('uid')->on('usuarios');
             $table->unsignedBigInteger('id_servicio');
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
             $table->char('calificacion', 1);
-            $table->string('descripcion');
-            $table->date('fecha');
+            $table->string('descripcion')->default('');
+            $table->date('fecha')->default(now());
         });
 
         Schema::enableForeignKeyConstraints();

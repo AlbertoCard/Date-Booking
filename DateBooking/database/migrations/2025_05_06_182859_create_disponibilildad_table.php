@@ -14,15 +14,16 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('disponibilildad', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id_disponibilidad')->primary();
             $table->unsignedBigInteger('id_servicio');
+            $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
             $table->date('fecha')->nullable();
             $table->time('hora_inicio');
             $table->time('hora_fin');
             $table->time('intevalo');
             $table->enum('dias', ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"]);
             $table->string('tipo', 20);
-            $table->tinyInteger('activo');
+            $table->tinyInteger('activo')->default(1);
         });
 
         Schema::enableForeignKeyConstraints();

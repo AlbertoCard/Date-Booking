@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('uid', 128)->primary();
             $table->string('nombre');
             $table->string('email');
-            $table->string('telefono', 20);
+            $table->string('telefono', 20)->default('0000000000');
             $table->text('foto_url');
             $table->string('rol', 20)->default('cliente');
             $table->dateTime('fecha_creacion')->default(now());

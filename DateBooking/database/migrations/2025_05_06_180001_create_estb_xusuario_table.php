@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('estb_xusuario', function (Blueprint $table) {
-            $table->string('id_usuario', 128)->primary();
+            $table->string('id_usuario', 128);
             $table->foreign('id_usuario')->references('uid')->on('usuarios');
-            $table->bigInteger('id_establecimiento');
+            $table->unsignedBigInteger('id_establecimiento');
+            $table->foreign('id_establecimiento')->references('id_establecimiento')->on('establecimientos');
         });
 
         Schema::enableForeignKeyConstraints();

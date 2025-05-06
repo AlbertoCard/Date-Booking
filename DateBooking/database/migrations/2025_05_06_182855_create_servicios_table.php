@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('servicios', function (Blueprint $table) {
-            $table->id();
-            $table->foreign('id_servicio')->references('id_servicio')->on('reservas');
+            $table->bigIncrements('id_servicio')->primary();
             $table->unsignedBigInteger('id_establecimiento');
+            $table->foreign('id_establecimiento')->references('id_establecimiento')->on('establecimientos');
             $table->string('nombre');
             $table->text('descripcion');
             $table->decimal('Costo', 10, 2);

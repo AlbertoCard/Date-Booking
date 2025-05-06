@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('reservas', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id_reserva')->primary();
             $table->string('id_usuario', 128);
             $table->foreign('id_usuario')->references('uid')->on('usuarios');
             $table->unsignedBigInteger('id_servicio');
+            $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
             $table->unsignedBigInteger('id_pago');
+            $table->foreign('id_pago')->references('id_pago')->on('pagos');
             $table->string('estado', 50);
             $table->dateTime('fecha');
             $table->string('tipo_servicio', 50);
