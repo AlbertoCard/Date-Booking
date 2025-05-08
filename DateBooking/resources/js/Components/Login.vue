@@ -2,7 +2,7 @@
     <div class="flex min-h-screen bg-gray-100">
       <!-- Izquierda (opcional) -->
       <div class="hidden md:flex w-1/2 flex-col items-center justify-center p-12">
-        <h1 class="text-3xl font-bold mb-4">TU APLICACIÓN</h1>
+        <h1 class="text-3xl font-bold mb-4">DateBooking</h1>
         <div class="w-64 h-64 bg-gray-300 mb-6"></div>
         <p class="text-gray-600 text-sm text-center">
           Accede fácilmente con tu cuenta o con Google.

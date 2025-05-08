@@ -4,6 +4,7 @@ import Inicio from "./components/Inicio.vue";
 import Nosotros from "./components/Nosotros.vue";
 import NotFound from "./components/NotFound.vue";
 import Login from "./components/Login.vue";
+import RestablecerContraseña from "./components/RestablecerContraseña.vue";
 import Dashboard from "./components/Dashboard.vue";
 
 const routes = [
@@ -12,7 +13,7 @@ const routes = [
   { path: "/:pathMatch(.*)*", component: NotFound },
   { path: "/login", component: Login },
   { path: "/dashboard", component: Dashboard },
-  
+  { path: "/reset-password", component: RestablecerContraseña },
 ];
 
 const history = createWebHistory();
