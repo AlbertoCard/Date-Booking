@@ -67,6 +67,13 @@
               Restablécela aquí
             </router-link>
           </p>
+
+          <p class="text-center text-sm text-gray-600 mt-4">
+            ¿No tienes cuenta?
+            <router-link to="/registro" class="text-blue-600 hover:underline">
+              Registrate aqui!
+            </router-link>
+          </p>
         </div>
       </div>
     </div>
