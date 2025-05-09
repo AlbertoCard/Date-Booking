@@ -33,20 +33,27 @@ Antes de clonar el repositorio, asegúrate de tener lo siguiente instalado:
    ```bash
    git clone https://github.com/tu_usuario/tu_repositorio.git
    cd tu_repositorio
-2. Instalar dependencias de Laravel:
+2. Descarga y cambiate a tu rama:
+   ```
+   git checkout -b tu_nombre origin/tu_nombre
+   git pull origin master
+3. Instalar dependencias de Laravel:
    ```bash
    composer install
-3. Instalar dependencias de Vue:
+4. Instalar dependencias de Vue:
    ```bash
    npm install
-4. Añadir el archivo .env al proyecto
-5. Levantar el proyecto (terminales distintas)
+   npm install --save-dev vue-router
+5. Añadir el archivo .env al proyecto
+6. Levantar el proyecto (terminales distintas)
    - Laravel
      ```
      php artisan serve
    - Vue
      ```
-     php artisan serve
+     npm run dev
+    - En caso de que no se instale vue router
+      `npm install --save-dev vue-router`
 ## Uso de ramas
 Para mantener el proyecto organizado, se ha creado:
 Una rama principal: master
@@ -60,3 +67,4 @@ Una rama por cada incremento (ej: incremento-1, incremento-2, etc.)
      git checkout tu_rama
 3. Solo trabaja en tu rama
 4. Cuando tu parte este lista se agrega al incremento correspondiente, no a la master
+5. Recuerda agregar el archivo .env al proyecto
