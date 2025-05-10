@@ -2,33 +2,98 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '../firebase.js'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
+import axios from 'axios'
 
 // Refs para formulario
+const nombre = ref('')
 const correo = ref('')
+const telefono = ref('')
 const contrasena = ref('')
 const error = ref('')
+const loading = ref(false)
 const router = useRouter()
+const fotoUrl = ref('https://via.placeholder.com/150') // URL por defecto para la foto
 
 // Función de registro
 const registrar = async () => {
   error.value = ''
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, correo.value, contrasena.value)
-    console.log('Usuario registrado:', userCredential.user)
+  loading.value = true
 
-    // Aquí podrías redirigir o mostrar un mensaje de éxito
-    router.push('/dashboard') // Ejemplo de redirección
-  } catch (e) {
-    console.error('Error al registrar:', e)
-    error.value = 'Ocurrió un error al registrarse: ' + e.message
+  try {
+    // 1. Crear usuario en Firebase
+    const userCredential = await createUserWithEmailAndPassword(auth, correo.value, contrasena.value)
+    const user = userCredential.user
+
+    // 2. Actualizar el perfil del usuario en Firebase con el nombre
+    await updateProfile(user, {
+      displayName: nombre.value,
+      photoURL: fotoUrl.value
+    })
+
+    // 3. Guardar datos adicionales en nuestra base de datos
+    try {
+      const response = await axios.post('/api/usuarios', {
+        uid: user.uid,
+        nombre: nombre.value,
+        email: correo.value,
+        telefono: telefono.value,
+        foto_url: fotoUrl.value,
+        rol: activeTab.value // 'cliente' o 'establecimiento'
+      })
+
+      console.log('Usuario guardado en la base de datos:', response.data)
+      
+      // 4. Redireccionar al dashboard
+      router.push('/dashboard')
+    } catch (apiError) {
+      console.error('Error al guardar en la base de datos:', apiError)
+      error.value = 'Error al guardar los datos: ' + (apiError.response?.data?.message || apiError.message)
+    }
+  } catch (firebaseError) {
+    console.error('Error con Firebase:', firebaseError)
+    switch (firebaseError.code) {
+      case 'auth/email-already-in-use':
+        error.value = 'Este correo electrónico ya está registrado'
+        break
+      case 'auth/invalid-email':
+        error.value = 'El correo electrónico no es válido'
+        break
+      case 'auth/operation-not-allowed':
+        error.value = 'El registro con correo y contraseña no está habilitado'
+        break
+      case 'auth/weak-password':
+        error.value = 'La contraseña debe tener al menos 6 caracteres'
+        break
+      default:
+        error.value = 'Error al registrar: ' + firebaseError.message
+    }
+  } finally {
+    loading.value = false
   }
 }
 
-const activeTab = ref('cliente'); // Por defecto, mostrar la pestaña de cliente (aunque este formulario es básico)
+const activeTab = ref('cliente') // Por defecto, mostrar la pestaña de cliente
+
+// Validación de contraseña
+const validarContrasena = () => {
+  if (contrasena.value.length < 6) {
+    error.value = 'La contraseña debe tener al menos 6 caracteres'
+    return false
+  }
+  return true
+}
+
+// Validación de teléfono
+const validarTelefono = () => {
+  const telefonoRegex = /^\d{10}$/
+  if (!telefonoRegex.test(telefono.value)) {
+    error.value = 'El teléfono debe tener 10 dígitos'
+    return false
+  }
+  return true
+}
 </script>
-
-
 
 <template>
   <div class="container">
@@ -108,7 +173,13 @@ const activeTab = ref('cliente'); // Por defecto, mostrar la pestaña de cliente
               <input type="checkbox" id="terminos" required />
               <label for="terminos">Acepta los términos y condiciones</label>
             </div>
-            <button type="submit" class="register-button">Registrarse</button>
+            <button 
+              type="submit" 
+              class="register-button"
+              :disabled="loading"
+            >
+              {{ loading ? 'Registrando...' : 'Registrarse' }}
+            </button>
           </form>
         </div>
       </div>
@@ -257,8 +328,17 @@ h2 {
   background-color: #0056b3;
 }
 
+.register-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
 .error-message {
   color: #dc2626;
-  margin-bottom: 10px;
+  background-color: #fee2e2;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  text-align: left;
 }
 </style>
