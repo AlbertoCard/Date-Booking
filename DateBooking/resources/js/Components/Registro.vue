@@ -18,7 +18,7 @@ const registrar = async () => {
     console.log('Usuario registrado:', userCredential.user)
 
     // Aquí podrías redirigir o mostrar un mensaje de éxito
-    router.push('/bienvenida') // Ejemplo de redirección
+    router.push('/dashboard') // Ejemplo de redirección
   } catch (e) {
     console.error('Error al registrar:', e)
     error.value = 'Ocurrió un error al registrarse: ' + e.message
@@ -27,6 +27,8 @@ const registrar = async () => {
 
 const activeTab = ref('cliente'); // Por defecto, mostrar la pestaña de cliente (aunque este formulario es básico)
 </script>
+
+
 
 <template>
   <div class="container">
@@ -57,8 +59,36 @@ const activeTab = ref('cliente'); // Por defecto, mostrar la pestaña de cliente
           <h2 class="form-title">Registro de Cliente</h2>
           <form @submit.prevent="registrar">
             <div class="form-group">
+              <label for="nombre">Nombre completo</label>
+              <input 
+                v-model="nombre" 
+                type="text" 
+                id="nombre" 
+                placeholder="Tu nombre completo" 
+                required 
+              />
+              <span class="checkmark">&#10004;</span>
+            </div>
+            <div class="form-group">
               <label for="correo">Ingresa tu correo</label>
-              <input v-model="correo" type="email" id="correo" placeholder="Tu correo" required />
+              <input 
+                v-model="correo" 
+                type="email" 
+                id="correo" 
+                placeholder="Tu correo" 
+                required 
+              />
+              <span class="checkmark">&#10004;</span>
+            </div>
+            <div class="form-group">
+              <label for="telefono">Teléfono</label>
+              <input 
+                v-model="telefono" 
+                type="tel" 
+                id="telefono" 
+                placeholder="Tu número de teléfono" 
+                required 
+              />
               <span class="checkmark">&#10004;</span>
             </div>
             <div class="form-group">
@@ -72,6 +102,7 @@ const activeTab = ref('cliente'); // Por defecto, mostrar la pestaña de cliente
               />
               <span class="checkmark">&#10004;</span>
             </div>
+            
             <div v-if="error" class="error-message">{{ error }}</div>
             <div class="checkbox-group">
               <input type="checkbox" id="terminos" required />
@@ -87,13 +118,13 @@ const activeTab = ref('cliente'); // Por defecto, mostrar la pestaña de cliente
 
 <style scoped>
 .container {
-  background-color: #f4f4f4; /* Fondo general claro */
+  background-color: #f4f4f4;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 30px;
-  width: 100%; /* Ocupar el ancho completo del padre */
-  max-width: 600px; /* Ancho máximo para centrar el contenido */
-  margin: 20px auto; /* Centrar horizontalmente */
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
   text-align: center;
 }
 
@@ -176,7 +207,9 @@ h2 {
   color: #555;
 }
 
+.form-group input[type="text"],
 .form-group input[type="email"],
+.form-group input[type="tel"],
 .form-group input[type="password"] {
   width: calc(100% - 30px);
   padding: 10px;
@@ -225,7 +258,7 @@ h2 {
 }
 
 .error-message {
-  color: #dc2626; /* Rojo para el mensaje de error */
+  color: #dc2626;
   margin-bottom: 10px;
 }
 </style>
