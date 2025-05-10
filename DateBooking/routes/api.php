@@ -19,7 +19,9 @@ Route::get('/test', function () {
 });
 
 // Rutas de usuarios
-Route::prefix('usuarios')->group(function () {
+Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
+    Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
+    Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
 }); 

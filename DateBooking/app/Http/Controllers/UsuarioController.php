@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class UsuarioController extends Controller
@@ -64,6 +65,96 @@ class UsuarioController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al crear el usuario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Actualiza el estado activo del usuario
+     */
+    public function updateActivo(Request $request, $uid)
+    {
+        Log::info('Intentando actualizar estado de usuario', ['uid' => $uid]);
+
+        try {
+            $usuario = Usuario::where('uid', $uid)->first();
+            
+            if (!$usuario) {
+                Log::error('Usuario no encontrado', ['uid' => $uid]);
+                return response()->json([
+                    'message' => 'Usuario no encontrado',
+                    'uid' => $uid
+                ], 404);
+            }
+
+            Log::info('Usuario encontrado', ['usuario' => $usuario->toArray()]);
+
+            $usuario->activo = 0;
+            $usuario->save();
+
+            Log::info('Estado de usuario actualizado correctamente', [
+                'uid' => $uid,
+                'activo' => $usuario->activo
+            ]);
+
+            return response()->json([
+                'message' => 'Estado actualizado correctamente',
+                'usuario' => $usuario
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar estado de usuario', [
+                'uid' => $uid,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Error al actualizar el estado del usuario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Activa un usuario cuando inicia sesión
+     */
+    public function activarUsuario(Request $request, $uid)
+    {
+        Log::info('Intentando activar usuario', ['uid' => $uid]);
+
+        try {
+            $usuario = Usuario::where('uid', $uid)->first();
+            
+            if (!$usuario) {
+                Log::error('Usuario no encontrado para activar', ['uid' => $uid]);
+                return response()->json([
+                    'message' => 'Usuario no encontrado',
+                    'uid' => $uid
+                ], 404);
+            }
+
+            $usuario->activo = 1;
+            $usuario->save();
+
+            Log::info('Usuario activado correctamente', [
+                'uid' => $uid,
+                'activo' => $usuario->activo
+            ]);
+
+            return response()->json([
+                'message' => 'Usuario activado correctamente',
+                'usuario' => $usuario
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error al activar usuario', [
+                'uid' => $uid,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Error al activar el usuario',
                 'error' => $e->getMessage()
             ], 500);
         }
