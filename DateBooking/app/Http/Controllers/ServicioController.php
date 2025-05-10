@@ -13,7 +13,6 @@ class ServicioController extends Controller
         $servicios = Servicio::with('disponibilidad')->get();
         return response()->json($servicios);
     }
-
     // crear nuevo servicio
     public function store(Request $request)
     {
@@ -34,5 +33,19 @@ class ServicioController extends Controller
         ]);
 
         return response()->json($servicio, 201);
+    }
+}
+  
+    public function search($search)
+    {
+        return Servicio::where('nombre', 'like', '%' . $search . '%')
+            ->get();
+    }
+
+    public function categoria($search, $categoria)
+    {
+        return Servicio::where('nombre', 'like', '%' . $search . '%')
+            ->where('categoria', 'like', '%' . $categoria . '%')
+            ->get();
     }
 }

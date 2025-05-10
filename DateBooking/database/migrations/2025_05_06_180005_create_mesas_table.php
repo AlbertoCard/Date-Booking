@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('id_servicio');
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
             $table->unsignedTinyInteger('personas');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
