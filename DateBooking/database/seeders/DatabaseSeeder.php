@@ -4,7 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\Disponibilidad;
 use App\Models\Establecimiento;
-use App\Models\estbXusuario;
+use App\Models\EstabXusuario;
+use App\Models\Habitacione;
+use App\Models\Lugare;
+use App\Models\Medico;
+use App\Models\Mesa;
 use App\Models\Servicio;
 use App\Models\User;
 use App\Models\Usuario;
@@ -22,8 +26,8 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        estbXusuario::factory(10);
-        Servicio::factory(20);
+        EstabXusuario::factory(10)->create();
+        Servicio::factory(20)->create();
 
         //asignar disponibilidad a los servicios
         $hoteles = Servicio::where('categoria', 'hotel')->get();
@@ -44,6 +48,9 @@ class DatabaseSeeder extends Seeder
                 'tipo' => 'recurrente',
                 'activo' => 1,
             ]);
+            Habitacione::factory(5)->create([
+                'id_servicio' => $hotel->id,
+            ]);
         }
 
         foreach ($eventos as $evento) {
@@ -56,6 +63,9 @@ class DatabaseSeeder extends Seeder
                 'dias' => enum_value('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'),
                 'tipo' => 'unica',
                 'activo' => 1,
+            ]);
+            Lugare::factory(5)->create([
+                'id_servicio' => $evento->id,
             ]);
         }
 
@@ -72,6 +82,9 @@ class DatabaseSeeder extends Seeder
                 'tipo' => 'recurrente',
                 'activo' => 1,
             ]);
+            Medico::factory(5)->create([
+                'id_servicio' => $consultorio->id,
+            ]);
         }
 
         foreach ($restaurantes as $restaurante) {
@@ -86,6 +99,9 @@ class DatabaseSeeder extends Seeder
                 'dias' => enum_value('lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'),
                 'tipo' => 'recurrente',
                 'activo' => 1,
+            ]);
+            Mesa::factory(5)->create([
+                'id_servicio' => $restaurante->id,
             ]);
         }
 
