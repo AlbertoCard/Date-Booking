@@ -18,8 +18,8 @@ class EstabXUsuarioFactory extends Factory
     {
         return [
             //tomar uid de usuario y el id de establecimiento
-            'usuario_id' => \App\Models\Usuario::factory(),
-            'establecimiento_id' => \App\Models\Establecimiento::factory(),
+            'id_usuario' => \App\Models\Usuario::factory()->create()->uid,
+            'id_establecimiento' => \App\Models\Establecimiento::factory(),
         ];
     }
 }

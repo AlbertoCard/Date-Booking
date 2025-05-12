@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('fila', 5);
             $table->unsignedInteger('numero');
             $table->string('sector', 50);
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

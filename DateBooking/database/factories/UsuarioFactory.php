@@ -24,7 +24,6 @@ class UsuarioFactory extends Factory
             'telefono' => $this->faker->phoneNumber(),
             'foto_url' => "",
             'rol'=> $this->faker->randomElement(['establecimiento', 'establecimiento']),
-            'fecha_creacion' => $this->faker->dateTime(),
             'activo' => 1,
         ];
     }

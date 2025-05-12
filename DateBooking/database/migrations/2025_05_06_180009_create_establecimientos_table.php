@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('pais', 100)->default('Sin país');
             $table->unsignedInteger('id_estado')->default(0);
             $table->string('stripe_account_id')->default('Sin cuenta');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

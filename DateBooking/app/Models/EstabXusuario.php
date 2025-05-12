@@ -9,5 +9,5 @@ class EstabXusuario extends Model
 {
     //
     use HasFactory;
-    protected $table = 'estb_Xusuario';
+    protected $table = 'estb_xusuario';
 }

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('telefono', 20)->default('0000000000');
             $table->text('foto_url');
             $table->string('rol', 20)->default('cliente');
-            $table->dateTime('fecha_creacion')->default(now());
             $table->tinyInteger('activo');
+            $table->timestamps();
         });
     }
 

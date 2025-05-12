@@ -20,7 +20,7 @@ class ServicioFactory extends Factory
             'id_establecimiento' => $this->faker->numberBetween(1, 10),
             'nombre' => $this->faker->word(),
             'descripcion' => $this->faker->sentence(),
-            'precio' => $this->faker->randomFloat(2, 10, 100),
+            'costo' => $this->faker->randomFloat(2, 10, 100),
             'categoria' => $this->faker->randomElement(['restaurante', 'hotel', 'evento', 'consultorio']),
         ];
     }
