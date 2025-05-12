@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('nombre');
             $table->text('descripcion');
             $table->decimal('Costo', 10, 2);
+            $table->string('categoria');
         });
 
         Schema::enableForeignKeyConstraints();
