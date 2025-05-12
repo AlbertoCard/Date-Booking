@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Establecimiento;
+use App\Models\estbXusuario;
+use App\Models\Servicio;
 use App\Models\User;
 use App\Models\Usuario;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -17,9 +19,9 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        Usuario::factory(10);
-        Establecimiento::factory(10);
+        estbXusuario::factory(10);
 
+        Servicio::factory();
 
     }
 }
