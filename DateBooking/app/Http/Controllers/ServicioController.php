@@ -10,6 +10,6 @@ class ServicioController extends Controller
     // lista de servicios
     public function index()
     {
-        return Servicio::all();
+        return response()->json(Servicio::all());
     }
 }
