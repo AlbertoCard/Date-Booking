@@ -3,7 +3,7 @@
   <div class="contenedor">
         <!-- Encabezado -->
         <div class="encabezado">
-            <h1>Recomendaciones</h1>
+            <h1>"{{ searchText }}"</h1>
         </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
@@ -34,16 +34,18 @@ import axios from 'axios';
     data() {
       return {
         servicios: [],
+        searchText: this.$route.params.search, // Obtener el parámetro del URL
       };
     },
     mounted() {
-      axios.get('/api/servicios')
-        .then(response => {
-          this.servicios = response.data;
-        })
-        .catch(error => {
-          console.error('Error fetching servicios:', error);
-        });
+    const search = this.$route.params.search; // Obtener el parámetro del URL
+    axios.get(`/api/servicios/` + search)
+      .then(response => {
+        this.servicios = response.data;
+      })
+      .catch(error => {
+        console.error('Error fetching servicios:', error);
+      });
     },
     methods: {
       

@@ -12,4 +12,10 @@ class ServicioController extends Controller
     {
         return Servicio::all();
     }
+
+    public function search($search)
+    {
+        return Servicio::where('nombre', 'like', '%' . $search . '%')
+            ->get();
+    }
 }
