@@ -6,6 +6,7 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioController extends Controller
 {
@@ -18,6 +19,7 @@ class UsuarioController extends Controller
             $usuarios = Usuario::all();
             return response()->json(['usuarios' => $usuarios]);
         } catch (\Exception $e) {
+            Log::error('Error al obtener usuarios', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Error al obtener usuarios',
                 'error' => $e->getMessage()
@@ -30,32 +32,48 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('Intentando crear usuario', ['datos' => $request->all()]);
+
         // Validar los datos recibidos
         $validator = Validator::make($request->all(), [
             'uid' => 'required|string|max:128',
             'nombre' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'telefono' => 'string|max:20',
+            'telefono' => 'nullable|string|max:20',
             'foto_url' => 'required|string',
-            'rol' => 'string|max:20',
+            'rol' => 'required|string|in:cliente,establecimiento'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            Log::error('Error de validación al crear usuario', ['errores' => $validator->errors()]);
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
+        DB::beginTransaction();
+
         try {
-            // Crear el usuario con los datos validados
-            $usuario = Usuario::create([
+            // Preparar los datos para crear el usuario
+            $userData = [
                 'uid' => $request->uid,
                 'nombre' => $request->nombre,
                 'email' => $request->email,
                 'telefono' => $request->telefono ?? '0000000000',
                 'foto_url' => $request->foto_url,
-                'rol' => $request->rol ?? 'cliente',
-                'fecha_creacion' => now(),
+                'rol' => $request->rol,
                 'activo' => 1
-            ]);
+            ];
+
+            Log::info('Datos preparados para crear usuario', ['userData' => $userData]);
+
+            // Crear el usuario
+            $usuario = Usuario::create($userData);
+
+            DB::commit();
+
+            Log::info('Usuario creado exitosamente', ['usuario' => $usuario]);
 
             return response()->json([
                 'message' => 'Usuario creado exitosamente',
@@ -63,6 +81,14 @@ class UsuarioController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Error al crear usuario', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'datos' => $request->all()
+            ]);
+
             return response()->json([
                 'message' => 'Error al crear el usuario',
                 'error' => $e->getMessage()

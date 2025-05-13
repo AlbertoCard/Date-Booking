@@ -6,5 +6,27 @@ use Illuminate\Database\Eloquent\Model;
 
 class Establecimiento extends Model
 {
-    //
+    public $timestamps = false;
+    
+    protected $table = 'establecimientos';
+    
+    protected $primaryKey = 'id_establecimiento';
+
+    protected $fillable = [
+        'nombre',
+        'telefono',
+        'direccion',
+        'rfc',
+        'estado',
+        'codigo_postal',
+        'pais',
+        'id_estado',
+        'stripe_account_id'
+    ];
+
+    // Relación muchos a muchos con usuarios
+    public function usuarios()
+    {
+        return $this->belongsToMany(Usuario::class, 'estb_xusuario', 'id_establecimiento', 'id_usuario');
+    }
 }

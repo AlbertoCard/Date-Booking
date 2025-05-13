@@ -1,12 +1,13 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import Inicio from "./components/Inicio.vue";
-import Nosotros from "./components/Nosotros.vue";
-import NotFound from "./components/NotFound.vue";
-import Login from "./components/Login.vue";
-import RestablecerContraseña from "./components/RestablecerContraseña.vue";
-import Dashboard from "./components/Dashboard.vue";
-import Registro from "./components/Registro.vue";
+import Inicio from "./Components/Inicio.vue";
+import Nosotros from "./Components/Nosotros.vue";
+import NotFound from "./Components/NotFound.vue";
+import Login from "./Components/Login.vue";
+import RestablecerContraseña from "./Components/RestablecerContraseña.vue";
+import DashboardCliente from "./Components/DashboardCliente.vue";
+import DashboardEstablecimiento from "./Components/DashboardEstablecimiento.vue";
+import Registro from "./Components/Registro.vue";
 // import Registro from "./components/Registro.vue";
 const routes = [
   { path: "/", component: Inicio },
@@ -14,7 +15,8 @@ const routes = [
   { path: "/nosotros", component: Nosotros },
   { path: "/:pathMatch(.*)*", component: NotFound },
   { path: "/login", component: Login },
-  { path: "/dashboard", component: Dashboard },
+  { path: "/dashboard-cliente", component: DashboardCliente },
+  { path: "/dashboard-establecimiento", component: DashboardEstablecimiento },
   { path: "/reset-password", component: RestablecerContraseña },
   { path: "/registro", component: Registro },
 ];
@@ -24,6 +26,19 @@ const history = createWebHistory();
 const router = createRouter({
   history,
   routes,
+});
+
+// Middleware de autenticación
+router.beforeEach(async (to, from, next) => {
+  const publicPages = ['/', '/inicio', '/nosotros', '/login', '/registro', '/reset-password'];
+  const authRequired = !publicPages.includes(to.path);
+  const auth = await import('./firebase').then(module => module.auth);
+  
+  if (authRequired && !auth.currentUser) {
+    next('/login');
+  } else {
+    next();
+  }
 });
 
 export default router;

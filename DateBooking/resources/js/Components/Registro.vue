@@ -10,8 +10,6 @@ const nombre = ref('')
 const correo = ref('')
 const telefono = ref('')
 const contrasena = ref('')
-const direccion = ref('')
-const categoria = ref('')
 const error = ref('')
 const loading = ref(false)
 const router = useRouter()
@@ -24,6 +22,28 @@ const registrar = async () => {
   loading.value = true
 
   try {
+    // Validaciones básicas
+    if (!nombre.value.trim()) {
+      error.value = 'El nombre es requerido'
+      return
+    }
+    if (!correo.value.trim()) {
+      error.value = 'El correo electrónico es requerido'
+      return
+    }
+    if (!telefono.value.trim()) {
+      error.value = 'El teléfono es requerido'
+      return
+    }
+    if (telefono.value.length !== 10) {
+      error.value = 'El teléfono debe tener 10 dígitos'
+      return
+    }
+    if (!contrasena.value || contrasena.value.length < 6) {
+      error.value = 'La contraseña debe tener al menos 6 caracteres'
+      return
+    }
+
     // 1. Crear usuario en Firebase
     const userCredential = await createUserWithEmailAndPassword(auth, correo.value, contrasena.value)
     const user = userCredential.user
@@ -36,24 +56,60 @@ const registrar = async () => {
 
     // 3. Guardar datos adicionales en nuestra base de datos
     try {
-      const response = await axios.post('/api/usuarios', {
+      console.log('Enviando datos al servidor:', {
         uid: user.uid,
         nombre: nombre.value,
         email: correo.value,
         telefono: telefono.value,
         foto_url: fotoUrl.value,
-        rol: activeTab.value, // 'cliente' o 'establecimiento'
-        direccion: direccion.value,
-        categoria: categoria.value
+        rol: activeTab.value
       })
 
-      console.log('Usuario guardado en la base de datos:', response.data)
+      // Primero creamos el usuario
+      const usuarioResponse = await axios.post('/api/usuarios', {
+        uid: user.uid,
+        nombre: nombre.value,
+        email: correo.value,
+        telefono: telefono.value,
+        foto_url: fotoUrl.value,
+        rol: activeTab.value
+      })
+
+      console.log('Respuesta del servidor (usuario):', usuarioResponse.data)
+
+      // Si es un establecimiento, creamos también el establecimiento
+      if (activeTab.value === 'establecimiento') {
+        console.log('Creando establecimiento...')
+        const establecimientoResponse = await axios.post('/api/establecimientos', {
+          nombre: nombre.value,
+          telefono: telefono.value,
+          direccion: 'Sin dirección',
+          id_usuario: user.uid
+        })
+        console.log('Respuesta del servidor (establecimiento):', establecimientoResponse.data)
+      }
       
-      // 4. Redireccionar al dashboard
-      router.push('/dashboard')
+      // 4. Redireccionar al dashboard correspondiente
+      if (activeTab.value === 'establecimiento') {
+        router.push('/dashboard-establecimiento')
+      } else {
+        router.push('/dashboard-cliente')
+      }
     } catch (apiError) {
       console.error('Error al guardar en la base de datos:', apiError)
-      error.value = 'Error al guardar los datos: ' + (apiError.response?.data?.message || apiError.message)
+      if (apiError.response) {
+        console.error('Respuesta del servidor:', apiError.response.data)
+        error.value = 'Error al guardar los datos: ' + (apiError.response.data.message || apiError.response.data.error || apiError.message)
+      } else {
+        error.value = 'Error al guardar los datos: ' + apiError.message
+      }
+
+      // Si hay error, intentar limpiar el usuario de Firebase
+      try {
+        await user.delete()
+      } catch (deleteError) {
+        console.error('Error al eliminar usuario de Firebase:', deleteError)
+      }
     }
   } catch (firebaseError) {
     console.error('Error con Firebase:', firebaseError)
@@ -182,32 +238,6 @@ const validarTelefono = () => {
                   required 
                 />
               </div>
-
-              <!-- Campos adicionales para establecimiento -->
-              <template v-if="activeTab === 'establecimiento'">
-                <div class="form-group">
-                  <label for="direccion">Dirección del establecimiento</label>
-                  <input 
-                    v-model="direccion" 
-                    type="text" 
-                    id="direccion" 
-                    placeholder="Dirección completa" 
-                    required 
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="categoria">Categoría del negocio</label>
-                  <select v-model="categoria" id="categoria" required>
-                    <option value="">Selecciona una categoría</option>
-                    <option value="belleza">Belleza</option>
-                    <option value="salud">Salud</option>
-                    <option value="deportes">Deportes</option>
-                    <option value="restaurante">Restaurante</option>
-                    <option value="otros">Otros</option>
-                  </select>
-                </div>
-              </template>
 
               <div class="form-group">
                 <label for="contrasena">Contraseña</label>
