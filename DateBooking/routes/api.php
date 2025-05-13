@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ServicioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
@@ -20,7 +19,7 @@ Route::get('/test', function () {
 });
 
 // Rutas de usuarios
-Route::prefix('usuarios')->group(function () {
+Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
     Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
