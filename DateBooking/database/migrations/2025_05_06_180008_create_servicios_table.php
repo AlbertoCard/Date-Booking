@@ -21,6 +21,8 @@ return new class extends Migration
             $table->text('descripcion');
             $table->decimal('costo', 10, 2);
             $table->string('categoria');
+            $table->unsignedInteger('id_ciudad');
+            $table->foreign('id_ciudad')->references('id_ciudad')->on('ciudades');
             $table->timestamps();
         });
 

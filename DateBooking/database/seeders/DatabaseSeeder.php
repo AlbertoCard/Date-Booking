@@ -27,6 +27,10 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        $this->call(PaisSeeder::class);
+        $this->call(EstadoSeeder::class);
+        $this->call(CiudadSeeder::class);
+
         EstabXusuario::factory(10)->create();
         Servicio::factory(20)->create();
 

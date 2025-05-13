@@ -21,6 +21,7 @@ class Usuario extends Model
     
     // Especificamos que la llave primaria es un string
     protected $keyType = 'string';
+    public $incrementing = false;
 
     // Campos que se pueden llenar masivamente
     protected $fillable = [

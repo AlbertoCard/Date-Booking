@@ -16,10 +16,11 @@ class EstabXUsuarioFactory extends Factory
      */
     public function definition(): array
     {
+        $usuario = \App\Models\Usuario::factory()->create();
+
         return [
-            //tomar uid de usuario y el id de establecimiento
-            'id_usuario' => \App\Models\Usuario::factory()->create()->uid,
-            'id_establecimiento' => \App\Models\Establecimiento::factory(),
+            'id_usuario' => $usuario->uid,
+            'id_establecimiento' => \App\Models\Establecimiento::factory()->create()->id,
         ];
     }
 }

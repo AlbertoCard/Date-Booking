@@ -23,8 +23,6 @@ class EstablecimientoFactory extends Factory
             'direccion' => $this->faker->address(),
             'rfc' => $this->faker->unique()->regexify('[A-Z0-9]{13}'),
             'estado' => $this->faker->randomElement(['activo', 'inactivo']),
-            'codigo_postal' => $this->faker->postcode(),
-            'pais' => $this->faker->country(),
             'stripe_account_id'=> "",  
         ];
     }
