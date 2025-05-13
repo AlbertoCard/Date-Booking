@@ -10,10 +10,13 @@ const nombre = ref('')
 const correo = ref('')
 const telefono = ref('')
 const contrasena = ref('')
+const direccion = ref('')
+const categoria = ref('')
 const error = ref('')
 const loading = ref(false)
 const router = useRouter()
 const fotoUrl = ref('https://via.placeholder.com/150') // URL por defecto para la foto
+const activeTab = ref('cliente')
 
 // Función de registro
 const registrar = async () => {
@@ -39,7 +42,9 @@ const registrar = async () => {
         email: correo.value,
         telefono: telefono.value,
         foto_url: fotoUrl.value,
-        rol: activeTab.value // 'cliente' o 'establecimiento'
+        rol: activeTab.value, // 'cliente' o 'establecimiento'
+        direccion: direccion.value,
+        categoria: categoria.value
       })
 
       console.log('Usuario guardado en la base de datos:', response.data)
@@ -73,8 +78,6 @@ const registrar = async () => {
   }
 }
 
-const activeTab = ref('cliente') // Por defecto, mostrar la pestaña de cliente
-
 // Validación de contraseña
 const validarContrasena = () => {
   if (contrasena.value.length < 6) {
@@ -96,249 +99,508 @@ const validarTelefono = () => {
 </script>
 
 <template>
-  <div class="container">
-    <h1>¡Te damos la bienvenida a Date-Boking!</h1>
-    <h2>Regístrate como Cliente o como Establecimiento</h2>
-
-    <div class="tab-container">
-      <button
-        class="tab"
-        :class="{ active: activeTab === 'cliente' }"
-        @click="activeTab = 'cliente'"
-      >
-        Cliente
-      </button>
-      <button
-        class="tab"
-        :class="{ active: activeTab === 'establecimiento' }"
-        @click="activeTab = 'establecimiento'"
-      >
-        Establecimiento
-      </button>
-    </div>
-
-    <div class="tab-content active">
-      <div class="form-layout client">
-        <div class="image-placeholder">Imagen</div>
-        <div class="form-container">
-          <h2 class="form-title">Registro de Cliente</h2>
-          <form @submit.prevent="registrar">
-            <div class="form-group">
-              <label for="nombre">Nombre completo</label>
-              <input 
-                v-model="nombre" 
-                type="text" 
-                id="nombre" 
-                placeholder="Tu nombre completo" 
-                required 
-              />
-              <span class="checkmark">&#10004;</span>
-            </div>
-            <div class="form-group">
-              <label for="correo">Ingresa tu correo</label>
-              <input 
-                v-model="correo" 
-                type="email" 
-                id="correo" 
-                placeholder="Tu correo" 
-                required 
-              />
-              <span class="checkmark">&#10004;</span>
-            </div>
-            <div class="form-group">
-              <label for="telefono">Teléfono</label>
-              <input 
-                v-model="telefono" 
-                type="tel" 
-                id="telefono" 
-                placeholder="Tu número de teléfono" 
-                required 
-              />
-              <span class="checkmark">&#10004;</span>
-            </div>
-            <div class="form-group">
-              <label for="contrasena">Ingresa una contraseña</label>
-              <input
-                v-model="contrasena"
-                type="password"
-                id="contrasena"
-                placeholder="Tu contraseña"
-                required
-              />
-              <span class="checkmark">&#10004;</span>
-            </div>
-            
-            <div v-if="error" class="error-message">{{ error }}</div>
-            <div class="checkbox-group">
-              <input type="checkbox" id="terminos" required />
-              <label for="terminos">Acepta los términos y condiciones</label>
-            </div>
-            <button 
-              type="submit" 
-              class="register-button"
-              :disabled="loading"
-            >
-              {{ loading ? 'Registrando...' : 'Registrarse' }}
-            </button>
-          </form>
-        </div>
+  <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white flex items-center justify-center p-6">
+    <div class="container">
+      <div class="tab-container">
+        <button
+          class="tab"
+          :class="{ active: activeTab === 'cliente' }"
+          @click="activeTab = 'cliente'"
+        >
+          Cliente
+        </button>
+        <button
+          class="tab"
+          :class="{ active: activeTab === 'establecimiento' }"
+          @click="activeTab = 'establecimiento'"
+        >
+          Establecimiento
+        </button>
       </div>
+
+      <Transition name="slide-fade" mode="out-in">
+        <div :key="activeTab" class="content-wrapper" :class="{ 'reverse': activeTab === 'establecimiento' }">
+          <!-- Lado Imagen -->
+          <div class="image-side">
+            <div class="image-container">
+              <img 
+                :src="activeTab === 'cliente' ? 
+                  'https://img.freepik.com/free-vector/appointment-booking-with-calendar_23-2148553008.jpg' : 
+                  'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_23-2148547718.jpg'"
+                :alt="activeTab === 'cliente' ? 'Cliente Registro' : 'Establecimiento Registro'"
+                class="featured-image"
+              />
+            </div>
+            <h3 class="image-title">
+              {{ activeTab === 'cliente' ? 'Reserva tus citas fácilmente' : 'Gestiona tu negocio' }}
+            </h3>
+            <p class="image-description">
+              {{ activeTab === 'cliente' ? 
+                'Encuentra y agenda citas con tus establecimientos favoritos' : 
+                'Administra tus reservas y horarios de manera eficiente' }}
+            </p>
+          </div>
+
+          <!-- Lado Formulario -->
+          <div class="form-side">
+            <h2 class="form-title">
+              {{ activeTab === 'cliente' ? 'Registro de Cliente' : 'Registro de Establecimiento' }}
+            </h2>
+
+            <form @submit.prevent="registrar" class="registration-form">
+              <div class="form-group">
+                <label for="nombre">
+                  {{ activeTab === 'cliente' ? 'Nombre completo' : 'Nombre del establecimiento' }}
+                </label>
+                <input 
+                  v-model="nombre" 
+                  type="text" 
+                  id="nombre" 
+                  :placeholder="activeTab === 'cliente' ? 'Tu nombre completo' : 'Nombre de tu negocio'" 
+                  required 
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="correo">Correo electrónico</label>
+                <input 
+                  v-model="correo" 
+                  type="email" 
+                  id="correo" 
+                  placeholder="correo@ejemplo.com" 
+                  required 
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="telefono">Teléfono de contacto</label>
+                <input 
+                  v-model="telefono" 
+                  type="tel" 
+                  id="telefono" 
+                  placeholder="10 dígitos" 
+                  required 
+                />
+              </div>
+
+              <!-- Campos adicionales para establecimiento -->
+              <template v-if="activeTab === 'establecimiento'">
+                <div class="form-group">
+                  <label for="direccion">Dirección del establecimiento</label>
+                  <input 
+                    v-model="direccion" 
+                    type="text" 
+                    id="direccion" 
+                    placeholder="Dirección completa" 
+                    required 
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="categoria">Categoría del negocio</label>
+                  <select v-model="categoria" id="categoria" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="belleza">Belleza</option>
+                    <option value="salud">Salud</option>
+                    <option value="deportes">Deportes</option>
+                    <option value="restaurante">Restaurante</option>
+                    <option value="otros">Otros</option>
+                  </select>
+                </div>
+              </template>
+
+              <div class="form-group">
+                <label for="contrasena">Contraseña</label>
+                <input
+                  v-model="contrasena"
+                  type="password"
+                  id="contrasena"
+                  placeholder="Mínimo 6 caracteres"
+                  required
+                />
+              </div>
+              
+              <div v-if="error" class="error-message">
+                {{ error }}
+              </div>
+
+              <div class="terms-group">
+                <input type="checkbox" id="terminos" required />
+                <label for="terminos">
+                  Acepto los términos y condiciones
+                </label>
+              </div>
+
+              <button 
+                type="submit" 
+                class="submit-button"
+                :disabled="loading"
+              >
+                {{ loading ? 'Procesando...' : 'Crear cuenta' }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 </template>
 
 <style scoped>
 .container {
-  background-color: #f4f4f4;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 30px;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 600px;
-  margin: 20px auto;
-  text-align: center;
-}
-
-h1 {
-  color: #333;
-  margin-bottom: 15px;
-}
-
-h2 {
-  color: #666;
-  font-size: 1em;
-  margin-bottom: 20px;
+  max-width: 1200px;
+  margin: 20px;
+  overflow: hidden;
 }
 
 .tab-container {
   display: flex;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  background: linear-gradient(to right, #f8fafc, #f1f5f9);
 }
 
 .tab {
-  padding: 10px 20px;
-  cursor: pointer;
+  padding: 12px 30px;
   border: none;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #64748b;
   background-color: transparent;
-  font-weight: bold;
-  color: #777;
-  border-radius: 5px 5px 0 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .tab.active {
-  background-color: #eee;
-  color: #333;
+  background-color: #2563eb;
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
-.tab-content {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 6px;
-  margin-bottom: 20px;
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #2563eb;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
-.form-layout {
+.tab.active::after {
+  transform: scaleX(1);
+}
+
+.tab:hover:not(.active) {
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+.content-wrapper {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  min-height: 600px;
+  transition: all 0.5s ease-in-out;
+  position: relative;
 }
 
-.image-placeholder {
-  width: 100px;
-  height: 100px;
-  border: 1px dashed #ccc;
+.content-wrapper.reverse {
+  flex-direction: row-reverse;
+}
+
+.image-side {
+  flex: 1;
+  padding: 40px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  color: #999;
-  border-radius: 5px;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 }
 
-.form-container {
-  flex-grow: 1;
-  text-align: left;
+.image-container {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+
+.featured-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.image-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 10px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.image-description {
+  font-size: 1rem;
+  color: #64748b;
+  text-align: center;
+  max-width: 80%;
+  transition: all 0.3s ease;
+}
+
+.form-side {
+  flex: 1;
+  padding: 40px;
+  background-color: white;
 }
 
 .form-title {
-  font-size: 1.5em;
-  margin-bottom: 15px;
-  color: #333;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 30px;
   text-align: center;
 }
 
+.registration-form {
+  max-width: 450px;
+  margin: 0 auto;
+}
+
 .form-group {
-  margin-bottom: 15px;
-  position: relative;
+  margin-bottom: 20px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #555;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #334155;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="tel"],
-.form-group input[type="password"] {
-  width: calc(100% - 30px);
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
-.form-group .checkmark {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: green;
-  font-size: 1.2em;
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
 }
 
-.checkbox-group {
-  margin-bottom: 15px;
+.terms-group {
   display: flex;
   align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.checkbox-group input[type="checkbox"] {
-  margin-right: 8px;
+.terms-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
 }
 
-.checkbox-group label {
-  color: #555;
-}
-
-.register-button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px 25px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s ease;
+.submit-button {
   width: 100%;
+  padding: 14px;
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.register-button:hover {
-  background-color: #0056b3;
+.submit-button:hover {
+  background: linear-gradient(to right, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
 }
 
-.register-button:disabled {
-  background-color: #cccccc;
+.submit-button:disabled {
+  background: #94a3b8;
   cursor: not-allowed;
+  transform: none;
+}
+
+.submit-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: translateX(-100%);
+}
+
+.submit-button:hover::after {
+  transition: transform 0.7s ease;
+  transform: translateX(100%);
 }
 
 .error-message {
-  color: #dc2626;
+  padding: 12px;
   background-color: #fee2e2;
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  text-align: left;
+  border-radius: 8px;
+  color: #dc2626;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+  
+  .content-wrapper.reverse {
+    flex-direction: column;
+  }
+
+  .image-side {
+    padding: 20px;
+  }
+
+  .form-side {
+    padding: 20px;
+  }
+
+  .container {
+    margin: 10px;
+  }
+}
+
+/* Animaciones de transición */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* Ajuste para la dirección de la animación cuando está en reverse */
+.reverse .slide-fade-enter-from {
+  transform: translateX(30px);
+}
+
+.reverse .slide-fade-leave-to {
+  transform: translateX(-30px);
+}
+
+/* Mejora en la transición del tab activo */
+.tab {
+  position: relative;
+  overflow: hidden;
+}
+
+.tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #2563eb;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tab.active::after {
+  transform: scaleX(1);
+}
+
+/* Mejora en la transición de hover de los tabs */
+.tab:hover:not(.active) {
+  background-color: rgba(37, 99, 235, 0.1);
+}
+
+/* Animación suave para el contenido interno */
+.form-group,
+.image-container,
+.image-title,
+.image-description {
+  transition: all 0.3s ease;
+}
+
+.content-wrapper {
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+/* Efecto de elevación suave al hover en elementos interactivos */
+.form-group input:hover,
+.form-group select:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.featured-image {
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.image-side:hover .featured-image {
+  transform: scale(1.02);
+  box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15);
+}
+
+/* Animación para el botón de submit */
+.submit-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: translateX(-100%);
+}
+
+.submit-button:hover::after {
+  transition: transform 0.7s ease;
+  transform: translateX(100%);
 }
 </style>
