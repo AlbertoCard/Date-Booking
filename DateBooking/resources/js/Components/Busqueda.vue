@@ -25,6 +25,31 @@
             </div>
         </div>
     </div>
+    <div class="contenedor">
+        <!-- Encabezado -->
+        <div class="encabezado">
+            <h1>Recomendaciones</h1>
+        </div>
+        <!-- Lista de servicios -->
+        <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio">
+            <!-- Imagen o ícono -->
+            <div class="imagen"></div>
+
+            <!-- Contenido -->
+            <div class="info-servicio">
+                <h2>{{ recomendacion.nombre }}</h2>
+                <p class="descripcion">{{ recomendacion.descripcion }}</p>
+            </div>
+            <!-- Precio y estrellas -->
+            <div class="precio-estrellas">
+                <p class="precio">${{ recomendacion.costo }}</p>
+                <p class="estrellas">
+                    <span v-for="i in 5" :key="i">
+                        {{ i <= recomendacion.estrellas ? '★' : '☆' }} </span>
+                </p>
+            </div>
+        </div>
+    </div>
 </template>
   
   <script>
@@ -34,21 +59,29 @@ import axios from 'axios';
     data() {
       return {
         servicios: [],
+        recomendaciones: [],
         searchText: this.$route.params.search, // Obtener el parámetro del URL
       };
     },
     mounted() {
-    const search = this.$route.params.search; // Obtener el parámetro del URL
-    axios.get(`/api/servicios/` + search)
-      .then(response => {
-        this.servicios = response.data;
-      })
-      .catch(error => {
-        console.error('Error fetching servicios:', error);
-      });
+        const search = this.$route.params.search; // Obtener el parámetro del URL
+        axios.get(`/api/servicios/` + search)
+        .then(response => {
+            this.servicios = response.data;
+        })
+        .catch(error => {
+            console.error('Error fetching servicios:', error);
+        });
+        axios.get('/api/servicios')
+        .then(response => {
+          this.recomendaciones = response.data;
+        })
+        .catch(error => {
+          console.error('Error fetching servicios:', error);
+        });
     },
     methods: {
-      
+    
     },
   
   }
