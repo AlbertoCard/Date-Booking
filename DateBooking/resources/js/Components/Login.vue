@@ -154,7 +154,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import axios from 'axios';
 
@@ -243,6 +243,17 @@ const loginWithGoogle = async () => {
   } catch (error) {
     alert('Error con Google Sign-In: ' + error.message);
     console.error(error);
+  }
+};
+
+const cerrarSesion = async () => {
+  try {
+    await signOut(auth);
+    // Limpiar el rol almacenado
+    localStorage.removeItem('userRole');
+    router.push('/login');
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
   }
 };
 </script>
