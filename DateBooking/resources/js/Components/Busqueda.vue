@@ -6,35 +6,39 @@
         <div class="encabezado">
             <h1>"{{ searchText }}"</h1>
             <!-- select para seleccionar la categoria -->
-            <fieldset>
-                <div class="button-group">
-                    <input type="radio" id="todos" name="categorias" value="todos" v-model="categoriaSeleccionada" />
-                    <label for="todos">Todos</label>
-                </div>
+            <div class="filtros">
+                <fieldset>
+                    <div class="button-group">
+                        <input type="radio" id="todos" name="categorias" value="todos"
+                            v-model="categoriaSeleccionada" />
+                        <label for="todos">Todos</label>
+                    </div>
 
-                <div class="button-group">
-                    <input type="radio" id="restaurante" name="categorias" value="restaurante"
-                        v-model="categoriaSeleccionada" />
-                    <label for="restaurante">Restaurante</label>
-                </div>
+                    <div class="button-group">
+                        <input type="radio" id="restaurante" name="categorias" value="restaurante"
+                            v-model="categoriaSeleccionada" />
+                        <label for="restaurante">Restaurante</label>
+                    </div>
 
-                <div class="button-group">
-                    <input type="radio" id="hotel" name="categorias" value="hotel" v-model="categoriaSeleccionada" />
-                    <label for="hotel">Hotel</label>
-                </div>
+                    <div class="button-group">
+                        <input type="radio" id="hotel" name="categorias" value="hotel"
+                            v-model="categoriaSeleccionada" />
+                        <label for="hotel">Hotel</label>
+                    </div>
 
-                <div class="button-group">
-                    <input type="radio" id="eventos" name="categorias" value="evento"
-                        v-model="categoriaSeleccionada" />
-                    <label for="eventos">Eventos</label>
-                </div>
+                    <div class="button-group">
+                        <input type="radio" id="eventos" name="categorias" value="evento"
+                            v-model="categoriaSeleccionada" />
+                        <label for="eventos">Eventos</label>
+                    </div>
 
-                <div class="button-group">
-                    <input type="radio" id="consultorios" name="categorias" value="consultorio"
-                        v-model="categoriaSeleccionada" />
-                    <label for="consultorios">Consultorios</label>
-                </div>
-            </fieldset>
+                    <div class="button-group">
+                        <input type="radio" id="consultorios" name="categorias" value="consultorio"
+                            v-model="categoriaSeleccionada" />
+                        <label for="consultorios">Consultorios</label>
+                    </div>
+                </fieldset>
+            </div>
         </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
@@ -55,8 +59,6 @@
                 </p>
             </div>
         </div>
-    </div>
-    <div class="contenedor">
         <!-- Encabezado -->
         <div class="encabezado">
             <h1>Mas opciones</h1>
@@ -304,15 +306,30 @@ export default {
 fieldset {
     border: 0;
     display: flex;
+    overflow: hidden;
 }
 
-
+.filtros {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
 
 
 
 /* Responsivo */
 @media (max-width: 768px) {
+
+    .encabezado {
+        gap: 50px;
+        overflow: hidden;
+    }
+
+    .filtros {
+        overflow: scroll;
+    }
+
     .tarjeta-servicio {
         flex-direction: column;
         align-items: center;
@@ -329,14 +346,15 @@ fieldset {
         align-self: center;
         margin-top: 8px;
     }
-    /* Centrar la clase .contenedor */
-.contenedor {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-}
+
+    .encabezado {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
 
 
+
+}
 </style>
