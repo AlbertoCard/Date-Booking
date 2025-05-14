@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 
 class Usuario extends Model
 {
+    //
+    use HasFactory;
     // Desactivamos timestamps ya que no los usamos en la migración
     public $timestamps = false;
 
@@ -17,6 +21,7 @@ class Usuario extends Model
     
     // Especificamos que la llave primaria es un string
     protected $keyType = 'string';
+    public $incrementing = false;
 
     // Campos que se pueden llenar masivamente
     protected $fillable = [

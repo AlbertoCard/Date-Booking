@@ -33,7 +33,9 @@
     methods: {
       redirectToSearch() {
         if (this.searchText) {
-          this.$router.push({ path: '/busqueda', query: { q: this.searchText } });
+          this.$router.push({ path: '/busqueda/' + this.searchText }).then(() => {
+            this.$router.go(0); 
+          });
         }
         else {
           alert('Por favor, ingrese un término de búsqueda.');

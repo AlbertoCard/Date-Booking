@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
             $table->string('nombre');
             $table->string('especialidad');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
