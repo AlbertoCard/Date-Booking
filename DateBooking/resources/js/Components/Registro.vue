@@ -84,6 +84,12 @@ const registrar = async () => {
           nombre: nombre.value,
           telefono: telefono.value,
           direccion: 'Sin dirección',
+          rfc: 'Sin RFC',
+          estado: 'Sin estado',
+          codigo_postal: '00000',
+          pais: 'México',
+          id_estado: 0,
+          stripe_account_id: 'Sin cuenta',
           id_usuario: user.uid
         })
         console.log('Respuesta del servidor (establecimiento):', establecimientoResponse.data)

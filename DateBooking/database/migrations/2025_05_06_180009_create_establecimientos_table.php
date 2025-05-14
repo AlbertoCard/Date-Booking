@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('establecimientos', function (Blueprint $table) {
-            $table->bigIncrements('id_establecimiento')->primary();
+            $table->bigIncrements('id_establecimiento');
             $table->string('nombre');
             $table->string('telefono', 20)->default('0000000000');
             $table->string('direccion')->default('Sin dirección');

@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Establecimiento;
 use App\Models\estbXusuario;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class EstablecimientoController extends Controller
 {
@@ -36,15 +38,12 @@ class EstablecimientoController extends Controller
         // Validar los datos recibidos
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|max:255',
-            'telefono' => 'string|max:20',
+            'telefono' => 'required|string|max:20',
             'direccion' => 'nullable|string',
-            'rfc' => 'string|max:50',
-            'estado' => 'string|max:10',
-            'codigo_postal' => 'string|max:10',
-            'pais' => 'string|max:100',
-            'id_estado' => 'integer',
-            'stripe_account_id' => 'string',
-            'id_usuario' => 'required|string|max:128' // UID del usuario que crea el establecimiento
+            'rfc' => 'nullable|string|max:50',
+            'estado' => 'nullable|string|max:10',
+            'stripe_account_id' => 'nullable|string',
+            'id_usuario' => 'required|string|max:128'
         ]);
 
         if ($validator->fails()) {
@@ -53,16 +52,25 @@ class EstablecimientoController extends Controller
         }
 
         try {
+            // Verificar si el usuario existe
+            $usuario = Usuario::where('uid', $request->id_usuario)->first();
+            
+            if (!$usuario) {
+                return response()->json([
+                    'message' => 'Error al crear el establecimiento',
+                    'error' => 'El usuario especificado no existe en la base de datos'
+                ], 404);
+            }
+
+            DB::beginTransaction();
+
             // Crear el establecimiento
             $establecimientoData = [
                 'nombre' => $request->nombre,
-                'telefono' => $request->telefono ?? '0000000000',
+                'telefono' => $request->telefono,
                 'direccion' => $request->direccion ?? 'Sin dirección',
                 'rfc' => $request->rfc ?? 'Sin RFC',
-                'estado' => $request->estado ?? 'Sin estado',
-                'codigo_postal' => $request->codigo_postal ?? '00000',
-                'pais' => $request->pais ?? 'Sin país',
-                'id_estado' => $request->id_estado ?? 0,
+                'estado' => $request->estado ?? 'Activo',
                 'stripe_account_id' => $request->stripe_account_id ?? 'Sin cuenta'
             ];
 
@@ -74,11 +82,13 @@ class EstablecimientoController extends Controller
 
             // Crear la relación en estb_xusuario
             $relacion = estbXusuario::create([
-                'id_usuario' => $request->id_usuario,
+                'id_usuario' => $usuario->uid, // Usar el uid del usuario verificado
                 'id_establecimiento' => $establecimiento->id_establecimiento
             ]);
 
             Log::info('Relación usuario-establecimiento creada', ['relacion' => $relacion]);
+
+            DB::commit();
 
             return response()->json([
                 'message' => 'Establecimiento creado exitosamente',
@@ -86,14 +96,20 @@ class EstablecimientoController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
+            DB::rollBack();
+            
             Log::error('Error al crear establecimiento', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
             ]);
 
             return response()->json([
                 'message' => 'Error al crear el establecimiento',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
             ], 500);
         }
     }

@@ -18,9 +18,6 @@ class Establecimiento extends Model
         'direccion',
         'rfc',
         'estado',
-        'codigo_postal',
-        'pais',
-        'id_estado',
         'stripe_account_id'
     ];
 
