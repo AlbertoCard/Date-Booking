@@ -41,3 +41,4 @@ Route::prefix('servicios')->group(function () {
 
 
 Route::get('/servicios', [ServicioController::class, 'index']);
+Route::post('/servicios', [ServicioController::class, 'store']);
