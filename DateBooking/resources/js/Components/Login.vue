@@ -204,10 +204,13 @@ const login = async () => {
     // Obtener el rol del usuario desde nuestra API
     try {
       const response = await axios.get(`/api/usuarios/obtener/${userCredential.user.uid}`);
-      const userRole = response.data.usuario.rol;
+      const userData = response.data.usuario;
+      
+      // Guardar datos del usuario en localStorage
+      localStorage.setItem('userData', JSON.stringify(userData));
       
       // Redirigir según el rol
-      if (userRole === 'establecimiento') {
+      if (userData.rol === 'establecimiento') {
         router.push('/dashboard-establecimiento');
       } else {
         router.push('/dashboard-cliente');
@@ -228,10 +231,13 @@ const loginWithGoogle = async () => {
     // Obtener el rol del usuario desde nuestra API
     try {
       const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
-      const userRole = response.data.usuario.rol;
+      const userData = response.data.usuario;
+      
+      // Guardar datos del usuario en localStorage
+      localStorage.setItem('userData', JSON.stringify(userData));
       
       // Redirigir según el rol
-      if (userRole === 'establecimiento') {
+      if (userData.rol === 'establecimiento') {
         router.push('/dashboard-establecimiento');
       } else {
         router.push('/dashboard-cliente');
@@ -249,8 +255,8 @@ const loginWithGoogle = async () => {
 const cerrarSesion = async () => {
   try {
     await signOut(auth);
-    // Limpiar el rol almacenado
-    localStorage.removeItem('userRole');
+    // Limpiar todos los datos del usuario
+    localStorage.removeItem('userData');
     router.push('/login');
   } catch (error) {
     console.error('Error al cerrar sesión:', error);

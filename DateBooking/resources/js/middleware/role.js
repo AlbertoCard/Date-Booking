@@ -18,15 +18,22 @@ export default async function role(to, from, next) {
   }
 
   try {
-    // Intentar obtener el rol del localStorage primero
-    let userRole = localStorage.getItem('userRole');
+    // Intentar obtener los datos del usuario del localStorage primero
+    let userData = localStorage.getItem('userData');
+    let userRole = null;
 
-    // Si no hay rol en localStorage, obtenerlo de la API
-    if (!userRole) {
+    if (userData) {
+      // Si existe, parseamos los datos
+      userData = JSON.parse(userData);
+      userRole = userData.rol;
+    } else {
+      // Si no hay datos en localStorage, obtenerlos de la API
       const response = await axios.get(`/api/usuarios/obtener/${currentUser.uid}`);
-      userRole = response.data.usuario.rol;
-      // Guardar el rol en localStorage
-      localStorage.setItem('userRole', userRole);
+      userData = response.data.usuario;
+      userRole = userData.rol;
+      
+      // Guardar todos los datos del usuario en localStorage
+      localStorage.setItem('userData', JSON.stringify(userData));
     }
 
     // Verificar si la ruta requiere un rol específico
@@ -42,8 +49,8 @@ export default async function role(to, from, next) {
     next();
   } catch (error) {
     console.error('Error al verificar rol:', error);
-    // Limpiar el rol almacenado en caso de error
-    localStorage.removeItem('userRole');
+    // Limpiar los datos almacenados en caso de error
+    localStorage.removeItem('userData');
     next('/login');
   }
 } 

@@ -46,21 +46,25 @@ onMounted(async () => {
   }
 
   try {
-    // Obtener información del usuario
-    const response = await axios.get(`/api/usuarios/obtener/${user.uid}`)
-    if (response.data.usuario.rol !== 'cliente') {
+    // Obtener información del usuario del localStorage
+    const userData = JSON.parse(localStorage.getItem('userData'))
+    
+    if (!userData || userData.rol !== 'cliente') {
       router.push('/dashboard-establecimiento')
       return
     }
-    nombreUsuario.value = response.data.usuario.nombre
+    
+    nombreUsuario.value = userData.nombre
   } catch (error) {
     console.error('Error al cargar datos:', error)
+    router.push('/login')
   }
 })
 
 const cerrarSesion = async () => {
   try {
     await signOut(auth)
+    localStorage.removeItem('userData')
     router.push('/login')
   } catch (error) {
     console.error('Error al cerrar sesión:', error)
