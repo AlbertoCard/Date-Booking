@@ -1,40 +1,49 @@
 <<template>
-    <div class="contenedor">
-        <!-- Encabezado -->
-        <div class="encabezado">
-            <h1>Mis Servicios</h1>
-            <button class="nuevo-servicio">+ Nuevo Servicio</button>
-        </div>
-
-        <!-- Lista de servicios -->
-        <div v-for="(servicio, index) in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
-            <!-- Imagen o ícono -->
-            <div class="imagen"></div>
-
-            <!-- Contenido -->
-            <div class="info-servicio">
-                <h2>{{ servicio.nombre }}</h2>
-                <p class="descripcion">{{ servicio.descripcion }}</p>
+    <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
+        <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-6xl mx-auto p-8">
+            <!-- Encabezado -->
+            <div class="encabezado">
+                <h1 class="text-3xl font-bold text-gray-900">Mis Servicios</h1>
+                <button @click="$router.push('/nuevo-servicio')"
+                    class="nuevo-servicio bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300">
+                    + Nuevo Servicio
+                </button>
             </div>
 
-            <!-- Botones -->
-            <div class="acciones">
-                <button class="editar">Editar</button>
-                <button class="cancelar">Cancelar</button>
-            </div>
+            <!-- Lista de servicios -->
+            <div v-for="(servicio, index) in servicios" :key="servicio.id_servicio" class="tarjeta-servicio group">
+                <!-- Imagen o ícono -->
+                <div class="imagen transform group-hover:scale-105 transition-all duration-300"></div>
 
-            <!-- Precio y estrellas -->
-            <div class="precio-estrellas">
-                <p class="precio">${{ servicio.costo }}</p>
-                <p class="estrellas">
-                    <span v-for="i in 5" :key="i">
-                        {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
-                </p>
-            </div>
+                <!-- Contenido -->
+                <div class="info-servicio">
+                    <h2 class="text-xl font-bold text-gray-800">{{ servicio.nombre }}</h2>
+                    <p class="descripcion text-gray-600">{{ servicio.descripcion }}</p>
+                </div>
 
-            <!-- Switch ON/OFF -->
-            <div class="estado">
-                <BotonOffOn></BotonOffOn>
+                <!-- Botones -->
+                <div class="acciones">
+                    <button class="editar transform hover:scale-105 transition-all duration-300">
+                        Editar
+                    </button>
+                    <button class="cancelar transform hover:scale-105 transition-all duration-300">
+                        Cancelar
+                    </button>
+                </div>
+
+                <!-- Precio y estrellas -->
+                <div class="precio-estrellas">
+                    <p class="precio text-blue-600">${{ servicio.costo }}</p>
+                    <p class="estrellas">
+                        <span v-for="i in 5" :key="i" class="transition-colors duration-300">
+                            {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
+                    </p>
+                </div>
+
+                <!-- Switch ON/OFF -->
+                <div class="estado">
+                    <BotonOffOn></BotonOffOn>
+                </div>
             </div>
         </div>
     </div>
@@ -79,139 +88,140 @@
 </script>
 
     <style scoped>
-    .contenedor {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 60px;
-        font-family: Arial, sans-serif;
-        background: #fcfcfc;
+    .container {
+        backdrop-filter: blur(10px);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        background: rgba(255, 255, 255, 0.9);
     }
 
     .encabezado {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 24px;
-    }
-
-    .encabezado h1 {
-        font-size: 24px;
+        margin-bottom: 2rem;
+        padding: 1rem 0;
     }
 
     .nuevo-servicio {
-        padding: 8px 16px;
-        background: black;
+        padding: 0.75rem 1.5rem;
         color: white;
         border: none;
-        border-radius: 24px;
+        border-radius: 0.75rem;
         cursor: pointer;
+        font-weight: 600;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
 
     .tarjeta-servicio {
         display: flex;
         align-items: center;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        padding: 40px;
-        margin-bottom: 16px;
-        gap: 16px;
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 1rem;
+        gap: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        transform-style: preserve-3d;
+        border: 1px solid rgba(37, 99, 235, 0.1);
+    }
+
+    .tarjeta-servicio:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
     .imagen {
         width: 100px;
         height: 100px;
-        background: #ccc;
-        border-radius: 8px;
+        background: linear-gradient(to br, #2563eb, #3b82f6);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
 
     .info-servicio {
         flex: 1;
+        transform: translateZ(0);
+        transition: transform 0.3s ease;
     }
 
-    .info-servicio h2 {
-        margin: 0;
-        font-size: 18px;
-        font-weight: bold;
-    }
-
-    .descripcion {
-        font-size: 14px;
-        color: #555;
-    }
-
-    .acciones {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+    .info-servicio:hover {
+        transform: translateZ(10px);
     }
 
     .acciones button {
-        padding: 9px 22px;
-        font-size: 14px;
-        border-radius: 20px;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        border-radius: 0.75rem;
         border: none;
         cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
 
     .editar {
-        background-color: #e5e5e5;
+        background: linear-gradient(to right, #e5e7eb, #d1d5db);
+        color: #374151;
     }
 
     .cancelar {
-        background-color: #ffe5e5;
-        color: #b00;
-    }
-
-    .precio-estrellas {
-        text-align: right;
+        background: linear-gradient(to right, #fee2e2, #fecaca);
+        color: #dc2626;
     }
 
     .precio {
-        font-size: 26px;
+        font-size: 1.5rem;
         font-weight: bold;
+        background: linear-gradient(to right, #2563eb, #3b82f6);
+        -webkit-background-clip: text;
+        color: transparent;
     }
 
     .estrellas {
-        color: #f5a623;
-        font-size: 18px;
-    }
-
-    .estado button {
-        width: 60px;
-        height: 36px;
-        border-radius: 18px;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-    }
-
-    .estado .on {
-        background-color: #4caf50;
-        color: white;
-    }
-
-    .estado .off {
-        background-color: #ccc;
-        color: black;
+        color: #f59e0b;
+        font-size: 1.25rem;
     }
 
     /* Responsivo */
     @media (max-width: 768px) {
+        .container {
+            margin: 1rem;
+            padding: 1rem;
+        }
+
         .tarjeta-servicio {
             flex-direction: column;
             align-items: center;
+            text-align: center;
         }
 
         .acciones {
             flex-direction: row;
-            gap: 12px;
-            margin-top: 8px;
+            gap: 0.75rem;
+            margin-top: 1rem;
         }
 
         .precio-estrellas,
         .estado {
             align-self: center;
-            margin-top: 8px;
+            margin-top: 1rem;
         }
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-5px);
+        }
+    }
+
+    .imagen {
+        animation: float 6s ease-in-out infinite;
     }
 </style>

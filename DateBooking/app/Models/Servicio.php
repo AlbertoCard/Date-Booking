@@ -15,6 +15,7 @@ class Servicio extends Model
         'descripcion',
         'costo',
         'categoria',
+        'id_ciudad'
     ];
 
     // ⬇️ Oculta campos en respuestas JSON
