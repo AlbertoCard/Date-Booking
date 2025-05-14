@@ -31,4 +31,5 @@ Route::prefix('usuarios')->group(function () {
 Route::prefix('servicios')->group(function () {
     Route::get('/', [ServicioController::class, 'index']);
     Route::get('/{search}', [ServicioController::class, 'search']);
+    Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
 });

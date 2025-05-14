@@ -18,4 +18,11 @@ class ServicioController extends Controller
         return Servicio::where('nombre', 'like', '%' . $search . '%')
             ->get();
     }
+
+    public function categoria($search, $categoria)
+    {
+        return Servicio::where('nombre', 'like', '%' . $search . '%')
+            ->where('categoria', 'like', '%' . $categoria . '%')
+            ->get();
+    }
 }
