@@ -185,4 +185,34 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Obtener un usuario específico por su UID
+     */
+    public function show($uid)
+    {
+        try {
+            $usuario = Usuario::where('uid', $uid)->first();
+            
+            if (!$usuario) {
+                return response()->json([
+                    'message' => 'Usuario no encontrado'
+                ], 404);
+            }
+
+            return response()->json([
+                'usuario' => $usuario
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener usuario', [
+                'uid' => $uid,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'message' => 'Error al obtener el usuario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -156,6 +156,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
+import axios from 'axios';
 
 const router = useRouter();
 const route = useRoute();
@@ -197,9 +198,24 @@ const closeNotification = () => {
 
 const login = async () => {
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    alert('Inicio de sesión exitoso');
-    router.push('/dashboard');
+    // Autenticar con Firebase
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+    
+    // Obtener el rol del usuario desde nuestra API
+    try {
+      const response = await axios.get(`/api/usuarios/obtener/${userCredential.user.uid}`);
+      const userRole = response.data.usuario.rol;
+      
+      // Redirigir según el rol
+      if (userRole === 'establecimiento') {
+        router.push('/dashboard-establecimiento');
+      } else {
+        router.push('/dashboard-cliente');
+      }
+    } catch (apiError) {
+      console.error('Error al obtener el rol del usuario:', apiError);
+      alert('Error al obtener información del usuario');
+    }
   } catch (error) {
     alert('Error al iniciar sesión: ' + error.message);
   }
@@ -207,8 +223,23 @@ const login = async () => {
 
 const loginWithGoogle = async () => {
   try {
-    await signInWithPopup(auth, googleProvider);
-    router.push('/dashboard');
+    const result = await signInWithPopup(auth, googleProvider);
+    
+    // Obtener el rol del usuario desde nuestra API
+    try {
+      const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
+      const userRole = response.data.usuario.rol;
+      
+      // Redirigir según el rol
+      if (userRole === 'establecimiento') {
+        router.push('/dashboard-establecimiento');
+      } else {
+        router.push('/dashboard-cliente');
+      }
+    } catch (apiError) {
+      console.error('Error al obtener el rol del usuario:', apiError);
+      alert('Error al obtener información del usuario');
+    }
   } catch (error) {
     alert('Error con Google Sign-In: ' + error.message);
     console.error(error);

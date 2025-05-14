@@ -27,6 +27,9 @@ Route::prefix('usuarios')->group(function () {
     Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
 });
 
+// Ruta específica para obtener usuario por UID
+Route::get('usuarios/obtener/{uid}', [UsuarioController::class, 'show']);
+
 // Rutas de establecimientos - sin grupo
 Route::get('/establecimientos', [EstablecimientoController::class, 'index']);
 Route::post('/establecimientos', [EstablecimientoController::class, 'store']);

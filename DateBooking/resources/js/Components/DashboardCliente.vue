@@ -21,55 +21,6 @@
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
           <h2 class="text-2xl font-semibold text-gray-800 mb-4">Bienvenido, {{ nombreUsuario }}</h2>
-          
-          <!-- Sección de Próximas Citas -->
-          <div class="mb-8">
-            <h3 class="text-lg font-medium text-gray-700 mb-4">Próximas Citas</h3>
-            <div v-if="citas.length > 0" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <div v-for="cita in citas" :key="cita.id" class="bg-gray-50 p-4 rounded-lg shadow">
-                <p class="font-semibold">{{ cita.establecimiento }}</p>
-                <p class="text-gray-600">{{ cita.fecha }}</p>
-                <p class="text-gray-600">{{ cita.hora }}</p>
-                <button class="mt-2 px-3 py-1 text-sm text-red-600 hover:text-red-800" @click="cancelarCita(cita.id)">
-                  Cancelar
-                </button>
-              </div>
-            </div>
-            <p v-else class="text-gray-600">No tienes citas programadas</p>
-          </div>
-
-          <!-- Sección de Buscar Establecimientos -->
-          <div>
-            <h3 class="text-lg font-medium text-gray-700 mb-4">Buscar Establecimientos</h3>
-            <div class="flex gap-4 mb-4">
-              <input 
-                type="text" 
-                v-model="busqueda" 
-                placeholder="Buscar establecimiento..." 
-                class="flex-1 px-4 py-2 border rounded-md"
-              >
-              <button 
-                @click="buscarEstablecimientos" 
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Buscar
-              </button>
-            </div>
-
-            <div v-if="establecimientos.length > 0" class="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <div v-for="establecimiento in establecimientos" :key="establecimiento.id" class="bg-gray-50 p-4 rounded-lg shadow">
-                <h4 class="font-semibold">{{ establecimiento.nombre }}</h4>
-                <p class="text-gray-600">{{ establecimiento.direccion }}</p>
-                <button 
-                  @click="verDisponibilidad(establecimiento.id)" 
-                  class="mt-2 px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  Ver Disponibilidad
-                </button>
-              </div>
-            </div>
-            <p v-else-if="busquedaRealizada" class="text-gray-600">No se encontraron establecimientos</p>
-          </div>
         </div>
       </div>
     </main>
@@ -85,10 +36,6 @@ import axios from 'axios'
 
 const router = useRouter()
 const nombreUsuario = ref('')
-const citas = ref([])
-const establecimientos = ref([])
-const busqueda = ref('')
-const busquedaRealizada = ref(false)
 
 onMounted(async () => {
   // Verificar si el usuario está autenticado y es un cliente
@@ -100,55 +47,16 @@ onMounted(async () => {
 
   try {
     // Obtener información del usuario
-    const response = await axios.get(`/api/usuarios/${user.uid}`)
+    const response = await axios.get(`/api/usuarios/obtener/${user.uid}`)
     if (response.data.usuario.rol !== 'cliente') {
       router.push('/dashboard-establecimiento')
       return
     }
     nombreUsuario.value = response.data.usuario.nombre
-
-    // Cargar citas del usuario
-    await cargarCitas()
   } catch (error) {
     console.error('Error al cargar datos:', error)
   }
 })
-
-const cargarCitas = async () => {
-  try {
-    const response = await axios.get(`/api/citas/usuario/${auth.currentUser.uid}`)
-    citas.value = response.data.citas
-  } catch (error) {
-    console.error('Error al cargar citas:', error)
-  }
-}
-
-const buscarEstablecimientos = async () => {
-  try {
-    const response = await axios.get('/api/establecimientos', {
-      params: { busqueda: busqueda.value }
-    })
-    establecimientos.value = response.data.establecimientos
-    busquedaRealizada.value = true
-  } catch (error) {
-    console.error('Error al buscar establecimientos:', error)
-  }
-}
-
-const verDisponibilidad = (establecimientoId) => {
-  router.push(`/disponibilidad/${establecimientoId}`)
-}
-
-const cancelarCita = async (citaId) => {
-  if (!confirm('¿Estás seguro de que deseas cancelar esta cita?')) return
-
-  try {
-    await axios.delete(`/api/citas/${citaId}`)
-    await cargarCitas()
-  } catch (error) {
-    console.error('Error al cancelar cita:', error)
-  }
-}
 
 const cerrarSesion = async () => {
   try {
