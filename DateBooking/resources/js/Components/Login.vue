@@ -198,59 +198,50 @@ const closeNotification = () => {
 
 const login = async () => {
   try {
-    // Autenticar con Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
-    
-    // Obtener el rol del usuario desde nuestra API
-    try {
-      const response = await axios.get(`/api/usuarios/obtener/${userCredential.user.uid}`);
-      const userData = response.data.usuario;
-      
-      // Guardar datos del usuario en localStorage
-      localStorage.setItem('userData', JSON.stringify(userData));
-      
-      // Redirigir según el rol
-      if (userData.rol === 'establecimiento') {
-        router.push('/dashboard-establecimiento');
-      } else {
-        router.push('/dashboard-cliente');
-      }
-    } catch (apiError) {
-      console.error('Error al obtener el rol del usuario:', apiError);
-      alert('Error al obtener información del usuario');
+
+    // ✅ Marcar como activo en backend
+    await axios.put(`/api/usuarios/${userCredential.user.uid}/estado`, { activo: 1 });
+
+    // Obtener el rol del usuario
+    const response = await axios.get(`/api/usuarios/obtener/${userCredential.user.uid}`);
+    const userData = response.data.usuario;
+
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    if (userData.rol === 'establecimiento') {
+      router.push('/dashboard-establecimiento');
+    } else {
+      router.push('/dashboard-cliente');
     }
   } catch (error) {
     alert('Error al iniciar sesión: ' + error.message);
   }
 };
 
+
 const loginWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    
-    // Obtener el rol del usuario desde nuestra API
-    try {
-      const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
-      const userData = response.data.usuario;
-      
-      // Guardar datos del usuario en localStorage
-      localStorage.setItem('userData', JSON.stringify(userData));
-      
-      // Redirigir según el rol
-      if (userData.rol === 'establecimiento') {
-        router.push('/dashboard-establecimiento');
-      } else {
-        router.push('/dashboard-cliente');
-      }
-    } catch (apiError) {
-      console.error('Error al obtener el rol del usuario:', apiError);
-      alert('Error al obtener información del usuario');
+
+    // ✅ Marcar como activo en backend
+    await axios.put(`/api/usuarios/${result.user.uid}/estado`, { activo: 1 });
+
+    const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
+    const userData = response.data.usuario;
+
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    if (userData.rol === 'establecimiento') {
+      router.push('/dashboard-establecimiento');
+    } else {
+      router.push('/dashboard-cliente');
     }
   } catch (error) {
     alert('Error con Google Sign-In: ' + error.message);
-    console.error(error);
   }
 };
+
 
 const cerrarSesion = async () => {
   try {

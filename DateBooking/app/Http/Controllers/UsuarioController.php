@@ -215,4 +215,44 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
+
+    public function cambiarEstadoActivo(Request $request, $uid)
+{
+    // Validar el estado recibido
+    $validator = Validator::make($request->all(), [
+        'activo' => 'required|in:0,1',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'message' => 'Valor inválido para el campo activo. Solo se permite 0 o 1.',
+            'errors' => $validator->errors()
+        ], 422);
+    }
+
+    try {
+        $usuario = Usuario::where('uid', $uid)->first();
+
+        if (!$usuario) {
+            return response()->json([
+                'message' => 'Usuario no encontrado',
+            ], 404);
+        }
+
+        $usuario->activo = (int) $request->activo;
+        $usuario->save();
+
+        return response()->json([
+            'message' => 'Estado actualizado correctamente',
+            'usuario' => $usuario,
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error al actualizar el estado del usuario', ['uid' => $uid, 'error' => $e->getMessage()]);
+        return response()->json([
+            'message' => 'Error al actualizar el estado del usuario',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }

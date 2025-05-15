@@ -23,8 +23,9 @@ Route::get('/test', function () {
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
-    Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
-    Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
+    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']); 
+    //Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
+    //Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
 });
 
 // Ruta específica para obtener usuario por UID

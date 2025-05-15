@@ -60,14 +60,24 @@ onMounted(async () => {
     router.push('/login')
   }
 })
-
 const cerrarSesion = async () => {
   try {
-    await signOut(auth)
-    localStorage.removeItem('userData')
-    router.push('/login')
+    await axios.put(`/api/usuarios/${auth.currentUser.uid}/estado`, { activo: 0 }); // ⬅ aquí se desactiva
+    await signOut(auth);
+    localStorage.removeItem('userData');
+    router.push('/login');
   } catch (error) {
-    console.error('Error al cerrar sesión:', error)
+    console.error('Error al cerrar sesión:', error);
   }
-}
+};
+
+// const cerrarSesion = async () => {
+//   try {
+//     await signOut(auth)
+//     localStorage.removeItem('userData')
+//     router.push('/login')
+//   } catch (error) {
+//     console.error('Error al cerrar sesión:', error)
+//   }
+// }
 </script> 
