@@ -125,7 +125,7 @@ export default {
                 axios.get(`/api/servicios/${this.searchText}`)
                     .then(response => {
                         this.servicios = response.data;
-                        this.categoriaSeleccionada = 'todos';
+                        //this.categoriaSeleccionada = 'todos';
                     })
                     .catch(error => {
                         console.error('Error fetching todos los servicios:', error);
@@ -135,7 +135,7 @@ export default {
             axios.get(`/api/servicios/categoria/${this.searchText}/${categoria}`)
                 .then(response => {
                     this.servicios = response.data;
-                    this.categoriaSeleccionada = categoria;
+                    //this.categoriaSeleccionada = categoria;
                 })
                 .catch(error => {
                     console.error('Error fetching servicios por categoria:', error);
