@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class estbXusuario extends Model
+class Ciudade extends Model
 {
     public $timestamps = false;
     
@@ -26,4 +26,5 @@ class estbXusuario extends Model
     {
         return $this->belongsTo(Establecimiento::class, 'id_establecimiento', 'id_establecimiento');
     }
+    //
 }

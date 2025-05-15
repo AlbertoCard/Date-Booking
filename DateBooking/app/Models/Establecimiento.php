@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Establecimiento extends Model
 {
@@ -26,4 +27,6 @@ class Establecimiento extends Model
     {
         return $this->belongsToMany(Usuario::class, 'estb_xusuario', 'id_establecimiento', 'id_usuario');
     }
+    //
+    use HasFactory;
 }

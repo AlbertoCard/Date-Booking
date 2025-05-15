@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ServicioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
@@ -36,3 +37,13 @@ Route::get('/establecimientos', [EstablecimientoController::class, 'index']);
 Route::post('/establecimientos', [EstablecimientoController::class, 'store']);
 Route::get('/establecimientos/usuario/{uid}', [EstablecimientoController::class, 'getByUsuario']);
 Route::put('/establecimientos/{id}', [EstablecimientoController::class, 'update']); 
+    Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
+    Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
+//}); 
+
+// Rutas de servicios
+Route::prefix('servicios')->group(function () {
+    Route::get('/', [ServicioController::class, 'index']);
+    Route::get('/{search}', [ServicioController::class, 'search']);
+    Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
+});

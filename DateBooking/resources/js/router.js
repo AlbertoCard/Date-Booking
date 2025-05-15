@@ -8,7 +8,9 @@ import RestablecerContraseña from "./Components/RestablecerContraseña.vue";
 import DashboardCliente from "./Components/DashboardCliente.vue";
 import DashboardEstablecimiento from "./Components/DashboardEstablecimiento.vue";
 import Registro from "./Components/Registro.vue";
-// import Registro from "./components/Registro.vue";
+import Dashboard from "./components/Dashboard.vue";
+import Busqueda from "./Components/Busqueda.vue";
+
 
 // Importar middlewares
 import auth from './middleware/auth';
@@ -65,7 +67,16 @@ const routes = [
     path: "/:pathMatch(.*)*", 
     component: NotFound,
     meta: { requiresAuth: false }
-  }
+  },
+  { path: "/", component: Inicio },
+  { path: "/inicio", component: Inicio },
+  { path: "/nosotros", component: Nosotros },
+  { path: "/:pathMatch(.*)*", component: NotFound },
+  { path: "/login", component: Login },
+  { path: "/dashboard", component: Dashboard },
+  { path: "/reset-password", component: RestablecerContraseña },
+  { path: "/registro", component: Registro },
+  { path: "/busqueda/:search", component: Busqueda },
 ];
 
 const router = createRouter({
