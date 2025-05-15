@@ -7,7 +7,10 @@
                   d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
-        <img src="" alt="logo" class="logo_img">
+        <router-link to="/" >
+          <img src="../../../public/images/Date-booking_logo_provicional.png" alt="logo" class="logo_img">
+        </router-link>
+        <router-link to="/">DATE-BOOKING</router-link>
       </div>
   
       <div class="div_search">
@@ -45,17 +48,18 @@
     methods: {
       redirectToSearch() {
         if (this.searchText) {
-          this.$router.push({ path: '/busqueda', query: { q: this.searchText } });
-        } else {
+          this.$router.push({ path: '/busqueda/' + this.searchText }).then(() => {
+            this.$router.go(0); 
+          });
+        }
+        else {
           alert('Por favor, ingrese un término de búsqueda.');
         }
       },
-      redirectToUser(){
-        this.$router.push({ path:'/nosotros' });
-      }
     },
   };
   </script>
+
   
   <style scoped>
   .hero {
@@ -101,8 +105,8 @@
     margin-left: 3rem;
   }
   
-  .logo-img {
-    width: 40px;
+  .logo_img {
+    width: 60px;
     height: auto;
   }
   
