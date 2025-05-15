@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('tipo_servicio', 50);
             $table->string('detalle_1');
             $table->string('detalle_2');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
