@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class estbXusuario extends Model
+class Pai extends Model
 {
     //
-    protected $table = 'estb_Xusuario';
 }
