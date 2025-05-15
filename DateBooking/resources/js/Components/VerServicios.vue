@@ -1,4 +1,4 @@
-<<template>
+<template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
         <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-6xl mx-auto p-8">
             <!-- Encabezado -->
@@ -19,6 +19,26 @@
                 <div class="info-servicio">
                     <h2 class="text-xl font-bold text-gray-800">{{ servicio.nombre }}</h2>
                     <p class="descripcion text-gray-600">{{ servicio.descripcion }}</p>
+
+                    <!-- Estado de disponibilidad -->
+                    <div class="mt-3">
+                        <div v-if="servicio.disponibilidad && servicio.disponibilidad.length > 0"
+                            class="text-green-600 font-semibold flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Servicio con disponibilidad
+                        </div>
+                        <div v-else class="text-red-600 font-semibold">
+                            <p class="mb-2">Servicio no disponible</p>
+                            <button @click="agregarDisponibilidad(servicio.id_servicio)"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm">
+                                + Añadir disponibilidad
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Botones -->
@@ -49,179 +69,180 @@
     </div>
 </template>
 
-    <script>
-    import axios from 'axios';
-    import BotonOffOn from './Componente_reutilizable/boton_off_on.vue';
+<script>
+import axios from 'axios';
+import BotonOffOn from './Componente_reutilizable/boton_off_on.vue';
+import API_ROUTES from '../utils/app.js';
 
-    export default {
-        name: 'VerServicios',
-        components: {
-            BotonOffOn,
+export default {
+    name: 'VerServicios',
+    components: {
+        BotonOffOn,
+    },
+    data() {
+        return {
+            servicios: [],
+        };
+    },
+    mounted() {
+        this.obtenerServicios();
+    },
+    methods: {
+        async obtenerServicios() {
+            try {
+                const response = await axios.get(API_ROUTES.servicios);
+                this.servicios = response.data.map(servicio => ({
+                    ...servicio,
+                    estrellas: Math.floor(Math.random() * 5) + 1, // ⭐ simulado
+                    activo: true,
+                }));
+            } catch (error) {
+                console.error('Error al obtener los servicios:', error);
+            }
         },
-        data() {
-            return {
-                servicios: [],
-            };
+        agregarDisponibilidad(idServicio) {
+            // Corregimos la ruta para que coincida con la definida en router.js
+            this.$router.push(`/nueva-disponibilidad/${idServicio}`);
         },
-        mounted() {
-            this.obtenerServicios();
+        toggleServicio(index) {
+            this.servicios[index].activo = !this.servicios[index].activo;
         },
-        methods: {
-            async obtenerServicios() {
-                try {
-                    const response = await axios.get('http://localhost:8000/api/servicios');
-                    // Mapeamos la respuesta para agregar campos visuales simulados
-                    this.servicios = response.data.map(servicio => ({
-                        ...servicio,
-                        estrellas: Math.floor(Math.random() * 5) + 1, // ⭐ simulado
-                        activo: true, // ON/OFF simulado
-                    }));
-                } catch (error) {
-                    console.error('Error al obtener los servicios:', error);
-                }
-            },
-            toggleServicio(index) {
-                this.servicios[index].activo = !this.servicios[index].activo;
-            },
-        },
-    };
+    },
+};
 </script>
 
-    <style scoped>
+<style scoped>
+.container {
+    backdrop-filter: blur(10px);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+}
+
+.nuevo-servicio {
+    padding: 0.75rem 1.5rem;
+    color: white;
+    border: none;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.tarjeta-servicio {
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    border: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+.tarjeta-servicio:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.imagen {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(to br, #2563eb, #3b82f6);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.info-servicio {
+    flex: 1;
+    transform: translateZ(0);
+    transition: transform 0.3s ease;
+}
+
+.acciones button {
+    padding: 0.60rem 1.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.editar {
+    background: linear-gradient(to right, #e5e7eb, #d1d5db);
+    color: #374151;
+    margin-right: 1rem;
+}
+
+.cancelar {
+    background: linear-gradient(to right, #fee2e2, #fecaca);
+    color: #dc2626;
+    margin-right: 1rem;
+}
+
+.precio {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+    -webkit-background-clip: text;
+}
+
+.estrellas {
+    color: #f59e0b;
+    font-size: 1.25rem;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
     .container {
-        backdrop-filter: blur(10px);
-        transform-style: preserve-3d;
-        perspective: 1000px;
-        background: rgba(255, 255, 255, 0.9);
-    }
-
-    .encabezado {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-        padding: 1rem 0;
-    }
-
-    .nuevo-servicio {
-        padding: 0.75rem 1.5rem;
-        color: white;
-        border: none;
-        border-radius: 0.75rem;
-        cursor: pointer;
-        font-weight: 600;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        margin: 1rem;
+        padding: 1rem;
     }
 
     .tarjeta-servicio {
-        display: flex;
+        flex-direction: column;
         align-items: center;
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        margin-bottom: 1rem;
-        gap: 1rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        transform-style: preserve-3d;
-        border: 1px solid rgba(37, 99, 235, 0.1);
+        text-align: center;
     }
 
-    .tarjeta-servicio:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    .acciones {
+        flex-direction: row;
+        gap: 0.75rem;
+        margin-top: 1rem;
     }
 
-    .imagen {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(to br, #2563eb, #3b82f6);
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    .precio-estrellas,
+    .estado {
+        align-self: center;
+        margin-top: 1rem;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
     }
 
-    .info-servicio {
-        flex: 1;
-        transform: translateZ(0);
-        transition: transform 0.3s ease;
+    50% {
+        transform: translateY(-5px);
     }
+}
 
-    .info-servicio:hover {
-        transform: translateZ(10px);
-    }
-
-    .acciones button {
-        padding: 0.75rem 1.5rem;
-        font-size: 0.875rem;
-        border-radius: 0.75rem;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .editar {
-        background: linear-gradient(to right, #e5e7eb, #d1d5db);
-        color: #374151;
-    }
-
-    .cancelar {
-        background: linear-gradient(to right, #fee2e2, #fecaca);
-        color: #dc2626;
-    }
-
-    .precio {
-        font-size: 1.5rem;
-        font-weight: bold;
-        background: linear-gradient(to right, #2563eb, #3b82f6);
-        -webkit-background-clip: text;
-        color: transparent;
-    }
-
-    .estrellas {
-        color: #f59e0b;
-        font-size: 1.25rem;
-    }
-
-    /* Responsivo */
-    @media (max-width: 768px) {
-        .container {
-            margin: 1rem;
-            padding: 1rem;
-        }
-
-        .tarjeta-servicio {
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .acciones {
-            flex-direction: row;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
-
-        .precio-estrellas,
-        .estado {
-            align-self: center;
-            margin-top: 1rem;
-        }
-    }
-
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-5px);
-        }
-    }
-
-    .imagen {
-        animation: float 6s ease-in-out infinite;
-    }
+.imagen {
+    animation: float 6s ease-in-out infinite;
+}
 </style>

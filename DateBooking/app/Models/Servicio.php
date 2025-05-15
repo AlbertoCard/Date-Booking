@@ -23,4 +23,9 @@ class Servicio extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function disponibilidad()
+    {
+        return $this->hasMany(Disponibilidad::class, 'id_servicio', 'id_servicio');
+    }
 }

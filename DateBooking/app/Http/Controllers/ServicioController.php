@@ -10,7 +10,8 @@ class ServicioController extends Controller
     // lista de servicios
     public function index()
     {
-        return response()->json(Servicio::all());
+        $servicios = Servicio::with('disponibilidad')->get();
+        return response()->json($servicios);
     }
 
     // crear nuevo servicio

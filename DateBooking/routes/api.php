@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\ServicioController;
+use App\Http\Controllers\DisponibilidadController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,3 +29,6 @@ Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
 
 Route::get('/servicios', [ServicioController::class, 'index']);
 Route::post('/servicios', [ServicioController::class, 'store']);
+
+// Rutas de disponibilidad
+Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
