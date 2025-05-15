@@ -10,7 +10,7 @@
         <router-link to="/" >
           <img src="../../../public/images/Date-booking_logo_provicional.png" alt="logo" class="logo_img">
         </router-link>
-        <router-link to="/">DATE-BOOKING</router-link>
+        <router-link to="/" class="nombre">DATE-BOOKING</router-link>
       </div>
   
       <div class="div_search">
@@ -112,6 +112,7 @@
   }
   
   .logo_img {
+    min-width: 55px;
     width: 60px;
     height: auto;
   }
@@ -120,6 +121,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 70%;
+    min-width: 100px;
+    max-width: 600px;
   }
   
   .search {
@@ -137,7 +141,7 @@
     color: #646464;
     padding: 0.7rem 1rem;
     border-radius: 30px;
-    width: 40rem;
+    width: 100%;
     transition: all ease-in-out .5s;
     margin-right: -2rem;
   }
@@ -186,5 +190,24 @@
   
   .btnUser:hover {
     background-color: #e0e7ff;
+  }
+
+  @media (max-width: 600px) {
+    .hero{
+      justify-content: start;
+    }
+    .div_user{
+      width: 20%;
+      margin-left: auto;
+    }
+    .nombre {
+      display: none;
+    }
+    .btnSearch {
+      display: none;
+    }
+    .div_btnMenu{
+    gap: 0px;
+    }
   }
   </style>

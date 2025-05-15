@@ -2,6 +2,7 @@
     <!-- /resources/js/Components/Inicio.vue -->
     <div class="contenedor">
         <!-- Encabezado -->
+        <Loader :visible="cargando" />
 
         <div class="encabezado">
             <h1>"{{ searchText }}"</h1>
@@ -87,17 +88,23 @@
 
 <script>
 import axios from 'axios';
+import Loader from './Loader.vue';
 
 export default {
+    components: {
+        Loader,
+    },
     data() {
         return {
             servicios: [],
             recomendaciones: [],
             searchText: this.$route.params.search, // Obtener el parámetro del URL
             categoriaSeleccionada: 'todos', // Estado para la categoría seleccionada
+            cargando: true, // Estado para el loader
         };
     },
     mounted() {
+        this.cargando = true; // Mostrar el loader al inicio
         const search = this.$route.params.search; // Obtener el parámetro del URL
         axios.get(`/api/servicios/` + search)
             .then(response => {
@@ -105,13 +112,20 @@ export default {
             })
             .catch(error => {
                 console.error('Error fetching servicios:', error);
+            })
+            .finally(() => {
+                this.cargando = false; // Ocultar el loader al finalizar la carga
             });
+
         axios.get('/api/servicios')
             .then(response => {
                 this.recomendaciones = response.data;
             })
             .catch(error => {
                 console.error('Error fetching servicios:', error);
+            })
+            .finally(() => {
+                this.cargando = false; // Ocultar el loader al finalizar la carga
             });
     },
     watch: {
@@ -121,24 +135,31 @@ export default {
     },
     methods: {
         obtenerServiciosPorCategoria(categoria) {
+            this.cargando = true; 
             if (categoria === 'todos') {
                 axios.get(`/api/servicios/${this.searchText}`)
                     .then(response => {
                         this.servicios = response.data;
-                        this.categoriaSeleccionada = 'todos';
+                        //this.categoriaSeleccionada = 'todos';
                     })
                     .catch(error => {
                         console.error('Error fetching todos los servicios:', error);
+                    })
+                    .finally(() => {
+                        this.cargando = false; // Ocultar el loader al finalizar la carga
                     });
                 return;
             }
             axios.get(`/api/servicios/categoria/${this.searchText}/${categoria}`)
                 .then(response => {
                     this.servicios = response.data;
-                    this.categoriaSeleccionada = categoria;
+                    //this.categoriaSeleccionada = categoria;
                 })
                 .catch(error => {
                     console.error('Error fetching servicios por categoria:', error);
+                })
+                .finally(() => {
+                    this.cargando = false; // Ocultar el loader al finalizar la carga
                 });
             console.log(this.servicios);
             console.log(this.categoriaSeleccionada);
