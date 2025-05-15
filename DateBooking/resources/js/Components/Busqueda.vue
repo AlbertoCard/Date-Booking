@@ -348,7 +348,7 @@ fieldset {
     }
 
     .filtros {
-        overflow: scroll;
+        overflow-x: scroll;
     }
 
     .tarjeta-servicio {
