@@ -10,6 +10,8 @@ import RestablecerContraseña from "./components/RestablecerContraseña.vue";
 import Dashboard from "./components/Dashboard.vue";
 import Registro from "./components/Registro.vue";
 import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
+import DetalleServicio from "./Components/DetalleServicio.vue";
+
 const routes = [
   { path: "/", component: Inicio },
   { path: "/inicio", component: Inicio },
@@ -17,6 +19,7 @@ const routes = [
   { path: "/nuevo-servicio", component: NuevoServicio },
   { path: "/servicio-agregados", component: VerServicio },
   { path: "/nueva-disponibilidad/:id", component: NuevaDisponibilidad },
+  { path: "/detalle-servicio/:id", component: DetalleServicio },
   { path: "/:pathMatch(.*)*", component: NotFound },
   { path: "/login", component: Login },
   { path: "/dashboard", component: Dashboard },
