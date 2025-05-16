@@ -12,16 +12,23 @@
 
             <!-- Contenido -->
             <div class="info-servicio">
-                <h2>{{ servicio.nombre }}</h2>
-                <p class="descripcion">{{ servicio.descripcion }}</p>
+            <h2>{{ servicio.nombre }}</h2>
+            <p class="descripcion">{{ servicio.descripcion }}</p>
             </div>
             <!-- Precio y estrellas -->
             <div class="precio-estrellas">
-                <p class="precio">${{ servicio.costo }}</p>
-                <p class="estrellas">
-                    <span v-for="i in 5" :key="i">
-                        {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
-                </p>
+            <p class="precio">${{ servicio.costo }}</p>
+            <p class="estrellas">
+                <span v-for="i in 5" :key="i">
+                {{ i <= servicio.estrellas ? '★' : '☆' }}
+                </span>
+            </p>
+            </div>
+            <!-- Disponibilidad -->
+            <div class="estado">
+                <span :class="servicio.disponibilidad.activo == 1 ? 'activo' : 'inactivo'">
+                    {{ servicio.disponibilidad.activo == 1 ? 'Activo' : 'Inactivo' }}
+                </span>
             </div>
         </div>
     </div>
@@ -159,23 +166,30 @@ export default {
     font-size: 18px;
 }
 
-.estado button {
-    width: 60px;
-    height: 36px;
-    border-radius: 18px;
+
+.estado {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 90px;
+    font-size: 16px;
     font-weight: bold;
-    border: none;
-    cursor: pointer;
 }
 
-.estado .on {
-    background-color: #4caf50;
-    color: white;
+.estado .activo {
+    background-color: #d4f8e8;
+    color: #219653;
+    padding: 6px 18px;
+    border-radius: 16px;
+    border: 1px solid #219653;
 }
 
-.estado .off {
-    background-color: #ccc;
-    color: black;
+.estado .inactivo {
+    background-color: #ffeaea;
+    color: #b00;
+    padding: 6px 18px;
+    border-radius: 16px;
+    border: 1px solid #b00;
 }
 
 /* Responsivo */
