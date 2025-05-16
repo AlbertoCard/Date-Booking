@@ -13,9 +13,10 @@ import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./components/Registro.vue";
 import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
 import DetalleServicio from "./Components/DetalleServicio.vue";
+import Busqueda from "./Components/Busqueda.vue";
 
 const routes = [
-  { path: "/inicio", component: Inicio },
+  { path: "/", component: Inicio },
   { path: "/nosotros", component: Nosotros },
   { path: "/detalle-servicio/:id", component: DetalleServicio },
   { path: "/:pathMatch(.*)*", component: NotFound },
