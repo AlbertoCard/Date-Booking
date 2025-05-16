@@ -4,7 +4,7 @@
       <div class="not-found-content">
         <h1 class="not-found-title">404</h1>
         <p class="not-found-message">Lo sentimos, la página que buscas no existe.</p>
-        <router-link href="/" class="not-found-link">Volver al inicio</router-link>
+        <router-link to="/" class="not-found-link">Volver al inicio</router-link>
       </div>
     </div>
   </template>

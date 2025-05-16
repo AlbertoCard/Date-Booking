@@ -3,7 +3,7 @@
         <ul class="flex flex-col gap-2 flex-grow">
             <li class="flex-center cursor-pointer p-16-semibold w-full whitespace-nowrap">
                 <router-link 
-                    to="/inicio"
+                    to="/"
                     @click="handleOptionClick"
                     class="p-16-semibold flex size-full gap-4 p-4 group font-semibold rounded-full bg-cover 
                     hover:bg-blue-100 hover:shadow-inner 

@@ -12,7 +12,6 @@ import Busqueda from "./Components/Busqueda.vue";
 
 const routes = [
   { path: "/", component: Inicio },
-  { path: "/inicio", component: Inicio },
   { path: "/nosotros", component: Nosotros },
   { path: "/:pathMatch(.*)*", component: NotFound },
   { path: "/login", component: Login },
