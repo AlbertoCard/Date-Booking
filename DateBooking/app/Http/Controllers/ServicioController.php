@@ -34,7 +34,6 @@ class ServicioController extends Controller
 
         return response()->json($servicio, 201);
     }
-}
   
     public function search($search)
     {
@@ -49,3 +48,4 @@ class ServicioController extends Controller
             ->get();
     }
 }
+
