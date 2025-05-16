@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('metodo_pago', 100);
             $table->string('estado_pago', 50);
             $table->dateTime('fecha_pago')->default(now());
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

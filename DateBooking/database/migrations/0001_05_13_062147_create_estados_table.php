@@ -11,14 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('usuarios', function (Blueprint $table) {
-            $table->string('uid', 128)->primary();
+        Schema::create('estados', function (Blueprint $table) {
+            $table->integerIncrements('id_estado')->primary();
             $table->string('nombre');
-            $table->string('email');
-            $table->string('telefono', 20)->default('0000000000');
-            $table->text('foto_url');
-            $table->string('rol', 20)->default('cliente');
-            $table->tinyInteger('activo');
+            $table->unsignedInteger('id_pais');
+            $table->foreign('id_pais')->references('id_pais')->on('pais');
             $table->timestamps();
         });
     }
@@ -28,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuarios');
+        Schema::dropIfExists('estados');
     }
 };

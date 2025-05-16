@@ -22,6 +22,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('capacidad');
             $table->date('fecha_inicio');
             $table->date('fecha_fin');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

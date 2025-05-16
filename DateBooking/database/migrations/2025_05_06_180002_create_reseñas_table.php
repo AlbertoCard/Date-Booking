@@ -22,6 +22,7 @@ return new class extends Migration
             $table->char('calificacion', 1);
             $table->string('descripcion')->default('');
             $table->date('fecha')->default(now());
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

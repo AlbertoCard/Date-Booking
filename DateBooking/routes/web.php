@@ -11,6 +11,3 @@ use App\Http\Controllers\ServicioController;
 // Route::get('/inicio', fn() => view('vue'));
 // Route::get('/nosotros', fn() => view('vue'));
 
-
-//ruta que devuelve la lista de servicios
-Route::get('/servicios', [ServicioController::class, 'index'])->name('servicios.index');

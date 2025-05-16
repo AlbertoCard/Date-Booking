@@ -11,10 +11,11 @@ import Dashboard from "./components/Dashboard.vue";
 import Registro from "./components/Registro.vue";
 import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
 import DetalleServicio from "./Components/DetalleServicio.vue";
+import Busqueda from "./Components/Busqueda.vue";
+// import Registro from "./components/Registro.vue";
 
 const routes = [
   { path: "/", component: Inicio },
-  { path: "/inicio", component: Inicio },
   { path: "/nosotros", component: Nosotros },
   { path: "/nuevo-servicio", component: NuevoServicio },
   { path: "/servicio-agregados", component: VerServicio },
@@ -25,6 +26,7 @@ const routes = [
   { path: "/dashboard", component: Dashboard },
   { path: "/reset-password", component: RestablecerContraseña },
   { path: "/registro", component: Registro },
+  { path: "/busqueda/:search", component: Busqueda },
 ];
 
 const history = createWebHistory();
