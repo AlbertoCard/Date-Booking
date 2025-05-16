@@ -41,6 +41,10 @@
                 </fieldset>
             </div>
         </div>
+        <!-- Mensaje si no hay resultados -->
+            <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
+                No se encontraron servicios relacionados con "{{ searchText }}".
+            </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
@@ -135,7 +139,7 @@ export default {
     },
     methods: {
         obtenerServiciosPorCategoria(categoria) {
-            this.cargando = true; 
+            this.cargando = true;
             if (categoria === 'todos') {
                 axios.get(`/api/servicios/${this.searchText}`)
                     .then(response => {
@@ -246,14 +250,7 @@ export default {
     cursor: pointer;
 }
 
-.editar {
-    background-color: #e5e5e5;
-}
 
-.cancelar {
-    background-color: #ffe5e5;
-    color: #b00;
-}
 
 .precio-estrellas {
     text-align: right;
@@ -276,16 +273,6 @@ export default {
     font-weight: bold;
     border: none;
     cursor: pointer;
-}
-
-.estado .on {
-    background-color: #4caf50;
-    color: white;
-}
-
-.estado .off {
-    background-color: #ccc;
-    color: black;
 }
 
 
@@ -336,6 +323,19 @@ fieldset {
     align-items: center;
 }
 
+.sin-resultados {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 10px;
+    padding: 30px 20px;
+    margin: 30px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08);
+    letter-spacing: 0.5px;
+}
 
 
 
