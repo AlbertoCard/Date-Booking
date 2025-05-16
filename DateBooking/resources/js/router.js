@@ -19,14 +19,17 @@ const routes = [
   { path: "/", component: Inicio },
   { path: "/nosotros", component: Nosotros },
   { path: "/detalle-servicio/:id", component: DetalleServicio },
-  { path: "/:pathMatch(.*)*", component: NotFound },
+  { path: "/nuevo-servicio", component: NuevoServicio },
+  { path: "/servicio-agregados", component: VerServicio },
+  { path: "/nueva-disponibilidad/:id", component: NuevaDisponibilidad },
   { path: "/login", component: Login },
   { path: "/dashboard", component: Dashboard },
   { path: "/reset-password", component: RestablecerContraseña },
   { path: "/registro", component: Registro },
   { path: "/busqueda/:search", component: Busqueda },
   { path: "/servicios", component: Servicios },
-  {path: "/validaciones", component: Validaciones},
+  { path: "/validaciones", component: Validaciones },
+  { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 
 const history = createWebHistory();
