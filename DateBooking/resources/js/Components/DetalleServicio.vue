@@ -1,5 +1,5 @@
 <template>
-    Hola desde Detalle Servicio
+    Hola desde detalle servicio
 </template>
 
 <script>
