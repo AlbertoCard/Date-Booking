@@ -32,3 +32,4 @@ Route::post('/servicios', [ServicioController::class, 'store']);
 
 // Rutas de disponibilidad
 Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
+Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);

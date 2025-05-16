@@ -85,7 +85,7 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../utils/app.js';
+import API_ROUTES from '../utils/index.js';
 
 export default {
     name: 'NuevaDisponibilidad',
@@ -114,6 +114,12 @@ export default {
             mensaje: {
                 texto: '',
                 tipo: ''
+            },
+            errores: {
+                fecha: '',
+                hora_inicio: '',
+                hora_fin: '',
+                dias: ''
             }
         };
     },
@@ -126,7 +132,12 @@ export default {
                 this.disponibilidad.hora_inicio &&
                 this.disponibilidad.hora_fin &&
                 this.disponibilidad.intervalo &&
-                this.hayDiasSeleccionados;
+                this.hayDiasSeleccionados &&
+                this.horasValidas;
+        },
+        horasValidas() {
+            if (!this.disponibilidad.hora_inicio || !this.disponibilidad.hora_fin) return true;
+            return this.disponibilidad.hora_inicio < this.disponibilidad.hora_fin;
         }
     },
     methods: {
@@ -134,11 +145,48 @@ export default {
             if (hora.split(':').length === 3) return hora;
             return hora + ':00';
         },
+        validarFormulario() {
+            this.errores = {
+                fecha: '',
+                hora_inicio: '',
+                hora_fin: '',
+                dias: ''
+            };
+
+            let esValido = true;
+
+            // Validar fecha
+            if (!this.disponibilidad.fecha) {
+                this.errores.fecha = 'La fecha es requerida';
+                esValido = false;
+            } else {
+                const fechaSeleccionada = new Date(this.disponibilidad.fecha);
+                const hoy = new Date();
+                if (fechaSeleccionada < hoy) {
+                    this.errores.fecha = 'La fecha no puede ser anterior a hoy';
+                    esValido = false;
+                }
+            }
+
+            // Validar horas
+            if (!this.horasValidas) {
+                this.errores.hora_inicio = 'La hora de inicio debe ser menor a la hora de fin';
+                this.errores.hora_fin = 'La hora de fin debe ser mayor a la hora de inicio';
+                esValido = false;
+            }
+
+            // Validar días seleccionados
+            if (!this.hayDiasSeleccionados) {
+                this.errores.dias = 'Debe seleccionar al menos un día';
+                esValido = false;
+            }
+
+            return esValido;
+        },
         async guardarDisponibilidad() {
-            if (!this.formularioValido) return;
-            if (this.diasSeleccionados.length === 0) {
+            if (!this.validarFormulario()) {
                 this.mensaje = {
-                    texto: 'Debes seleccionar al menos un día',
+                    texto: 'Por favor, corrija los errores en el formulario',
                     tipo: 'error'
                 };
                 return;
@@ -148,7 +196,6 @@ export default {
             this.mensaje = { texto: '', tipo: '' };
 
             try {
-                // Crear una disponibilidad para cada día seleccionado
                 const promesasDisponibilidad = this.diasSeleccionados.map(async (dia) => {
                     const datosAEnviar = {
                         ...this.disponibilidad,
@@ -159,7 +206,6 @@ export default {
                         fecha: this.disponibilidad.fecha
                     };
 
-                    console.log('Enviando disponibilidad para día:', dia, datosAEnviar);
                     return axios.post(API_ROUTES.disponibilidad.crear, datosAEnviar);
                 });
 

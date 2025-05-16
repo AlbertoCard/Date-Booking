@@ -36,4 +36,25 @@ class DisponibilidadController extends Controller
 
         return response()->json($disponibilidad, 201);
     }
+
+    public function toggleActivo($id_servicio)
+    {
+        $disponibilidades = Disponibilidad::where('id_servicio', $id_servicio)->get();
+        
+        if ($disponibilidades->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron disponibilidades para este servicio'], 404);
+        }
+
+        $nuevoEstado = $disponibilidades->first()->activo == 1 ? 0 : 1;
+
+        foreach ($disponibilidades as $disponibilidad) {
+            $disponibilidad->activo = $nuevoEstado;
+            $disponibilidad->save();
+        }
+
+        return response()->json([
+            'message' => 'Estado actualizado correctamente',
+            'activo' => $nuevoEstado
+        ]);
+    }
 }
