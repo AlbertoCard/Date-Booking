@@ -8,6 +8,8 @@ import VerServicio from "./Components/VerServicios.vue";
 import Login from "./components/Login.vue";
 import RestablecerContraseña from "./components/RestablecerContraseña.vue";
 import Dashboard from "./components/Dashboard.vue";
+import Servicios from "./Components/Admin/Servicios.vue";
+import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./components/Registro.vue";
 import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
 import DetalleServicio from "./Components/DetalleServicio.vue";
@@ -27,6 +29,8 @@ const routes = [
   { path: "/reset-password", component: RestablecerContraseña },
   { path: "/registro", component: Registro },
   { path: "/busqueda/:search", component: Busqueda },
+  { path: "/servicios", component: Servicios },
+  {path: "/validaciones", component: Validaciones},
 ];
 
 const history = createWebHistory();
