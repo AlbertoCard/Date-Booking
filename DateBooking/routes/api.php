@@ -4,7 +4,6 @@ use App\Http\Controllers\ServicioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\DisponibilidadController;
 /*
 |--------------------------------------------------------------------------
@@ -40,3 +39,6 @@ Route::prefix('servicios')->group(function () {
     Route::get('/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
 });
+
+
+Route::get('/servicios', [ServicioController::class, 'index']);

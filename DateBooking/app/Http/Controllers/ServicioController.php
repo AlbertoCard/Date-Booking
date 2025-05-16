@@ -34,8 +34,7 @@ class ServicioController extends Controller
 
         return response()->json($servicio, 201);
     }
-}
-  
+    // buscar servicio
     public function search($search)
     {
         return Servicio::where('nombre', 'like', '%' . $search . '%')

@@ -406,6 +406,7 @@ export default {
     font-weight: bold;
     background: linear-gradient(to right, #2563eb, #3b82f6);
     -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
 }
 
