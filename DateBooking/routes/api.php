@@ -5,8 +5,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\EstablecimientoController;
-
 use App\Http\Controllers\DisponibilidadController;
+use App\Http\Controllers\ReservaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -46,11 +47,19 @@ Route::put('/establecimientos/{id}', [EstablecimientoController::class, 'update'
 // Rutas de disponibilidad
 Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
 Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
-// Rutas de servicios
-Route::prefix('servicios')->group(function () {
-    Route::get('/', [ServicioController::class, 'index']);
-    Route::get('/{search}', [ServicioController::class, 'search']);
-    Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
 
-    Route::post('/', [ServicioController::class, 'store']);
+// Rutas para reservas
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/reservas', [ReservaController::class, 'store']);
+    Route::get('/disponibilidad/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
+});
+
+// Rutas de servicios (públicas)
+Route::get('/servicios', [ServicioController::class, 'index']);
+Route::get('/servicios/search/{search}', [ServicioController::class, 'search']);
+Route::get('/servicios/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
+
+// Rutas de servicios (protegidas)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/servicios', [ServicioController::class, 'store']);
 });

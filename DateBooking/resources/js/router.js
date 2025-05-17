@@ -109,6 +109,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   { 
+    path: "/servicio/:id",
+    name: 'detalle-servicio',
+    component: DetalleServicio,
+    meta: { requiresAuth: true }
+  },
+  { 
     path: "/:pathMatch(.*)*", 
     component: NotFound,
     meta: { requiresAuth: false }

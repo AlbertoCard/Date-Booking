@@ -10,8 +10,23 @@ class ServicioController extends Controller
     // lista de servicios
     public function index()
     {
-        $servicios = Servicio::with('disponibilidad')->get();
-        return response()->json($servicios);
+        try {
+            $servicios = Servicio::select(
+                'id_servicio',
+                'nombre',
+                'descripcion',
+                'costo',
+                'categoria',
+                'id_ciudad'
+            )->get();
+
+            return response()->json($servicios);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener los servicios',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
     // crear nuevo servicio
     public function store(Request $request)

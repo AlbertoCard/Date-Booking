@@ -210,9 +210,11 @@ const login = async () => {
     localStorage.setItem('userData', JSON.stringify(userData));
 
     if (userData.rol === 'establecimiento') {
-      router.push('/dashboard-establecimiento');
+      //router.push('/dashboard-establecimiento');
+      router.push('/inicio');
     } else {
-      router.push('/dashboard-cliente');
+      //router.push('/dashboard-cliente');
+      router.push('/inicio');
     }
   } catch (error) {
     alert('Error al iniciar sesión: ' + error.message);
@@ -233,9 +235,11 @@ const loginWithGoogle = async () => {
     localStorage.setItem('userData', JSON.stringify(userData));
 
     if (userData.rol === 'establecimiento') {
-      router.push('/dashboard-establecimiento');
+      //router.push('/dashboard-establecimiento');
+      router.push('/inicio');
     } else {
-      router.push('/dashboard-cliente');
+      //router.push('/dashboard-cliente');
+      router.push('/inicio');
     }
   } catch (error) {
     alert('Error con Google Sign-In: ' + error.message);
