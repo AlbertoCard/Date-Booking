@@ -42,9 +42,9 @@
             </div>
         </div>
         <!-- Mensaje si no hay resultados -->
-            <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
-                No se encontraron servicios relacionados con "{{ searchText }}".
-            </div>
+        <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
+            No se encontraron servicios relacionados con "{{ searchText }}".
+        </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
@@ -165,9 +165,6 @@ export default {
                 .finally(() => {
                     this.cargando = false; // Ocultar el loader al finalizar la carga
                 });
-            console.log(this.servicios);
-            console.log(this.categoriaSeleccionada);
-            console.log(this.searchText)
         }
     },
 

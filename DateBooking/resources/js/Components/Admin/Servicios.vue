@@ -5,6 +5,10 @@
         <div class="encabezado">
             <h1>Todos los servicios</h1>
         </div>
+
+        <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
+            No se encontraron servicios relacionados con "{{ searchText }}".
+        </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
@@ -12,22 +16,23 @@
 
             <!-- Contenido -->
             <div class="info-servicio">
-            <h2>{{ servicio.nombre }}</h2>
-            <p class="descripcion">{{ servicio.descripcion }}</p>
+                <h2>{{ servicio.nombre }}</h2>
+                <p class="descripcion">{{ servicio.descripcion }}</p>
             </div>
             <!-- Precio y estrellas -->
             <div class="precio-estrellas">
-            <p class="precio">${{ servicio.costo }}</p>
-            <p class="estrellas">
-                <span v-for="i in 5" :key="i">
-                {{ i <= servicio.estrellas ? '★' : '☆' }}
-                </span>
-            </p>
+                <p class="precio">${{ servicio.costo }}</p>
+                <p class="estrellas">
+                    <span v-for="i in 5" :key="i">
+                        {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
+                </p>
             </div>
             <!-- Disponibilidad -->
             <div class="estado">
-                <span :class="servicio.disponibilidad.activo == 1 ? 'activo' : 'inactivo'">
-                    {{ servicio.disponibilidad.activo == 1 ? 'Activo' : 'Inactivo' }}
+                <span
+                    :class="servicio.disponibilidad && servicio.disponibilidad.length > 0 && servicio.disponibilidad[0].activo == 1 ? 'activo' : 'inactivo'">
+                    {{ servicio.disponibilidad && servicio.disponibilidad.length > 0 &&
+                        servicio.disponibilidad[0].activo == 1 ? 'Activo' : 'Inactivo' }}
                 </span>
             </div>
         </div>
