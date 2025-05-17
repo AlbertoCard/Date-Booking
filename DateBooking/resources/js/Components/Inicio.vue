@@ -92,6 +92,7 @@ const cargarServicios = async () => {
 };
 
 const verDetalle = (id) => {
+    console.log('Redirigiendo a servicio con ID:', id);
     router.push(`/servicio/${id}`);
 };
 

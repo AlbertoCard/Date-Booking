@@ -56,6 +56,44 @@ class ServicioController extends Controller
             ->get();
     }
 
+    public function show($id)
+    {
+        try {
+            \Log::info('Buscando servicio con ID: ' . $id);
+            
+            $servicio = Servicio::select(
+                'id_servicio',
+                'id_establecimiento',
+                'nombre',
+                'descripcion',
+                'costo',
+                'categoria',
+                'id_ciudad'
+            )
+            ->where('id_servicio', $id)
+            ->first();
+            
+            if (!$servicio) {
+                \Log::warning('Servicio no encontrado con ID: ' . $id);
+                return response()->json([
+                    'message' => 'Servicio no encontrado',
+                    'id_buscado' => $id
+                ], 404);
+            }
+            
+            \Log::info('Servicio encontrado:', $servicio->toArray());
+            return response()->json($servicio);
+            
+        } catch (\Exception $e) {
+            \Log::error('Error al buscar servicio: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al obtener el servicio',
+                'error' => $e->getMessage(),
+                'id_buscado' => $id
+            ], 500);
+        }
+    }
+
     public function categoria($search, $categoria)
     {
         return Servicio::where('nombre', 'like', '%' . $search . '%')

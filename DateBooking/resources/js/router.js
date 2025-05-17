@@ -112,7 +112,7 @@ const routes = [
     path: "/servicio/:id",
     name: 'detalle-servicio',
     component: DetalleServicio,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: false }
   },
   { 
     path: "/:pathMatch(.*)*", 

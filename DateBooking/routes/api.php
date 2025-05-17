@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/servicios', [ServicioController::class, 'index']);
 Route::get('/servicios/search/{search}', [ServicioController::class, 'search']);
 Route::get('/servicios/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
+Route::get('/servicios/{id}', [ServicioController::class, 'show']);
 
 // Rutas de servicios (protegidas)
 Route::middleware('auth:sanctum')->group(function () {
