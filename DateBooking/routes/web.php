@@ -10,3 +10,4 @@ use App\Http\Controllers\ServicioController;
 
 // Route::get('/inicio', fn() => view('vue'));
 // Route::get('/nosotros', fn() => view('vue'));
+

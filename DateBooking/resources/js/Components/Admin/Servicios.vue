@@ -1,10 +1,9 @@
 <template>
-    <!-- /resources/js/Components/Inicio.vue -->
     <div class="contenedor">
         <Loader :visible="cargando" />
         <!-- Encabezado -->
         <div class="encabezado">
-            <h1>Recomendaciones</h1>
+            <h1>Todos los servicios</h1>
         </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
@@ -30,7 +29,7 @@
 
 <script>
 import axios from 'axios';
-import Loader from './Loader.vue';
+import Loader from '../Loader.vue';
 
 export default {
     components: {

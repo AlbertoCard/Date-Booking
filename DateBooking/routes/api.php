@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\EstablecimientoController;
 
+use App\Http\Controllers\DisponibilidadController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -41,9 +42,15 @@ Route::put('/establecimientos/{id}', [EstablecimientoController::class, 'update'
     Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
 //}); 
 
+
+// Rutas de disponibilidad
+Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
+Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
 // Rutas de servicios
 Route::prefix('servicios')->group(function () {
     Route::get('/', [ServicioController::class, 'index']);
     Route::get('/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
+
+    Route::post('/', [ServicioController::class, 'store']);
 });
