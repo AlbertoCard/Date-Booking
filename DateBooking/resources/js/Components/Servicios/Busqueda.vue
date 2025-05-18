@@ -92,7 +92,7 @@
 
 <script>
 import axios from 'axios';
-import Loader from './Loader.vue';
+import Loader from '../Loader.vue';
 
 export default {
     components: {

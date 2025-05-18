@@ -11,9 +11,9 @@ import Dashboard from "./components/Dashboard.vue";
 import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./Components/Auth/Registro.vue";
-import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
+import NuevaDisponibilidad from "./Components/Servicios/NuevaDisponibilidad.vue";
 import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
-import Busqueda from "./Components/Busqueda.vue";
+import Busqueda from "./Components/Servicios/Busqueda.vue";
 
 const routes = [
   { path: "/", component: Inicio },
