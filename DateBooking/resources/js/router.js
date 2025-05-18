@@ -14,6 +14,7 @@ import Registro from "./Components/Auth/Registro.vue";
 import NuevaDisponibilidad from "./Components/Servicios/NuevaDisponibilidad.vue";
 import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
+import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 
 const routes = [
   { path: "/", component: Inicio },
@@ -29,6 +30,7 @@ const routes = [
   { path: "/busqueda/:search", component: Busqueda },
   { path: "/servicios", component: Servicios },
   { path: "/validaciones", component: Validaciones },
+  {path: "/establecimientos/:id", component: Establecimiento},
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 
