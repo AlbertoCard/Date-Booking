@@ -5,6 +5,10 @@
         <div class="encabezado">
             <h1>Todos los servicios</h1>
         </div>
+
+        <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
+            No se encontraron servicios relacionados con "{{ searchText }}".
+        </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
@@ -22,6 +26,14 @@
                     <span v-for="i in 5" :key="i">
                         {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
                 </p>
+            </div>
+            <!-- Disponibilidad -->
+            <div class="estado">
+                <span
+                    :class="servicio.disponibilidad && servicio.disponibilidad.length > 0 && servicio.disponibilidad[0].activo == 1 ? 'activo' : 'inactivo'">
+                    {{ servicio.disponibilidad && servicio.disponibilidad.length > 0 &&
+                        servicio.disponibilidad[0].activo == 1 ? 'Activo' : 'Inactivo' }}
+                </span>
             </div>
         </div>
     </div>
@@ -159,23 +171,30 @@ export default {
     font-size: 18px;
 }
 
-.estado button {
-    width: 60px;
-    height: 36px;
-    border-radius: 18px;
+
+.estado {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 90px;
+    font-size: 16px;
     font-weight: bold;
-    border: none;
-    cursor: pointer;
 }
 
-.estado .on {
-    background-color: #4caf50;
-    color: white;
+.estado .activo {
+    background-color: #d4f8e8;
+    color: #219653;
+    padding: 6px 18px;
+    border-radius: 16px;
+    border: 1px solid #219653;
 }
 
-.estado .off {
-    background-color: #ccc;
-    color: black;
+.estado .inactivo {
+    background-color: #ffeaea;
+    color: #b00;
+    padding: 6px 18px;
+    border-radius: 16px;
+    border: 1px solid #b00;
 }
 
 /* Responsivo */

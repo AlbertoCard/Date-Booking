@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\DisponibilidadController;
+use App\Http\Controllers\EstablecimientoController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -38,4 +40,11 @@ Route::prefix('servicios')->group(function () {
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
 
     Route::post('/', [ServicioController::class, 'store']);
+});
+
+
+
+Route::prefix('establecimientos')->group(function () {
+    Route::get('/', [EstablecimientoController::class, 'index']);
+    Route::get('/{opcion}', [EstablecimientoController::class, 'show']);
 });
