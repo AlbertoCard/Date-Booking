@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import Inicio from "./components/Inicio.vue";
 import Nosotros from "./components/Nosotros.vue";
 import NotFound from "./components/NotFound.vue";
-import NuevoServicio from "./components/NuevoServicio.vue";
-import VerServicio from "./Components/VerServicios.vue";
+import NuevoServicio from "./Components/Servicios/NuevoServicio.vue";
+import VerServicio from "./Components/Servicios/VerServicios.vue";
 import Login from "./components/Auth/Login.vue";
 import RestablecerContraseña from "./components/Auth/RestablecerContraseña.vue";
 import Dashboard from "./components/Dashboard.vue";
@@ -12,7 +12,7 @@ import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./Components/Auth/Registro.vue";
 import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
-import DetalleServicio from "./Components/DetalleServicio.vue";
+import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Busqueda.vue";
 
 const routes = [
