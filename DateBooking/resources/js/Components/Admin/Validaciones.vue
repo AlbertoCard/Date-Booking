@@ -31,8 +31,16 @@
         </div>
         <ul v-if="establecimientos.length" class="establecimientos-list">
             <li v-for="establecimiento in establecimientos" :key="establecimiento.id" class="establecimiento-card">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
                 <strong>{{ establecimiento.nombre }}</strong>
                 <p v-if="establecimiento.direccion">{{ establecimiento.direccion }}</p>
+                </div>
+                <span
+                :class="['estado-indicador', establecimiento.estado === 'activo' ? 'activo' : 'inactivo']">
+                {{ establecimiento.estado === 'activo' ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
             </li>
         </ul>
     </div>
@@ -85,7 +93,7 @@ export default {
                         this.cargando = false;
                     });
             } else {
-                axios.get(`/api/establecimientos/${opcion}`)
+                axios.get(`/api/establecimientos/estado/${opcion}`)
                     .then(response => {
                         this.establecimientos = response.data;
                     })
@@ -115,8 +123,8 @@ export default {
 }
 
 .establecimientos-container {
-    max-width: 600px;
-    margin: 2rem auto;
+    max-width: 900px;
+    margin: 1rem auto;
     padding: 1.5rem;
     background: #fff;
     border-radius: 10px;
@@ -199,6 +207,30 @@ fieldset {
     font-weight: bold;
     box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08);
     letter-spacing: 0.5px;
+}
+
+
+.estado-indicador {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.estado-indicador.activo {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.estado-indicador.inactivo {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
 

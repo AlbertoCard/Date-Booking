@@ -14,7 +14,7 @@ class EstablecimientoController extends Controller
         $establecimientos = Establecimiento::all();
         return response()->json($establecimientos);
     }
-    function show($opcion)
+    function porEstado($opcion)
     {
         $establecimientos = Establecimiento::where('estado', $opcion)->get();
         return response()->json($establecimientos);
