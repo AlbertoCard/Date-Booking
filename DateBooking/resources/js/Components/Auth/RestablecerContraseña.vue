@@ -62,7 +62,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
 
 const router = useRouter();
 const email = ref('');
