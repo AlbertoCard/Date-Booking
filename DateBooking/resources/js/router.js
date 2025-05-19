@@ -8,13 +8,18 @@ import RestablecerContraseña from "./Components/RestablecerContraseña.vue";
 import DashboardCliente from "./Components/DashboardCliente.vue";
 import DashboardEstablecimiento from "./Components/DashboardEstablecimiento.vue";
 import Registro from "./Components/Registro.vue";
-import Dashboard from "./components/Dashboard.vue";
-import Busqueda from "./Components/Busqueda.vue";
-
 
 // Importar middlewares
 import auth from './middleware/auth';
 import role from './middleware/role';
+import NuevoServicio from "./components/NuevoServicio.vue";
+import VerServicio from "./Components/VerServicios.vue";
+import Dashboard from "./components/Dashboard.vue";
+import Servicios from "./Components/Admin/Servicios.vue";
+import Validaciones from "./Components/Admin/Validaciones.vue";
+import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
+import DetalleServicio from "./Components/DetalleServicio.vue";
+import Busqueda from "./Components/Busqueda.vue";
 
 const routes = [
   { 
@@ -64,19 +69,56 @@ const routes = [
     meta: { requiresAuth: false }
   },
   { 
+    path: "/detalle-servicio/:id", 
+    component: DetalleServicio,
+    meta: { requiresAuth: false }
+  },
+  { 
+    path: "/nuevo-servicio", 
+    component: NuevoServicio,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: "/servicio-agregados", 
+    component: VerServicio,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: "/nueva-disponibilidad/:id", 
+    component: NuevaDisponibilidad,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: "/dashboard", 
+    component: Dashboard,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: "/busqueda/:search", 
+    component: Busqueda,
+    meta: { requiresAuth: false }
+  },
+  { 
+    path: "/servicios", 
+    component: Servicios,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: "/validaciones", 
+    component: Validaciones,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: "/servicio/:id",
+    name: 'detalle-servicio',
+    component: DetalleServicio,
+    meta: { requiresAuth: false }
+  },
+  { 
     path: "/:pathMatch(.*)*", 
     component: NotFound,
     meta: { requiresAuth: false }
-  },
-  { path: "/", component: Inicio },
-  { path: "/inicio", component: Inicio },
-  { path: "/nosotros", component: Nosotros },
-  { path: "/:pathMatch(.*)*", component: NotFound },
-  { path: "/login", component: Login },
-  { path: "/dashboard", component: Dashboard },
-  { path: "/reset-password", component: RestablecerContraseña },
-  { path: "/registro", component: Registro },
-  { path: "/busqueda/:search", component: Busqueda },
+  }
 ];
 
 const router = createRouter({
