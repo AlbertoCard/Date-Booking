@@ -159,4 +159,23 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
+
+    function obtenerReservas($id)
+    {
+        try {
+            $usuario = Usuario::with('reservas')
+                ->where('uid', $id)
+                ->first();
+            if (!$usuario) {
+                return response()->json(['message' => 'Usuario no encontrado'], 404);
+            }
+            $reservas = $usuario->reservas;
+            if ($reservas->isEmpty()) {
+                return response()->json(['message' => 'No hay reservas para este usuario'], 404);
+            }
+            return response()->json(['reservas' => $reservas], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al obtener reservas', 'error' => $e->getMessage()], 500);
+        }
+    }
 }

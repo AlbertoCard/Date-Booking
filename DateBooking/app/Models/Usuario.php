@@ -40,4 +40,10 @@ class Usuario extends Model
         'fecha_creacion' => 'datetime',
         'activo' => 'boolean'
     ];
+
+    // Relacion con reservas
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class, 'id_usuario', 'uid');
+    }
 }

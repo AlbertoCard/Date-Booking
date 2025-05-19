@@ -15,6 +15,7 @@ import NuevaDisponibilidad from "./Components/Servicios/NuevaDisponibilidad.vue"
 import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
+import MisReservas from "./Components/Reservas/MisReservas.vue";
 
 const routes = [
   { path: "/", component: Inicio },
@@ -31,6 +32,7 @@ const routes = [
   { path: "/servicios", component: Servicios },
   { path: "/validaciones", component: Validaciones },
   {path: "/establecimientos/:nombre", component: Establecimiento},
+  { path: "/mis-reservas/:id", component: MisReservas },
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 

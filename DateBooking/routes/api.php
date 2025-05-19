@@ -51,3 +51,8 @@ Route::prefix('establecimientos')->group(function () {
     Route::put('/{id}', [EstablecimientoController::class, 'actualizarEstado']);
     Route::put('/rechazar/{id}', [EstablecimientoController::class, 'rechazarEstablecimiento']);
 });
+
+
+Route::prefix('reservas')->group(function () {
+    Route::get('/{id}', [UsuarioController::class, 'obtenerReservas']);
+});
