@@ -2,25 +2,28 @@
     <div class="establecimiento-info">
         <Loader :visible="cargando" />
         <div class="header">
-            <div>
-                <h1 class="nombre">{{ establecimiento?.nombre }}</h1>
-                <span class="estado" :class="establecimiento?.estado === 'activo' ? 'activo' : 'inactivo'">
-                    {{ establecimiento?.estado }}
-                </span>
+            <div class="header-flex">
+                <button @click="$router.back()" class="volver">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                    <span style="font-size: 1rem; color: #334155;">Volver</span>
+                </button>
+                <div>
+                    <h1 class="nombre">{{ establecimiento?.nombre }}</h1>
+                    <span class="estado" :class="establecimiento?.estado === 'activo' ? 'activo' : 'inactivo'">
+                        {{ establecimiento?.estado }}
+                    </span>
+                </div>
             </div>
             <div class="acciones">
-                <button
-                    v-if="establecimiento?.estado"
+                <button v-if="establecimiento?.estado"
                     :class="['estado-btn', establecimiento?.estado === 'activo' ? 'activo' : 'inactivo']"
-                    @click="toggleEstado"
-                >
+                    @click="toggleEstado">
                     {{ establecimiento?.estado === 'activo' ? 'Suspender' : 'Autorizar' }}
                 </button>
-                <button
-                    v-if="establecimiento?.estado"
-                    class="estado-btn rechazar"
-                    @click="rechazar"
-                >
+                <button v-if="establecimiento?.estado" class="estado-btn rechazar" @click="rechazar">
                     Rechazar
                 </button>
             </div>
@@ -135,16 +138,43 @@ export default {
     justify-content: space-between;
 }
 
+/* .header-flex {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+} */
+
+.volver {
+    margin-left: -1rem;
+    margin-top: -1rem;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #334155;
+}
+
+.header {
+    position: relative;
+}
+
 .nombre {
     font-size: 1.5rem;
     font-weight: 700;
     margin: 0;
     color: #1e293b;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.75rem;
 }
-
 .estado {
     display: inline-block;
     margin-top: 0.25rem;
+    vertical-align: middle;
     padding: 0.2em 0.8em;
     border-radius: 999px;
     font-size: 0.95rem;
@@ -176,10 +206,12 @@ export default {
     font-size: 1rem;
     font-weight: 600;
 }
+
 .estado-btn.inactivo {
     background: #4f46e5;
     color: #fff;
 }
+
 .estado-btn.activo {
     background: #dc2626;
     color: #fff;
@@ -196,7 +228,7 @@ export default {
     background: #f3f4f6;
     padding: 1.5rem 2rem;
     border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     /* Add horizontal scroll for overflow on small screens */
     overflow-x: auto;
 }
@@ -209,12 +241,12 @@ export default {
     background: #fff;
     border-radius: 6px;
     padding: 1rem 1.2rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     transition: box-shadow 0.2s;
 }
 
 .info-item:hover {
-    box-shadow: 0 4px 12px rgba(99,102,241,0.08);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
 }
 
 .label {
@@ -238,6 +270,7 @@ export default {
     margin-top: 1rem;
     border-radius: 4px;
 }
+
 .estado-btn.rechazar {
     background: gray;
     color: #fff;
