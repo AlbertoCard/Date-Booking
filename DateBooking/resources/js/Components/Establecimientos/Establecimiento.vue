@@ -5,7 +5,7 @@
             <div>
                 <h1 class="nombre">{{ establecimiento?.nombre }}</h1>
                 <span class="estado" :class="establecimiento?.estado === 'activo' ? 'activo' : 'inactivo'">
-                    {{ establecimiento?.estado === 'activo' ? 'Activo' : 'Inactivo' }}
+                    {{ establecimiento?.estado }}
                 </span>
             </div>
             <div class="acciones">
@@ -100,7 +100,7 @@ export default {
         rechazar() {
             this.cargando = true;
             const id = this.establecimiento.id_establecimiento;
-            axios.delete(`/api/establecimientos/rechazar/${id}`)
+            axios.put(`/api/establecimientos/rechazar/${id}`)
                 .then(response => {
                     this.establecimiento = response.data;
                 })

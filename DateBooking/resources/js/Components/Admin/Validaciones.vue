@@ -31,16 +31,20 @@
         </div>
         <ul v-if="establecimientos.length" class="establecimientos-list">
             <li v-for="establecimiento in establecimientos" :key="establecimiento.id" class="establecimiento-card">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
+            <router-link
+                :to="`establecimientos/${establecimiento.nombre}`"
+                class="establecimiento-info"
+                style="text-decoration: none; color: inherit;"
+            >
                 <div>
-                <strong>{{ establecimiento.nombre }}</strong>
-                <p v-if="establecimiento.direccion">{{ establecimiento.direccion }}</p>
+                    <strong>{{ establecimiento.nombre }}</strong>
+                    <p v-if="establecimiento.direccion">{{ establecimiento.direccion }}</p>
                 </div>
                 <span
-                :class="['estado-indicador', establecimiento.estado === 'activo' ? 'activo' : 'inactivo']">
-                {{ establecimiento.estado === 'activo' ? 'Activo' : 'Inactivo' }}
+                    :class="['estado-indicador', establecimiento.estado === 'activo' ? 'activo' : 'inactivo']">
+                    {{ establecimiento.estado === 'activo' ? 'Activo' : 'Inactivo' }}
                 </span>
-            </div>
+            </router-link>
             </li>
         </ul>
     </div>
@@ -233,5 +237,9 @@ fieldset {
     border: 1px solid #f5c6cb;
 }
 
-
+.establecimiento-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 </style>
