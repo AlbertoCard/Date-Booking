@@ -225,21 +225,56 @@ const realizarReserva = async () => {
   }
 
   try {
-    const datosReserva = {
-      id_servicio: servicio.value.id_servicio,
-      fecha: fechaSeleccionada.value,
-      hora: horaSeleccionada.value
+    // Obtener datos del usuario del localStorage
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.uid) {
+      alert('Error: No se encontró la información del usuario. Por favor, inicia sesión nuevamente.');
+      return;
+    }
+
+    // Primero creamos el pago
+    const pagoData = {
+      id_usuario: userData.uid,
+      monto: parseFloat(servicio.value.costo),
+      metodo_pago: 'pendiente',
+      estado_pago: 'pendiente',
+      moneda: 'MXN'
     };
 
-    const response = await axios.post('/api/reservas', datosReserva);
+    console.log('Datos del pago:', pagoData);
+    const pagoResponse = await axios.post('/api/pagos', pagoData);
+    console.log('Respuesta del pago:', pagoResponse.data);
     
-    if (response.data.id_reserva) {
-      alert(`¡Reservación exitosa! Te esperamos el ${fechaSeleccionada.value} a las ${horaSeleccionada.value}`);
-      router.push(`/pago/${response.data.id_reserva}`);
+    if (pagoResponse.data.id_pago) {
+      // Luego creamos la reserva
+      const reservaData = {
+        id_usuario: userData.uid,
+        id_servicio: parseInt(servicio.value.id_servicio),
+        id_pago: parseInt(pagoResponse.data.id_pago),
+        estado: 'pendiente',
+        fecha: `${fechaSeleccionada.value} ${horaSeleccionada.value}:00`,
+        tipo_servicio: servicio.value.categoria,
+        detalle_1: servicio.value.nombre,
+        detalle_2: servicio.value.descripcion
+      };
+
+      console.log('Datos de la reserva:', reservaData);
+      const reservaResponse = await axios.post('/api/reservas', reservaData);
+      console.log('Respuesta de la reserva:', reservaResponse.data);
+      
+      if (reservaResponse.data.id_reserva) {
+        alert(`¡Reservación exitosa! Te esperamos el ${fechaSeleccionada.value} a las ${horaSeleccionada.value}`);
+        router.push(`/pago/${pagoResponse.data.id_pago}`);
+      }
     }
   } catch (err) {
-    alert('Lo sentimos, hubo un error al procesar tu reserva. Por favor, intenta nuevamente.');
-    console.error(err);
+    console.error('Error completo:', err);
+    if (err.response) {
+      console.error('Datos del error:', err.response.data);
+      alert(`Error al realizar la reserva: ${err.response.data.message || 'Error desconocido'}`);
+    } else {
+      alert('Lo sentimos, hubo un error al procesar tu reserva. Por favor, intenta nuevamente.');
+    }
   }
 };
 

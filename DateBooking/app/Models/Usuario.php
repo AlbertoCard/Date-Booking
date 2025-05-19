@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Laravel\Sanctum\HasApiTokens;
 
 class Usuario extends Model
 {
     //
-    use HasFactory;
+    use HasFactory, HasApiTokens;
     // Desactivamos timestamps ya que no los usamos en la migración
     public $timestamps = false;
 

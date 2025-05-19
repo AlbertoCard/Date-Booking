@@ -7,6 +7,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\PagoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,8 +28,6 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
     Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']); 
-    //Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
-    //Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
 });
 
 // Ruta específica para obtener usuario por UID
@@ -39,20 +38,19 @@ Route::get('/establecimientos', [EstablecimientoController::class, 'index']);
 Route::post('/establecimientos', [EstablecimientoController::class, 'store']);
 Route::get('/establecimientos/usuario/{uid}', [EstablecimientoController::class, 'getByUsuario']);
 Route::put('/establecimientos/{id}', [EstablecimientoController::class, 'update']); 
-    Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
-    Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
-//}); 
-
 
 // Rutas de disponibilidad
 Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
 Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
 
-// Rutas para reservas
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/reservas', [ReservaController::class, 'store']);
-    Route::get('/disponibilidad/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
-});
+// Rutas para reservas y pagos
+Route::post('/reservas', [ReservaController::class, 'store']);
+Route::get('/disponibilidad/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
+Route::post('/pagos', [PagoController::class, 'store']);
+Route::get('/pagos/{id}', [PagoController::class, 'show']);
+
+// Rutas para Reservas (públicas)
+Route::get('/reservas/{id}', [ReservaController::class, 'show']);
 
 // Rutas de servicios (públicas)
 Route::get('/servicios', [ServicioController::class, 'index']);
@@ -61,6 +59,4 @@ Route::get('/servicios/categoria/{search}/{categoria}', [ServicioController::cla
 Route::get('/servicios/{id}', [ServicioController::class, 'show']);
 
 // Rutas de servicios (protegidas)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/servicios', [ServicioController::class, 'store']);
-});
+Route::post('/servicios', [ServicioController::class, 'store']);

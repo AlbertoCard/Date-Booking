@@ -77,6 +77,16 @@ const registrar = async () => {
 
       console.log('Respuesta del servidor (usuario):', usuarioResponse.data)
 
+      // Guardar datos del usuario en localStorage
+      localStorage.setItem('userData', JSON.stringify({
+        uid: user.uid,
+        nombre: nombre.value,
+        email: correo.value,
+        telefono: telefono.value,
+        foto_url: fotoUrl.value,
+        rol: activeTab.value
+      }))
+
       // Si es un establecimiento, creamos también el establecimiento
       if (activeTab.value === 'establecimiento') {
         console.log('Creando establecimiento...')

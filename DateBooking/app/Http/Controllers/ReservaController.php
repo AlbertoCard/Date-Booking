@@ -9,6 +9,7 @@ use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class ReservaController extends Controller
 {
@@ -17,17 +18,32 @@ class ReservaController extends Controller
         try {
             DB::beginTransaction();
 
-            // Validar la solicitud
-            $request->validate([
-                'id_servicio' => 'required|exists:servicios,id_servicio',
-                'fecha' => 'required|date|after_or_equal:today',
-                'hora' => 'required',
-                'detalles' => 'required|array'
+            $validator = Validator::make($request->all(), [
+                'id_usuario' => 'required|string',
+                'id_servicio' => 'required|integer|exists:servicios,id_servicio',
+                'id_pago' => 'required|integer|exists:pagos,id_pago',
+                'estado' => 'required|string',
+                'fecha' => 'required|date',
+                'tipo_servicio' => 'required|string',
+                'detalle_1' => 'required|string',
+                'detalle_2' => 'required|string'
             ]);
 
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Error de validación',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
             // Verificar disponibilidad
+            $fecha = Carbon::parse($request->fecha);
             $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-                ->where('fecha', $request->fecha)
+                ->where(function($query) use ($fecha) {
+                    $query->where('fecha', $fecha->format('Y-m-d'))
+                        ->orWhere('dias', strtolower($fecha->format('l')));
+                })
+                ->where('activo', 1)
                 ->first();
 
             if (!$disponibilidad) {
@@ -36,32 +52,25 @@ class ReservaController extends Controller
                 ], 400);
             }
 
-            // Crear el pago pendiente
-            $servicio = Servicio::findOrFail($request->id_servicio);
-            $pago = Pago::create([
-                'id_usuario' => auth()->user()->uid,
-                'monto' => $servicio->costo,
-                'estado_pago' => 'pendiente',
-                'metodo_pago' => 'pendiente'
-            ]);
+            // Verificar si ya existe una reserva para esa fecha y hora
+            $reservaExistente = Reserva::where('id_servicio', $request->id_servicio)
+                ->where('fecha', $request->fecha)
+                ->where('estado', '!=', 'cancelada')
+                ->first();
 
-            // Crear la reserva
-            $reserva = Reserva::create([
-                'id_usuario' => auth()->user()->uid,
-                'id_servicio' => $request->id_servicio,
-                'id_pago' => $pago->id_pago,
-                'estado' => 'pendiente',
-                'fecha' => $request->fecha . ' ' . $request->hora,
-                'tipo_servicio' => $servicio->categoria,
-                'detalle_1' => json_encode($request->detalles),
-                'detalle_2' => ''
-            ]);
+            if ($reservaExistente) {
+                return response()->json([
+                    'message' => 'Ya existe una reserva para esta fecha y hora'
+                ], 400);
+            }
 
+            $reserva = Reserva::create($request->all());
+            
             DB::commit();
-
+            
             return response()->json([
-                'id_reserva' => $reserva->id_reserva,
-                'message' => 'Reserva creada exitosamente'
+                'message' => 'Reserva creada exitosamente',
+                'id_reserva' => $reserva->id_reserva
             ], 201);
 
         } catch (\Exception $e) {
@@ -70,6 +79,16 @@ class ReservaController extends Controller
                 'message' => 'Error al crear la reserva',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $reserva = Reserva::with(['usuario', 'servicio', 'pago'])->findOrFail($id);
+            return response()->json($reserva);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Reserva no encontrada'], 404);
         }
     }
 
