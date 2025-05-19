@@ -25,6 +25,7 @@
                 <div v-for="servicio in servicios" 
                     :key="servicio.id_servicio" 
                     class="tarjeta-servicio"
+                    @click="verDetalle(servicio.id_servicio)"
                 >
                     <!-- Imagen o ícono -->
                     <div class="imagen">
@@ -47,12 +48,6 @@
                                 {{ i <= 4 ? '★' : '☆' }}
                             </span>
                         </p>
-                        <button 
-                            class="btn-reservar"
-                            @click="verDetalle(servicio.id_servicio)"
-                        >
-                            Reservar
-                        </button>
                     </div>
                 </div>
             </div>
@@ -133,6 +128,7 @@ onMounted(() => {
     gap: 16px;
     background: white;
     transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .tarjeta-servicio:hover {
