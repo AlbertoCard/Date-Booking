@@ -46,5 +46,8 @@ Route::prefix('servicios')->group(function () {
 
 Route::prefix('establecimientos')->group(function () {
     Route::get('/', [EstablecimientoController::class, 'index']);
-    Route::get('/{opcion}', [EstablecimientoController::class, 'show']);
+    Route::get('/estado/{opcion}', [EstablecimientoController::class, 'porEstado']);
+    Route::get('/{name}', [EstablecimientoController::class, 'porNombre']);
+    Route::put('/{id}', [EstablecimientoController::class, 'actualizarEstado']);
+    Route::put('/rechazar/{id}', [EstablecimientoController::class, 'rechazarEstablecimiento']);
 });
