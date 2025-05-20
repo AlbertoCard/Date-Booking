@@ -105,6 +105,8 @@ export default {
         const errorMessage = ref('');
         const loading = ref(false);
         const message = ref(null);
+        const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
 
         const servicio = reactive({
             nombre: '',
@@ -113,21 +115,87 @@ export default {
             costo: ''
         });
 
+        const formErrors = reactive({
+            nombre: '',
+            descripcion: '',
+            categoria: '',
+            costo: '',
+            imagen: ''
+        });
+
+        const categorias = [
+            { id: 'consultoria', nombre: 'Consultoría' },
+            { id: 'mantenimiento', nombre: 'Mantenimiento' },
+            { id: 'diseno', nombre: 'Diseño' },
+            { id: 'otro', nombre: 'Otro' }
+        ];
+
+        const validateForm = () => {
+            let isValid = true;
+            // Resetear errores
+            Object.keys(formErrors).forEach(key => formErrors[key] = '');
+
+            // Validar nombre
+            if (!servicio.nombre.trim()) {
+                formErrors.nombre = 'El nombre es requerido';
+                isValid = false;
+            } else if (servicio.nombre.length < 3) {
+                formErrors.nombre = 'El nombre debe tener al menos 3 caracteres';
+                isValid = false;
+            }
+
+            // Validar descripción
+            if (!servicio.descripcion.trim()) {
+                formErrors.descripcion = 'La descripción es requerida';
+                isValid = false;
+            } else if (servicio.descripcion.length < 10) {
+                formErrors.descripcion = 'La descripción debe tener al menos 10 caracteres';
+                isValid = false;
+            }
+
+            // Validar categoría
+            if (!servicio.categoria) {
+                formErrors.categoria = 'La categoría es requerida';
+                isValid = false;
+            }
+
+            // Validar costo
+            if (!servicio.costo) {
+                formErrors.costo = 'El costo es requerido';
+                isValid = false;
+            } else if (isNaN(servicio.costo) || parseFloat(servicio.costo) < 0) {
+                formErrors.costo = 'El costo debe ser un número positivo';
+                isValid = false;
+            }
+
+            return isValid;
+        };
+
         const handleFileSelect = (event) => {
             const file = event.target.files[0];
-            if (file) {
-                if (file.size > 2 * 1024 * 1024) {
-                    errorMessage.value = 'La imagen no debe superar los 2MB';
-                    return;
-                }
+            if (!file) return;
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.value = e.target.result;
-                    errorMessage.value = '';
-                };
-                reader.readAsDataURL(file);
+            // Validar tipo de archivo
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                errorMessage.value = 'Solo se permiten archivos de imagen (JPEG, PNG, GIF)';
+                return;
             }
+
+            // Validar tamaño
+            if (file.size > MAX_FILE_SIZE) {
+                errorMessage.value = 'La imagen no debe superar los 2MB';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.value = e.target.result;
+                errorMessage.value = '';
+            };
+            reader.onerror = () => {
+                errorMessage.value = 'Error al leer el archivo';
+            };
+            reader.readAsDataURL(file);
         };
 
         const removeImage = () => {
@@ -139,18 +207,28 @@ export default {
         };
 
         const guardarServicio = async () => {
+            if (!validateForm()) {
+                message.value = {
+                    type: 'error',
+                    text: 'Por favor, corrija los errores en el formulario'
+                };
+                return;
+            }
+
             loading.value = true;
             message.value = null;
 
             try {
-                const response = await axios.post('http://localhost:8000/api/servicios', servicio);
+                const response = await axios.post('http://localhost:8000/api/servicios', {
+                    ...servicio,
+                    costo: parseFloat(servicio.costo)
+                });
 
                 message.value = {
                     type: 'success',
                     text: '¡Servicio creado exitosamente!'
                 };
 
-                // Esperar 2 segundos y redirigir
                 setTimeout(() => {
                     router.push('/servicio-agregados');
                 }, 2000);
@@ -172,6 +250,8 @@ export default {
             errorMessage,
             loading,
             message,
+            formErrors,
+            categorias,
             handleFileSelect,
             removeImage,
             guardarServicio

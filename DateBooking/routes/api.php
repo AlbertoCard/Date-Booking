@@ -74,3 +74,4 @@ Route::prefix('servicios')->group(function () {
 Route::get('/ciudades', [CiudadController::class, 'index']);
 
 
+Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
