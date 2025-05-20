@@ -5,12 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\ServicioController;
-use App\Http\Controllers\DisponibilidadController;
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-*/
+
 
 // Ruta de prueba
 Route::get('/test', function () {
