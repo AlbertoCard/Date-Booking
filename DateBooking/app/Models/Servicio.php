@@ -41,4 +41,9 @@ class Servicio extends Model
     {
         return $this->belongsTo(Ciudade::class, 'id_ciudad', 'id_ciudad');
     }
+    
+      public function imagen()
+    {
+        return $this->hasOne(Imagen::class, 'id_servicio', 'id_servicio');
+    }
 }   

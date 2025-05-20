@@ -14,7 +14,7 @@ import Dashboard from "./components/Dashboard.vue";
 import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./Components/Auth/Registro.vue";
-import NuevaDisponibilidad from "./Components/Servicios/NuevaDisponibilidad.vue";
+import EditarServicio from "./Components/Servicios/EditarServicio.vue";
 import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
@@ -63,8 +63,8 @@ const routes = [
         meta: { requiresAuth: true },
     },
     {
-        path: "/nueva-disponibilidad/:id",
-        component: NuevaDisponibilidad,
+        path: "/editar-servicio/:id",
+        component: EditarServicio,
         meta: { requiresAuth: true },
     },
     { path: "/dashboard", component: Dashboard, meta: { requiresAuth: true } },

@@ -1,13 +1,11 @@
 <?php
 
-use App\Http\Controllers\ServicioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\EstablecimientoController;
+use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\DisponibilidadController;
-use App\Http\Controllers\ReservaController;
-use App\Http\Controllers\PagoController;
+use App\Http\Controllers\CiudadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,12 +22,12 @@ Route::get('/test', function () {
 });
 
 // Rutas de usuarios
-Route::prefix('usuarios')->group(function () {
+Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
-    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']);
-    Route::get('/obtener/{uid}', [UsuarioController::class, 'show']);
-});
+    Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
+    Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
+}); 
 
 
 // Rutas de establecimientos
@@ -45,18 +43,6 @@ Route::prefix('establecimientos')->group(function () {
     Route::put('/estado/{id}', [EstablecimientoController::class, 'actualizarEstado']);
     Route::put('/rechazar/{id}', [EstablecimientoController::class, 'rechazarEstablecimiento']);
 });
-
-
-
-// Rutas de disponibilidad
-Route::prefix('disponibilidad')->group(function () {
-    Route::get('/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
-    
-    Route::post('/', [DisponibilidadController::class, 'store']);
-
-    Route::put('/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
-});
-
 
 // Rutas para pagos
 Route::prefix('pagos')->group(function () {
@@ -75,12 +61,21 @@ Route::prefix('reservas')->group(function () {
 });
 
 
-// Rutas de servicios 
+// Rutas de disponibilidad
+Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
+Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
+Route::delete('/disponibilidad/{id_servicio}', [DisponibilidadController::class, 'destroy']);
+
+// Rutas de servicios
 Route::prefix('servicios')->group(function () {
     Route::get('/', [ServicioController::class, 'index']);
+    Route::get('/{id}', [ServicioController::class, 'show']);
     Route::get('/search/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
-    Route::get('/{id}', [ServicioController::class, 'show']);
-
     Route::post('/', [ServicioController::class, 'store']);
 });
+
+// Rutas de ciudades
+Route::get('/ciudades', [CiudadController::class, 'index']);
+
+

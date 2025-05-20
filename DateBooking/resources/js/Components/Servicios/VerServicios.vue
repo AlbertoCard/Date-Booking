@@ -49,10 +49,6 @@
                 <button class="tab" :class="{ active: activeTab === 'inactivos' }" @click="activeTab = 'inactivos'">
                     Inactivos
                 </button>
-                <button class="tab" :class="{ active: activeTab === 'sin-disponibilidad' }"
-                    @click="activeTab = 'sin-disponibilidad'">
-                    Sin Disponibilidad
-                </button>
             </div>
 
             <!-- Contenido de los tabs -->
@@ -60,10 +56,24 @@
                 <Transition name="slide-fade" mode="out-in">
                     <div :key="activeTab">
                         <!-- Lista de servicios -->
-                        <div v-for="servicio in serviciosFiltrados" :key="servicio.id_servicio"
+                        <div v-for="(servicio, index) in serviciosFiltrados" :key="servicio.id_servicio"
                             class="tarjeta-servicio group">
                             <!-- Imagen o ícono -->
-                            <div class="imagen transform group-hover:scale-105 transition-all duration-300"></div>
+                            <div class="imagen transform group-hover:scale-105 transition-all duration-300">
+                                <template v-if="servicio.imagen && servicio.imagen.url">
+                                    <img :src="servicio.imagen.url" :alt="servicio.nombre"
+                                        class="w-full h-full object-cover rounded-lg" @error="handleImageError"
+                                        @load="handleImageLoad">
+                                </template>
+                                <div v-else
+                                    class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
 
                             <!-- Contenido -->
                             <div class="info-servicio">
@@ -88,24 +98,13 @@
                                             ? 'Servicio con disponibilidad'
                                             : 'Servicio temporalmente no disponible' }}
                                     </div>
-                                    <div v-else class="estado-disponibilidad sin-disponibilidad">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        <p class="mb-2">Servicio no disponible</p>
-                                        <button @click="agregarDisponibilidad(servicio.id_servicio)"
-                                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm">
-                                            + Añadir disponibilidad
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
 
                             <!-- Botones -->
                             <div class="acciones">
-                                <button class="editar transform hover:scale-105 transition-all duration-300">
+                                <button @click="editarDisponibilidad(servicio.id_servicio)"
+                                    class="editar transform hover:scale-105 transition-all duration-300">
                                     Editar
                                 </button>
                                 <button class="cancelar transform hover:scale-105 transition-all duration-300">
@@ -156,7 +155,6 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../../utils/index.js';
 
 export default {
     name: 'VerServicios',
@@ -174,8 +172,7 @@ export default {
             },
             TABS: {
                 ACTIVOS: 'activos',
-                INACTIVOS: 'inactivos',
-                SIN_DISPONIBILIDAD: 'sin-disponibilidad'
+                INACTIVOS: 'inactivos'
             }
         };
     },
@@ -184,13 +181,15 @@ export default {
             return this.servicios.filter(servicio => {
                 const tieneDisponibilidad = servicio.disponibilidad && servicio.disponibilidad.length > 0;
 
+                if (!tieneDisponibilidad) {
+                    return false;
+                }
+
                 switch (this.activeTab) {
                     case this.TABS.ACTIVOS:
-                        return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
+                        return servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
                     case this.TABS.INACTIVOS:
-                        return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
-                    case this.TABS.SIN_DISPONIBILIDAD:
-                        return !tieneDisponibilidad;
+                        return servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
                     default:
                         return false;
                 }
@@ -199,17 +198,14 @@ export default {
         mensajeNoServicios() {
             const mensajes = {
                 [this.TABS.ACTIVOS]: 'No hay servicios activos',
-                [this.TABS.INACTIVOS]: 'No hay servicios inactivos',
-                [this.TABS.SIN_DISPONIBILIDAD]: 'No hay servicios sin disponibilidad'
+                [this.TABS.INACTIVOS]: 'No hay servicios inactivos'
             };
             return mensajes[this.activeTab] || 'No hay servicios disponibles';
         },
-        // Nuevo computed property para el estado del servicio
         estadoServicio() {
             if (!this.servicioAToggle?.disponibilidad?.length) return null;
             return this.servicioAToggle.disponibilidad[0].activo;
         },
-        // Nuevo computed property para el mensaje del modal
         mensajeModal() {
             if (!this.servicioAToggle) return '';
             return this.estadoServicio === this.ESTADOS.INACTIVO
@@ -223,17 +219,47 @@ export default {
     methods: {
         async obtenerServicios() {
             try {
-                const response = await axios.get(API_ROUTES.servicios);
-                this.servicios = response.data.map(servicio => ({
-                    ...servicio,
-                    estrellas: Math.floor(Math.random() * 5) + 1
-                }));
+                console.log('Obteniendo servicios...');
+                const response = await axios.get('/api/servicios');
+                console.log('Respuesta del servidor:', response.data);
+
+                this.servicios = response.data.map(servicio => {
+                    console.log('Procesando servicio:', {
+                        id: servicio.id_servicio,
+                        nombre: servicio.nombre,
+                        tieneImagen: !!servicio.imagen,
+                        urlImagen: servicio.imagen?.url
+                    });
+
+                    return {
+                        ...servicio,
+                        estrellas: Math.floor(Math.random() * 5) + 1
+                    };
+                });
             } catch (error) {
-                console.error('Error al obtener los servicios:', error);
+                console.error('Error al obtener servicios:', error);
+                this.error = 'Error al cargar los servicios';
             }
         },
+        handleImageError(e) {
+            console.error('Error al cargar la imagen:', {
+                src: e.target.src,
+                servicio: this.servicios.find(s => s.imagen?.url === e.target.src)
+            });
+            e.target.style.display = 'none';
+            e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-600');
+        },
+        handleImageLoad(e) {
+            console.log('Imagen cargada exitosamente:', {
+                src: e.target.src,
+                servicio: this.servicios.find(s => s.imagen?.url === e.target.src)
+            });
+        },
         agregarDisponibilidad(idServicio) {
-            this.$router.push(`/nueva-disponibilidad/${idServicio}`);
+            this.$router.push(`/editar-servicio/${idServicio}`);
+        },
+        editarDisponibilidad(idServicio) {
+            this.$router.push(`/editar-servicio/${idServicio}`);
         },
         async toggleDisponibilidad(idServicio) {
             // Encontrar el servicio que se va a toggle
@@ -249,7 +275,7 @@ export default {
             this.loading = true;
 
             try {
-                const response = await axios.put(API_ROUTES.disponibilidad.toggle(this.servicioAToggle.id_servicio));
+                const response = await axios.put(`/api/disponibilidad/${this.servicioAToggle.id_servicio}/toggle`);
 
                 // Actualizar el estado localmente sin recargar todos los servicios
                 const index = this.servicios.findIndex(s => s.id_servicio === this.servicioAToggle.id_servicio);
@@ -406,7 +432,6 @@ export default {
     font-weight: bold;
     background: linear-gradient(to right, #2563eb, #3b82f6);
     -webkit-background-clip: text;
-    background-clip: text;
     color: transparent;
 }
 
@@ -687,27 +712,5 @@ export default {
     background-color: #fef9c3;
     color: #854d0e;
     border: 1px dashed #ca8a04;
-}
-
-.estado-disponibilidad.sin-disponibilidad {
-    background-color: #fee2e2;
-    color: #dc2626;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.estado-disponibilidad svg {
-    flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-    .estado-disponibilidad {
-        justify-content: center;
-        text-align: center;
-    }
-
-    .estado-disponibilidad.sin-disponibilidad {
-        align-items: center;
-    }
 }
 </style>

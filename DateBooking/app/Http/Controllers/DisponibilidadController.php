@@ -19,7 +19,14 @@ class DisponibilidadController extends Controller
             'hora_inicio' => 'required',
             'hora_fin' => 'required',
             'intervalo' => 'required',
-            'dias' => 'required|string|in:lunes,martes,miercoles,jueves,viernes,sabado,domingo',
+            'dias' => ['required', 'string', function ($attribute, $value, $fail) {
+                $dias = explode(',', $value);
+                foreach ($dias as $dia) {
+                    if (!in_array(trim($dia), $this->diasValidos)) {
+                        $fail('El día ' . $dia . ' no es válido.');
+                    }
+                }
+            }],
             'tipo' => 'required|string',
         ]);
 
@@ -55,6 +62,23 @@ class DisponibilidadController extends Controller
         return response()->json([
             'message' => 'Estado actualizado correctamente',
             'activo' => $nuevoEstado
+        ]);
+    }
+
+    public function destroy($id_servicio)
+    {
+        $disponibilidades = Disponibilidad::where('id_servicio', $id_servicio)->get();
+        
+        if ($disponibilidades->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron disponibilidades para este servicio'], 404);
+        }
+
+        foreach ($disponibilidades as $disponibilidad) {
+            $disponibilidad->delete();
+        }
+
+        return response()->json([
+            'message' => 'Disponibilidades eliminadas correctamente'
         ]);
     }
 }
