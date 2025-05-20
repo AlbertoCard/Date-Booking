@@ -83,7 +83,12 @@
 
                     <!-- Sección de Disponibilidad -->
                     <div class="mt-8 border-t pt-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Disponibilidad del Servicio</h2>
+                        <h1 class="titulo text-3xl font-bold text-gray-900 relative">
+                            Disponibilidad del servicio
+                            <div
+                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-600 to-blue-700">
+                            </div>
+                        </h1>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Fecha -->
@@ -117,7 +122,7 @@
                                 <input type="time" v-model="disponibilidad.hora_fin" required step="1"
                                     class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
                                 <p v-if="formErrors.hora_fin" class="text-red-500 text-sm mt-1">{{ formErrors.hora_fin
-                                    }}</p>
+                                }}</p>
                             </div>
 
                             <!-- Días -->

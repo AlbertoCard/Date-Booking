@@ -49,10 +49,6 @@
                 <button class="tab" :class="{ active: activeTab === 'inactivos' }" @click="activeTab = 'inactivos'">
                     Inactivos
                 </button>
-                <button class="tab" :class="{ active: activeTab === 'sin-disponibilidad' }"
-                    @click="activeTab = 'sin-disponibilidad'">
-                    Sin Disponibilidad
-                </button>
             </div>
 
             <!-- Contenido de los tabs -->
@@ -87,18 +83,6 @@
                                         {{ servicio.disponibilidad[0].activo === 1
                                             ? 'Servicio con disponibilidad'
                                             : 'Servicio temporalmente no disponible' }}
-                                    </div>
-                                    <div v-else class="estado-disponibilidad sin-disponibilidad">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        <p class="mb-2">Servicio no disponible</p>
-                                        <button @click="agregarDisponibilidad(servicio.id_servicio)"
-                                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm">
-                                            + Añadir disponibilidad
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -174,8 +158,7 @@ export default {
             },
             TABS: {
                 ACTIVOS: 'activos',
-                INACTIVOS: 'inactivos',
-                SIN_DISPONIBILIDAD: 'sin-disponibilidad'
+                INACTIVOS: 'inactivos'
             }
         };
     },
@@ -189,8 +172,6 @@ export default {
                         return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
                     case this.TABS.INACTIVOS:
                         return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
-                    case this.TABS.SIN_DISPONIBILIDAD:
-                        return !tieneDisponibilidad;
                     default:
                         return false;
                 }
@@ -199,17 +180,14 @@ export default {
         mensajeNoServicios() {
             const mensajes = {
                 [this.TABS.ACTIVOS]: 'No hay servicios activos',
-                [this.TABS.INACTIVOS]: 'No hay servicios inactivos',
-                [this.TABS.SIN_DISPONIBILIDAD]: 'No hay servicios sin disponibilidad'
+                [this.TABS.INACTIVOS]: 'No hay servicios inactivos'
             };
             return mensajes[this.activeTab] || 'No hay servicios disponibles';
         },
-        // Nuevo computed property para el estado del servicio
         estadoServicio() {
             if (!this.servicioAToggle?.disponibilidad?.length) return null;
             return this.servicioAToggle.disponibilidad[0].activo;
         },
-        // Nuevo computed property para el mensaje del modal
         mensajeModal() {
             if (!this.servicioAToggle) return '';
             return this.estadoServicio === this.ESTADOS.INACTIVO
@@ -689,27 +667,5 @@ export default {
     background-color: #fef9c3;
     color: #854d0e;
     border: 1px dashed #ca8a04;
-}
-
-.estado-disponibilidad.sin-disponibilidad {
-    background-color: #fee2e2;
-    color: #dc2626;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.estado-disponibilidad svg {
-    flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-    .estado-disponibilidad {
-        justify-content: center;
-        text-align: center;
-    }
-
-    .estado-disponibilidad.sin-disponibilidad {
-        align-items: center;
-    }
 }
 </style>
