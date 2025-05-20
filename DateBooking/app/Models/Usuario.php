@@ -9,7 +9,8 @@ use Laravel\Sanctum\HasApiTokens;
 class Usuario extends Model
 {
     //
-    use HasFactory, HasApiTokens;
+    use HasFactory;
+    //, HasApiTokens;
     // Desactivamos timestamps ya que no los usamos en la migración
     public $timestamps = false;
 
@@ -18,7 +19,7 @@ class Usuario extends Model
 
     // Especificamos la llave primaria
     protected $primaryKey = 'uid';
-    
+
     // Especificamos que la llave primaria es un string
     protected $keyType = 'string';
     public $incrementing = false;

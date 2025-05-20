@@ -40,7 +40,7 @@ class ReservaController extends Controller
             // Verificar disponibilidad
             $fecha = Carbon::parse($request->fecha);
             $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-                ->where(function($query) use ($fecha) {
+                ->where(function ($query) use ($fecha) {
                     $query->where('fecha', $fecha->format('Y-m-d'))
                         ->orWhere('dias', strtolower($fecha->format('l')));
                 })
@@ -66,14 +66,13 @@ class ReservaController extends Controller
             }
 
             $reserva = Reserva::create($request->all());
-            
+
             DB::commit();
-            
+
             return response()->json([
                 'message' => 'Reserva creada exitosamente',
                 'id_reserva' => $reserva->id_reserva
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -97,9 +96,9 @@ class ReservaController extends Controller
     {
         try {
             $fecha = Carbon::parse($request->fecha);
-            
+
             $disponibilidad = Disponibilidad::where('id_servicio', $id_servicio)
-                ->where(function($query) use ($fecha) {
+                ->where(function ($query) use ($fecha) {
                     $query->where('fecha', $fecha)
                         ->orWhere('dias', strtolower($fecha->format('l')));
                 })
@@ -133,7 +132,6 @@ class ReservaController extends Controller
             }
 
             return response()->json($horasDisponibles);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener disponibilidad',
@@ -141,7 +139,7 @@ class ReservaController extends Controller
             ], 500);
         }
     }
-  
+
     function obtenerReservas($id)
     {
         try {
@@ -157,4 +155,4 @@ class ReservaController extends Controller
             ], 500);
         }
     }
-} 
+}

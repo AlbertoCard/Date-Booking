@@ -79,10 +79,9 @@ class UsuarioController extends Controller
                 'message' => 'Usuario creado exitosamente',
                 'usuario' => $usuario
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error al crear usuario', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -105,7 +104,7 @@ class UsuarioController extends Controller
 
         try {
             $usuario = Usuario::where('uid', $uid)->first();
-            
+
             if (!$usuario) {
                 Log::error('Usuario no encontrado', ['uid' => $uid]);
                 return response()->json([
@@ -128,7 +127,6 @@ class UsuarioController extends Controller
                 'message' => 'Estado actualizado correctamente',
                 'usuario' => $usuario
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error al actualizar estado de usuario', [
                 'uid' => $uid,
@@ -151,7 +149,7 @@ class UsuarioController extends Controller
 
         try {
             $usuario = Usuario::where('uid', $uid)->first();
-            
+
             if (!$usuario) {
                 Log::error('Usuario no encontrado para activar', ['uid' => $uid]);
                 return response()->json([
@@ -172,7 +170,6 @@ class UsuarioController extends Controller
                 'message' => 'Usuario activado correctamente',
                 'usuario' => $usuario
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error al activar usuario', [
                 'uid' => $uid,
@@ -194,7 +191,7 @@ class UsuarioController extends Controller
     {
         try {
             $usuario = Usuario::where('uid', $uid)->first();
-            
+
             if (!$usuario) {
                 return response()->json([
                     'message' => 'Usuario no encontrado'
@@ -218,41 +215,41 @@ class UsuarioController extends Controller
     }
 
     public function cambiarEstadoActivo(Request $request, $uid)
-{
-    // Validar el estado recibido
-    $validator = Validator::make($request->all(), [
-        'activo' => 'required|in:0,1',
-    ]);
+    {
+        // Validar el estado recibido
+        $validator = Validator::make($request->all(), [
+            'activo' => 'required|in:0,1',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Valor inválido para el campo activo. Solo se permite 0 o 1.',
-            'errors' => $validator->errors()
-        ], 422);
-    }
-
-    try {
-        $usuario = Usuario::where('uid', $uid)->first();
-
-        if (!$usuario) {
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'Usuario no encontrado',
-            ], 404);
+                'message' => 'Valor inválido para el campo activo. Solo se permite 0 o 1.',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $usuario->activo = (int) $request->activo;
-        $usuario->save();
+        try {
+            $usuario = Usuario::where('uid', $uid)->first();
 
-        return response()->json([
-            'message' => 'Estado actualizado correctamente',
-            'usuario' => $usuario,
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error al actualizar el estado del usuario', ['uid' => $uid, 'error' => $e->getMessage()]);
-        return response()->json([
-            'message' => 'Error al actualizar el estado del usuario',
-            'error' => $e->getMessage(),
-        ], 500);
+            if (!$usuario) {
+                return response()->json([
+                    'message' => 'Usuario no encontrado',
+                ], 404);
+            }
+
+            $usuario->activo = (int) $request->activo;
+            $usuario->save();
+
+            return response()->json([
+                'message' => 'Estado actualizado correctamente',
+                'usuario' => $usuario,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar el estado del usuario', ['uid' => $uid, 'error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Error al actualizar el estado del usuario',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
-
