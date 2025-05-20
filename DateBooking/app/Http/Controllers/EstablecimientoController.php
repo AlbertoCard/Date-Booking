@@ -54,7 +54,7 @@ class EstablecimientoController extends Controller
         try {
             // Verificar si el usuario existe
             $usuario = Usuario::where('uid', $request->id_usuario)->first();
-            
+
             if (!$usuario) {
                 return response()->json([
                     'message' => 'Error al crear el establecimiento',
@@ -97,7 +97,7 @@ class EstablecimientoController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             Log::error('Error al crear establecimiento', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -120,7 +120,7 @@ class EstablecimientoController extends Controller
     public function getByUsuario($uid)
     {
         try {
-            $establecimientos = Establecimiento::whereHas('usuarios', function($query) use ($uid) {
+            $establecimientos = Establecimiento::whereHas('usuarios', function ($query) use ($uid) {
                 $query->where('id_usuario', $uid);
             })->get();
 
@@ -169,4 +169,61 @@ class EstablecimientoController extends Controller
             ], 500);
         }
     }
-} 
+
+
+
+    function show($id)
+    {
+        $establecimiento = Establecimiento::where('id_establecimiento', $id)->get();
+        if ($establecimiento) {
+            return response()->json($establecimiento);
+        } else {
+            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        }
+    }
+
+    function porNombre($name)
+    {
+        $establecimiento = Establecimiento::where('nombre', $name)->first();
+        if (!$establecimiento) {
+            return response()->json(['message' => 'No se encontró un establecimiento con ese nombre'], 404);
+        }
+        return response()->json($establecimiento);
+    }
+
+    function porEstado($opcion)
+    {
+        $establecimientos = Establecimiento::where('estado', $opcion)->get();
+        return response()->json($establecimientos);
+    }
+    function actualizarEstado($id)
+    {
+        $establecimiento = Establecimiento::where('id_establecimiento', $id)->first();
+        if (!$establecimiento) {
+            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        }
+
+        // Cambia el estado actual: si es 'activo' pasa a 'inactivo', si es 'inactivo' pasa a 'activo'
+        $establecimiento->estado = ($establecimiento->estado === 'activo') ? 'inactivo' : 'activo';
+        $establecimiento->save();
+
+        return response()->json($establecimiento);
+    }
+
+    function rechazarEstablecimiento($id)
+    {
+        $establecimiento = Establecimiento::where('id_establecimiento', $id)->first();
+        if (!$establecimiento) {
+            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        }
+
+        $establecimiento->estado = 'rechazado';
+        $establecimiento->save();
+
+        return response()->json($establecimiento);
+    }
+}
+
+//
+
+
