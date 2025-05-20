@@ -32,7 +32,7 @@ const routes = [
   { path: "/servicios", component: Servicios },
   { path: "/validaciones", component: Validaciones },
   {path: "/establecimientos/:nombre", component: Establecimiento},
-  { path: "/mis-reservas/:id", component: MisReservas },
+  { path: "/reservas/:id", component: MisReservas },
   { path: "/:pathMatch(.*)*", component: NotFound },
 ];
 

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\EstablecimientoController;
+use App\Http\Controllers\ReservaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,5 +55,5 @@ Route::prefix('establecimientos')->group(function () {
 
 
 Route::prefix('reservas')->group(function () {
-    Route::get('/{id}', [UsuarioController::class, 'obtenerReservas']);
+    Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
 });
