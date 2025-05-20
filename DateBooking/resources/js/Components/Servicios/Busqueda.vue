@@ -2,6 +2,7 @@
     <!-- /resources/js/Components/Inicio.vue -->
     <div class="contenedor">
         <!-- Encabezado -->
+        <Loader :visible="cargando" />
 
         <div class="encabezado">
             <h1>"{{ searchText }}"</h1>
@@ -39,6 +40,10 @@
                     </div>
                 </fieldset>
             </div>
+        </div>
+        <!-- Mensaje si no hay resultados -->
+        <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
+            No se encontraron servicios relacionados con "{{ searchText }}".
         </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
@@ -87,17 +92,23 @@
 
 <script>
 import axios from 'axios';
+import Loader from '../Loader.vue';
 
 export default {
+    components: {
+        Loader,
+    },
     data() {
         return {
             servicios: [],
             recomendaciones: [],
             searchText: this.$route.params.search, // Obtener el parámetro del URL
             categoriaSeleccionada: 'todos', // Estado para la categoría seleccionada
+            cargando: true, // Estado para el loader
         };
     },
     mounted() {
+        this.cargando = true; // Mostrar el loader al inicio
         const search = this.$route.params.search; // Obtener el parámetro del URL
         axios.get(`/api/servicios/` + search)
             .then(response => {
@@ -105,13 +116,20 @@ export default {
             })
             .catch(error => {
                 console.error('Error fetching servicios:', error);
+            })
+            .finally(() => {
+                this.cargando = false; // Ocultar el loader al finalizar la carga
             });
+
         axios.get('/api/servicios')
             .then(response => {
                 this.recomendaciones = response.data;
             })
             .catch(error => {
                 console.error('Error fetching servicios:', error);
+            })
+            .finally(() => {
+                this.cargando = false; // Ocultar el loader al finalizar la carga
             });
     },
     watch: {
@@ -121,28 +139,32 @@ export default {
     },
     methods: {
         obtenerServiciosPorCategoria(categoria) {
+            this.cargando = true;
             if (categoria === 'todos') {
                 axios.get(`/api/servicios/${this.searchText}`)
                     .then(response => {
                         this.servicios = response.data;
-                        this.categoriaSeleccionada = 'todos';
+                        //this.categoriaSeleccionada = 'todos';
                     })
                     .catch(error => {
                         console.error('Error fetching todos los servicios:', error);
+                    })
+                    .finally(() => {
+                        this.cargando = false; // Ocultar el loader al finalizar la carga
                     });
                 return;
             }
             axios.get(`/api/servicios/categoria/${this.searchText}/${categoria}`)
                 .then(response => {
                     this.servicios = response.data;
-                    this.categoriaSeleccionada = categoria;
+                    //this.categoriaSeleccionada = categoria;
                 })
                 .catch(error => {
                     console.error('Error fetching servicios por categoria:', error);
+                })
+                .finally(() => {
+                    this.cargando = false; // Ocultar el loader al finalizar la carga
                 });
-            console.log(this.servicios);
-            console.log(this.categoriaSeleccionada);
-            console.log(this.searchText)
         }
     },
 
@@ -152,6 +174,7 @@ export default {
 <style scoped>
 .contenedor {
     max-width: 1200px;
+    width: 100%;
     margin: 10px auto;
     margin-top: -50px;
     padding: 60px;
@@ -225,14 +248,7 @@ export default {
     cursor: pointer;
 }
 
-.editar {
-    background-color: #e5e5e5;
-}
 
-.cancelar {
-    background-color: #ffe5e5;
-    color: #b00;
-}
 
 .precio-estrellas {
     text-align: right;
@@ -255,16 +271,6 @@ export default {
     font-weight: bold;
     border: none;
     cursor: pointer;
-}
-
-.estado .on {
-    background-color: #4caf50;
-    color: white;
-}
-
-.estado .off {
-    background-color: #ccc;
-    color: black;
 }
 
 
@@ -315,13 +321,35 @@ fieldset {
     align-items: center;
 }
 
+.sin-resultados {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 10px;
+    padding: 30px 20px;
+    margin: 30px 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.08);
+    letter-spacing: 0.5px;
+}
 
 
 
 /* Responsivo */
 @media (max-width: 768px) {
 
+    .contenedor {
+        padding: 20px;
+        margin-top: -30px;
+    }
+
     .encabezado {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
         gap: 50px;
         overflow: hidden;
     }
@@ -347,12 +375,7 @@ fieldset {
         margin-top: 8px;
     }
 
-    .encabezado {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        margin-bottom: 24px;
-    }
+    
 
 
 

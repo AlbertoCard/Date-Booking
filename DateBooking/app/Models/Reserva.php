@@ -10,4 +10,11 @@ class Reserva extends Model
 {
     //
     use HasFactory;
+
+
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class, 'id_servicio');
+    }
+    
 }

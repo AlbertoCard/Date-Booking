@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { auth } from '../firebase.js'
+import { auth } from '../../firebase.js'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import axios from 'axios'
 
@@ -253,7 +253,8 @@ const validarTelefono = () => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 1200px;
-  margin: 20px;
+  margin: 10px;
+  margin-top: -20px;
   overflow: hidden;
 }
 

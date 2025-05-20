@@ -10,7 +10,31 @@ class ServicioController extends Controller
     // lista de servicios
     public function index()
     {
-        return Servicio::all();
+        $servicios = Servicio::with(['disponibilidad' => function ($query) {
+            $query->limit(1);
+        }])->get();
+        return response()->json($servicios);
+    }
+    // crear nuevo servicio
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'costo' => 'required|numeric|min:0',
+            'categoria' => 'required|string|max:255'
+        ]);
+
+        $servicio = Servicio::create([
+            'id_establecimiento' => 1, // Por ahora fijo
+            'nombre' => $request->nombre,
+            'descripcion' => $request->descripcion,
+            'costo' => $request->costo,
+            'categoria' => $request->categoria,
+            'id_ciudad' => 1
+        ]);
+
+        return response()->json($servicio, 201);
     }
   
     public function search($search)
@@ -26,3 +50,4 @@ class ServicioController extends Controller
             ->get();
     }
 }
+
