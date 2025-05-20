@@ -73,7 +73,7 @@ export default {
     mounted() {
         axios.get('/api/establecimientos')
             .then(response => {
-                this.establecimientos = response.data;
+                this.establecimientos = response.data.establecimientos;
             })
             .catch(error => {
                 console.error('Error fetching establecimientos:', error);
@@ -88,7 +88,7 @@ export default {
             if (opcion === 'todos') {
                 axios.get('/api/establecimientos')
                     .then(response => {
-                        this.establecimientos = response.data;
+                        this.establecimientos = response.data.establecimientos;
                     })
                     .catch(error => {
                         console.error('Error fetching establecimientos:', error);

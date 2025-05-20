@@ -4,9 +4,10 @@ use App\Http\Controllers\ServicioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\EstablecimientoController;
+use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\PagoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,34 +27,60 @@ Route::get('/test', function () {
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
-    Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
-    Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
-}); 
-
-
-// Rutas de disponibilidad
-Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
-Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
-// Rutas de servicios
-Route::prefix('servicios')->group(function () {
-    Route::get('/', [ServicioController::class, 'index']);
-    Route::get('/{search}', [ServicioController::class, 'search']);
-    Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
-
-    Route::post('/', [ServicioController::class, 'store']);
+    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']);
+    Route::get('/obtener/{uid}', [UsuarioController::class, 'show']);
 });
 
 
-
+// Rutas de establecimientos
 Route::prefix('establecimientos')->group(function () {
     Route::get('/', [EstablecimientoController::class, 'index']);
     Route::get('/estado/{opcion}', [EstablecimientoController::class, 'porEstado']);
     Route::get('/{name}', [EstablecimientoController::class, 'porNombre']);
-    Route::put('/{id}', [EstablecimientoController::class, 'actualizarEstado']);
+    Route::get('/establecimientos/usuario/{uid}', [EstablecimientoController::class, 'getByUsuario']);
+
+    Route::post('/', [EstablecimientoController::class, 'store']);
+
+    Route::put('/{id}', [EstablecimientoController::class, 'update']);
+    Route::put('/estado/{id}', [EstablecimientoController::class, 'actualizarEstado']);
     Route::put('/rechazar/{id}', [EstablecimientoController::class, 'rechazarEstablecimiento']);
 });
 
 
-Route::prefix('reservas')->group(function () {
+
+// Rutas de disponibilidad
+Route::prefix('disponibilidad')->group(function () {
+    Route::get('/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
+    
+    Route::post('/', [DisponibilidadController::class, 'store']);
+
+    Route::put('/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
+});
+
+
+// Rutas para pagos
+Route::prefix('pagos')->group(function () {
+    Route::get('/{id}', [PagoController::class, 'show']);
+    
+    Route::post('/', [PagoController::class, 'store']);
+});
+
+
+// Rutas para Reservas (públicas)
+Route::prefix('reservas')->group(function () {    
     Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
+    
+    Route::post('/', [ReservaController::class, 'store']);
+
+});
+
+
+// Rutas de servicios 
+Route::prefix('servicios')->group(function () {
+    Route::get('/', [ServicioController::class, 'index']);
+    Route::get('/search/{search}', [ServicioController::class, 'search']);
+    Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
+    Route::get('/{id}', [ServicioController::class, 'show']);
+
+    Route::post('/', [ServicioController::class, 'store']);
 });
