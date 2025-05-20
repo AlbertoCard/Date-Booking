@@ -31,4 +31,9 @@ class Servicio extends Model
     {
         return $this->hasMany(Disponibilidad::class, 'id_servicio', 'id_servicio');
     }
+
+    public function imagen()
+    {
+        return $this->hasOne(Imagen::class, 'id_servicio', 'id_servicio');
+    }
 }   

@@ -18,14 +18,8 @@
                         </div>
                         <div class="formulario-grupo">
                             <label class="text-gray-700 font-semibold">Categoría</label>
-                            <select v-model="servicio.categoria" required
-                                class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
-                                <option disabled value="">Selecciona la categoría</option>
-                                <option>Consultoría</option>
-                                <option>Mantenimiento</option>
-                                <option>Diseño</option>
-                                <option>Otro</option>
-                            </select>
+                            <input type="text" v-model="servicio.categoria" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
                         <div class="formulario-grupo">
                             <label class="text-gray-700 font-semibold">Ciudad</label>
@@ -55,30 +49,31 @@
                     </div>
 
                     <div class="formulario-grupo">
-                        <label class="text-gray-700 font-semibold">Imagen del servicio</label>
-                        <div class="subida-archivo">
-                            <input type="file" ref="fileInput" @change="handleFileSelect" accept="image/*"
-                                class="hidden" />
-
-                            <!-- Vista previa de la imagen -->
-                            <div v-if="imagePreview" class="preview-container">
-                                <img :src="imagePreview" alt="Vista previa" class="preview-image" />
-                                <button @click="removeImage" class="remove-btn">
-                                    Eliminar
-                                </button>
-                            </div>
-
-                            <!-- Área de selección cuando no hay imagen -->
-                            <div v-else @click="$refs.fileInput.click()" class="upload-area">
-                                <svg class="w-8 h-8 text-blue-600 mb-2" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                </svg>
-                                <span class="text-gray-600">Seleccionar imagen</span>
+                        <label class="text-gray-700 font-semibold">Imagen del servicio (opcional)</label>
+                        <div class="col-span-2">
+                            <div
+                                class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <svg v-if="!servicio.imagen" class="mx-auto h-12 w-12 text-gray-400"
+                                        stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path
+                                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <img v-else :src="previewUrl" class="mx-auto h-32 w-32 object-cover rounded-lg">
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="file-upload"
+                                            class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Subir una imagen</span>
+                                            <input id="file-upload" name="file-upload" type="file" class="sr-only"
+                                                @change="handleImageUpload" accept="image/*">
+                                        </label>
+                                        <p class="pl-1">o arrastrar y soltar</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 2MB</p>
+                                </div>
                             </div>
                         </div>
-                        <p v-if="errorMessage" class="text-red-500 text-sm mt-1">{{ errorMessage }}</p>
                     </div>
 
                     <!-- Sección de Disponibilidad -->
@@ -194,7 +189,8 @@ export default {
             descripcion: '',
             categoria: '',
             costo: '',
-            id_ciudad: ''
+            id_ciudad: '',
+            imagen: null
         });
 
         const disponibilidad = reactive({
@@ -239,6 +235,8 @@ export default {
             { id: 'otro', nombre: 'Otro' }
         ];
 
+        const previewUrl = ref(null);
+
         const cargarCiudades = async () => {
             try {
                 const response = await axios.get('/api/ciudades');
@@ -261,33 +259,30 @@ export default {
             // Resetear errores
             Object.keys(formErrors).forEach(key => formErrors[key] = '');
 
+            console.log('Validando formulario...', {
+                servicio,
+                disponibilidad,
+                diasSeleccionados: diasSeleccionados.value
+            });
+
             // Validaciones del servicio
-            if (!servicio.nombre.trim()) {
+            if (!servicio.nombre || servicio.nombre.trim() === '') {
                 formErrors.nombre = 'El nombre es requerido';
                 isValid = false;
-            } else if (servicio.nombre.length < 3) {
-                formErrors.nombre = 'El nombre debe tener al menos 3 caracteres';
-                isValid = false;
             }
 
-            if (!servicio.descripcion.trim()) {
+            if (!servicio.descripcion || servicio.descripcion.trim() === '') {
                 formErrors.descripcion = 'La descripción es requerida';
                 isValid = false;
-            } else if (servicio.descripcion.length < 10) {
-                formErrors.descripcion = 'La descripción debe tener al menos 10 caracteres';
-                isValid = false;
             }
 
-            if (!servicio.categoria) {
+            if (!servicio.categoria || servicio.categoria.trim() === '') {
                 formErrors.categoria = 'La categoría es requerida';
                 isValid = false;
             }
 
-            if (!servicio.costo) {
-                formErrors.costo = 'El costo es requerido';
-                isValid = false;
-            } else if (isNaN(servicio.costo) || parseFloat(servicio.costo) < 0) {
-                formErrors.costo = 'El costo debe ser un número positivo';
+            if (!servicio.costo || isNaN(servicio.costo) || parseFloat(servicio.costo) <= 0) {
+                formErrors.costo = 'El costo debe ser un número mayor a 0';
                 isValid = false;
             }
 
@@ -300,15 +295,6 @@ export default {
             if (!disponibilidad.fecha) {
                 formErrors.fecha = 'La fecha es requerida';
                 isValid = false;
-            } else {
-                const fechaSeleccionada = new Date(disponibilidad.fecha);
-                const hoy = new Date();
-                hoy.setHours(0, 0, 0, 0);
-                fechaSeleccionada.setHours(0, 0, 0, 0);
-                if (fechaSeleccionada < hoy) {
-                    formErrors.fecha = 'La fecha no puede ser anterior a hoy';
-                    isValid = false;
-                }
             }
 
             if (!disponibilidad.hora_inicio) {
@@ -328,10 +314,15 @@ export default {
                 isValid = false;
             }
 
-            if (diasSeleccionados.value.length === 0) {
+            if (!diasSeleccionados.value || diasSeleccionados.value.length === 0) {
                 formErrors.dias = 'Debe seleccionar al menos un día';
                 isValid = false;
             }
+
+            console.log('Resultado de la validación:', {
+                isValid,
+                errores: formErrors
+            });
 
             return isValid;
         };
@@ -377,6 +368,14 @@ export default {
             }
         };
 
+        const handleImageUpload = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                servicio.imagen = file;
+                previewUrl.value = URL.createObjectURL(file);
+            }
+        };
+
         const guardarServicio = async () => {
             if (!validateForm()) {
                 message.value = {
@@ -390,13 +389,23 @@ export default {
             message.value = null;
 
             try {
-                // Primero crear el servicio
-                const responseServicio = await axios.post('/api/servicios', {
-                    ...servicio,
-                    costo: parseFloat(servicio.costo)
+                const formData = new FormData();
+                formData.append('nombre', servicio.nombre);
+                formData.append('descripcion', servicio.descripcion);
+                formData.append('costo', servicio.costo);
+                formData.append('categoria', servicio.categoria);
+                formData.append('id_ciudad', servicio.id_ciudad);
+                if (servicio.imagen) {
+                    formData.append('imagen', servicio.imagen);
+                }
+
+                const response = await axios.post('/api/servicios', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
                 });
 
-                const idServicio = responseServicio.data.id_servicio;
+                const idServicio = response.data.id_servicio;
 
                 // Luego crear las disponibilidades
                 const promesasDisponibilidad = diasSeleccionados.value.map(async (dia) => {
@@ -448,8 +457,10 @@ export default {
             formErrors,
             categorias,
             ciudades,
+            previewUrl,
             handleFileSelect,
             removeImage,
+            handleImageUpload,
             guardarServicio
         };
     }

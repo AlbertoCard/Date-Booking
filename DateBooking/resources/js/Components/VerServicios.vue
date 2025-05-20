@@ -59,7 +59,21 @@
                         <div v-for="(servicio, index) in serviciosFiltrados" :key="servicio.id_servicio"
                             class="tarjeta-servicio group">
                             <!-- Imagen o ícono -->
-                            <div class="imagen transform group-hover:scale-105 transition-all duration-300"></div>
+                            <div class="imagen transform group-hover:scale-105 transition-all duration-300">
+                                <template v-if="servicio.imagen && servicio.imagen.url">
+                                    <img :src="servicio.imagen.url" :alt="servicio.nombre"
+                                        class="w-full h-full object-cover rounded-lg" @error="handleImageError"
+                                        @load="handleImageLoad">
+                                </template>
+                                <div v-else
+                                    class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            </div>
 
                             <!-- Contenido -->
                             <div class="info-servicio">
@@ -167,11 +181,15 @@ export default {
             return this.servicios.filter(servicio => {
                 const tieneDisponibilidad = servicio.disponibilidad && servicio.disponibilidad.length > 0;
 
+                if (!tieneDisponibilidad) {
+                    return false;
+                }
+
                 switch (this.activeTab) {
                     case this.TABS.ACTIVOS:
-                        return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
+                        return servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
                     case this.TABS.INACTIVOS:
-                        return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
+                        return servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
                     default:
                         return false;
                 }
@@ -201,14 +219,41 @@ export default {
     methods: {
         async obtenerServicios() {
             try {
+                console.log('Obteniendo servicios...');
                 const response = await axios.get('/api/servicios');
-                this.servicios = response.data.map(servicio => ({
-                    ...servicio,
-                    estrellas: Math.floor(Math.random() * 5) + 1
-                }));
+                console.log('Respuesta del servidor:', response.data);
+
+                this.servicios = response.data.map(servicio => {
+                    console.log('Procesando servicio:', {
+                        id: servicio.id_servicio,
+                        nombre: servicio.nombre,
+                        tieneImagen: !!servicio.imagen,
+                        urlImagen: servicio.imagen?.url
+                    });
+
+                    return {
+                        ...servicio,
+                        estrellas: Math.floor(Math.random() * 5) + 1
+                    };
+                });
             } catch (error) {
-                console.error('Error al obtener los servicios:', error);
+                console.error('Error al obtener servicios:', error);
+                this.error = 'Error al cargar los servicios';
             }
+        },
+        handleImageError(e) {
+            console.error('Error al cargar la imagen:', {
+                src: e.target.src,
+                servicio: this.servicios.find(s => s.imagen?.url === e.target.src)
+            });
+            e.target.style.display = 'none';
+            e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-600');
+        },
+        handleImageLoad(e) {
+            console.log('Imagen cargada exitosamente:', {
+                src: e.target.src,
+                servicio: this.servicios.find(s => s.imagen?.url === e.target.src)
+            });
         },
         agregarDisponibilidad(idServicio) {
             this.$router.push(`/editar-servicio/${idServicio}`);
