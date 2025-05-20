@@ -10,4 +10,8 @@ class EstabXusuario extends Model
     //
     use HasFactory;
     protected $table = 'estb_xusuario';
+    protected $fillable = [
+        'id_usuario',
+        'id_establecimiento',
+    ];
 }
