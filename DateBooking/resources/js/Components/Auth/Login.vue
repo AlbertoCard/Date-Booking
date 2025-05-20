@@ -154,8 +154,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+<<<<<<< HEAD:DateBooking/resources/js/Components/Login.vue
+import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
+import { auth, googleProvider } from '../firebase';
+import axios from 'axios';
+=======
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
+>>>>>>> incremento-1:DateBooking/resources/js/Components/Auth/Login.vue
 
 const router = useRouter();
 const route = useRoute();
@@ -197,21 +203,63 @@ const closeNotification = () => {
 
 const login = async () => {
   try {
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    alert('Inicio de sesión exitoso');
-    router.push('/dashboard');
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
+
+    // ✅ Marcar como activo en backend
+    await axios.put(`/api/usuarios/${userCredential.user.uid}/estado`, { activo: 1 });
+
+    // Obtener el rol del usuario
+    const response = await axios.get(`/api/usuarios/obtener/${userCredential.user.uid}`);
+    const userData = response.data.usuario;
+
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    if (userData.rol === 'establecimiento') {
+      //router.push('/dashboard-establecimiento');
+      router.push('/inicio');
+    } else {
+      //router.push('/dashboard-cliente');
+      router.push('/inicio');
+    }
   } catch (error) {
     alert('Error al iniciar sesión: ' + error.message);
   }
 };
 
+
 const loginWithGoogle = async () => {
   try {
-    await signInWithPopup(auth, googleProvider);
-    router.push('/dashboard');
+    const result = await signInWithPopup(auth, googleProvider);
+
+    // ✅ Marcar como activo en backend
+    await axios.put(`/api/usuarios/${result.user.uid}/estado`, { activo: 1 });
+
+    const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
+    const userData = response.data.usuario;
+
+    localStorage.setItem('userData', JSON.stringify(userData));
+
+    if (userData.rol === 'establecimiento') {
+      //router.push('/dashboard-establecimiento');
+      router.push('/inicio');
+    } else {
+      //router.push('/dashboard-cliente');
+      router.push('/inicio');
+    }
   } catch (error) {
     alert('Error con Google Sign-In: ' + error.message);
-    console.error(error);
+  }
+};
+
+
+const cerrarSesion = async () => {
+  try {
+    await signOut(auth);
+    // Limpiar todos los datos del usuario
+    localStorage.removeItem('userData');
+    router.push('/login');
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
   }
 };
 </script>
