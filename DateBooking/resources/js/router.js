@@ -25,118 +25,63 @@ import role from './middleware/role';
 
 
 const routes = [
-  { 
-    path: "/", 
-    component: Inicio,
-    meta: { requiresAuth: false }
+  { path: "/", component: Inicio, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/inicio", component: Inicio, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/nosotros", component: Nosotros, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/login", component: Login, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/dashboard-cliente", component: DashboardCliente, 
+    meta: { requiresAuth: true, role: 'cliente' } 
+},
+  { path: "/dashboard-establecimiento", component: DashboardEstablecimiento, 
+    meta: { requiresAuth: true, role: 'establecimiento' } 
   },
-  { 
-    path: "/inicio", 
-    component: Inicio,
-    meta: { requiresAuth: false }
+  { path: "/reset-password", component: RestablecerContraseña, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/registro", component: Registro, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/detalle-servicio/:id", component: DetalleServicio, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/nuevo-servicio", component: NuevoServicio, 
+    meta: { requiresAuth: true } 
+},
+  { path: "/servicio-agregados", component: VerServicio, 
+    meta: { requiresAuth: true } 
+},
+  { path: "/nueva-disponibilidad/:id", component: NuevaDisponibilidad, 
+    meta: { requiresAuth: true } 
+},
+  { path: "/dashboard", component: Dashboard, 
+    meta: { requiresAuth: true } 
+},
+  { path: "/busqueda/:search", component: Busqueda, 
+    meta: { requiresAuth: false } 
+},
+  { path: "/servicios", component: Servicios, 
+    meta: { requiresAuth: true } 
   },
-  { 
-    path: "/nosotros", 
-    component: Nosotros,
-    meta: { requiresAuth: false }
+  { path: "/validaciones", component: Validaciones, 
+    meta: { requiresAuth: true } 
+},
+  { path: "/servicio/:id", name: 'detalle-servicio', component: DetalleServicio, 
+    meta: { requiresAuth: false } 
   },
-  { 
-    path: "/login", 
-    component: Login,
-    meta: { requiresAuth: false }
+  { path: "/establecimientos/:nombre", component: Establecimiento, 
+    meta: { requiresAuth: false } 
   },
-  { 
-    path: "/dashboard-cliente", 
-    component: DashboardCliente,
-    meta: { 
-      requiresAuth: true,
-      role: 'cliente'
-    }
-  },
-  { 
-    path: "/dashboard-establecimiento", 
-    component: DashboardEstablecimiento,
-    meta: { 
-      requiresAuth: true,
-      role: 'establecimiento'
-    }
-  },
-  { 
-    path: "/reset-password", 
-    component: RestablecerContraseña,
-    meta: { requiresAuth: false }
-  },
-  { 
-    path: "/registro", 
-    component: Registro,
-    meta: { requiresAuth: false }
-  },
-  { 
-    path: "/detalle-servicio/:id", 
-    component: DetalleServicio,
-    meta: { requiresAuth: false }
-  },
-  { 
-    path: "/nuevo-servicio", 
-    component: NuevoServicio,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: "/servicio-agregados", 
-    component: VerServicio,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: "/nueva-disponibilidad/:id", 
-    component: NuevaDisponibilidad,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: "/dashboard", 
-    component: Dashboard,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: "/busqueda/:search", 
-    component: Busqueda,
-    meta: { requiresAuth: false }
-  },
-  { 
-    path: "/servicios", 
-    component: Servicios,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: "/validaciones", 
-    component: Validaciones,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: "/servicio/:id",
-    name: 'detalle-servicio',
-    component: DetalleServicio,
-    meta: { requiresAuth: false }
-  },
-  { 
-    path: "/:pathMatch(.*)*", 
-    component: NotFound,
-    meta: { requiresAuth: false }
-  },
-  { path: "/", component: Inicio },
-  { path: "/nosotros", component: Nosotros },
-  { path: "/detalle-servicio/:name", component: DetalleServicio },
-  { path: "/nuevo-servicio", component: NuevoServicio },
-  { path: "/servicio-agregados", component: VerServicio },
-  { path: "/nueva-disponibilidad/:id", component: NuevaDisponibilidad },
-  { path: "/login", component: Login },
-  { path: "/dashboard", component: Dashboard },
-  { path: "/reset-password", component: RestablecerContraseña },
-  { path: "/registro", component: Registro },
-  { path: "/busqueda/:search", component: Busqueda },
-  { path: "/servicios", component: Servicios },
-  { path: "/validaciones", component: Validaciones },
-  {path: "/establecimientos/:nombre", component: Establecimiento},
-  { path: "/:pathMatch(.*)*", component: NotFound },
+  { path: "/:pathMatch(.*)*", component: NotFound, 
+    meta: { requiresAuth: false } 
+  }
 ];
 
 const router = createRouter({

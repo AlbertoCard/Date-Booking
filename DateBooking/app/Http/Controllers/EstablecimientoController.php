@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use App\Models\EstabXusuario;
 
 class EstablecimientoController extends Controller
 {
@@ -18,7 +19,7 @@ class EstablecimientoController extends Controller
     public function index()
     {
         try {
-            $establecimientos = Establecimiento::with('usuarios')->get();
+            $establecimientos = Establecimiento::all();
             return response()->json(['establecimientos' => $establecimientos]);
         } catch (\Exception $e) {
             return response()->json([
@@ -81,7 +82,7 @@ class EstablecimientoController extends Controller
             Log::info('Establecimiento creado', ['establecimiento' => $establecimiento]);
 
             // Crear la relación en estb_xusuario
-            $relacion = estbXusuario::create([
+            $relacion = EstabXusuario::create([
                 'id_usuario' => $usuario->uid, // Usar el uid del usuario verificado
                 'id_establecimiento' => $establecimiento->id_establecimiento
             ]);

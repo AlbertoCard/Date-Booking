@@ -27,46 +27,59 @@ Route::get('/test', function () {
 Route::prefix('usuarios')->group(function () {
     Route::get('/', [UsuarioController::class, 'index']);
     Route::post('/', [UsuarioController::class, 'store']);
-    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']); 
+    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']);
+    Route::get('/obtener/{uid}', [UsuarioController::class, 'show']);
 });
 
-// Ruta específica para obtener usuario por UID
-Route::get('usuarios/obtener/{uid}', [UsuarioController::class, 'show']);
 
-// Rutas de establecimientos - sin grupo
-Route::get('/establecimientos', [EstablecimientoController::class, 'index']);
-Route::post('/establecimientos', [EstablecimientoController::class, 'store']);
-Route::get('/establecimientos/usuario/{uid}', [EstablecimientoController::class, 'getByUsuario']);
-Route::put('/establecimientos/{id}', [EstablecimientoController::class, 'update']); 
-
-// Rutas de disponibilidad
-Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
-Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
-
-// Rutas para reservas y pagos
-Route::post('/reservas', [ReservaController::class, 'store']);
-Route::get('/disponibilidad/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
-Route::post('/pagos', [PagoController::class, 'store']);
-Route::get('/pagos/{id}', [PagoController::class, 'show']);
-
-// Rutas para Reservas (públicas)
-Route::get('/reservas/{id}', [ReservaController::class, 'show']);
-
-// Rutas de servicios (públicas)
-Route::get('/servicios', [ServicioController::class, 'index']);
-Route::get('/servicios/search/{search}', [ServicioController::class, 'search']);
-Route::get('/servicios/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
-Route::get('/servicios/{id}', [ServicioController::class, 'show']);
-
-// Rutas de servicios (protegidas)
-Route::post('/servicios', [ServicioController::class, 'store']);
-
-
-
+// Rutas de establecimientos
 Route::prefix('establecimientos')->group(function () {
     Route::get('/', [EstablecimientoController::class, 'index']);
     Route::get('/estado/{opcion}', [EstablecimientoController::class, 'porEstado']);
     Route::get('/{name}', [EstablecimientoController::class, 'porNombre']);
-    Route::put('/{id}', [EstablecimientoController::class, 'actualizarEstado']);
+    Route::get('/establecimientos/usuario/{uid}', [EstablecimientoController::class, 'getByUsuario']);
+
+    Route::post('/', [EstablecimientoController::class, 'store']);
+
+    Route::put('/{id}', [EstablecimientoController::class, 'update']);
+    Route::put('/estado/{id}', [EstablecimientoController::class, 'actualizarEstado']);
     Route::put('/rechazar/{id}', [EstablecimientoController::class, 'rechazarEstablecimiento']);
+});
+
+
+// Rutas de disponibilidad
+Route::prefix('disponibilidad')->group(function () {
+    Route::get('/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);
+    
+    Route::post('/', [DisponibilidadController::class, 'store']);
+
+    Route::put('/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
+});
+
+
+// Rutas para pagos
+Route::prefix('pagos')->group(function () {
+    Route::get('/{id}', [PagoController::class, 'show']);
+    
+    Route::post('/', [PagoController::class, 'store']);
+});
+
+
+// Rutas para Reservas (públicas)
+Route::prefix('reservas')->group(function () {    
+    Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
+    
+    Route::post('/', [ReservaController::class, 'store']);
+
+});
+
+
+// Rutas de servicios 
+Route::prefix('servicios')->group(function () {
+    Route::get('/', [ServicioController::class, 'index']);
+    Route::get('/search/{search}', [ServicioController::class, 'search']);
+    Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
+    Route::get('/{id}', [ServicioController::class, 'show']);
+
+    Route::post('/', [ServicioController::class, 'store']);
 });
