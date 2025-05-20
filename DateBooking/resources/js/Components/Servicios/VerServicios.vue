@@ -60,7 +60,7 @@
                 <Transition name="slide-fade" mode="out-in">
                     <div :key="activeTab">
                         <!-- Lista de servicios -->
-                        <div v-for="(servicio, index) in serviciosFiltrados" :key="servicio.id_servicio"
+                        <div v-for="servicio in serviciosFiltrados" :key="servicio.id_servicio"
                             class="tarjeta-servicio group">
                             <!-- Imagen o ícono -->
                             <div class="imagen transform group-hover:scale-105 transition-all duration-300"></div>
@@ -156,7 +156,7 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../utils/index.js';
+import API_ROUTES from '../../utils/index.js';
 
 export default {
     name: 'VerServicios',
@@ -406,6 +406,7 @@ export default {
     font-weight: bold;
     background: linear-gradient(to right, #2563eb, #3b82f6);
     -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
 }
 

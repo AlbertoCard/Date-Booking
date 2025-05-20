@@ -154,9 +154,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+<<<<<<< HEAD:DateBooking/resources/js/Components/Login.vue
 import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import axios from 'axios';
+=======
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
+>>>>>>> incremento-1:DateBooking/resources/js/Components/Auth/Login.vue
 
 const router = useRouter();
 const route = useRoute();

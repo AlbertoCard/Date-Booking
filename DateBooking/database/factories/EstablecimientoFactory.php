@@ -18,7 +18,7 @@ class EstablecimientoFactory extends Factory
     {
         return [
             //
-            'nombre' => $this->faker->company(),
+            'nombre' => $this->faker->unique()->company(),
             'telefono' => $this->faker->phoneNumber(),
             'direccion' => $this->faker->address(),
             'rfc' => $this->faker->unique()->regexify('[A-Z0-9]{13}'),

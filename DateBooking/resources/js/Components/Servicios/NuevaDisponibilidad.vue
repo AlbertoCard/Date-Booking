@@ -85,7 +85,7 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../utils/index.js';
+import API_ROUTES from '../../utils/index.js';
 
 export default {
     name: 'NuevaDisponibilidad',

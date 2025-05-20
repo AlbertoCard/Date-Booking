@@ -29,4 +29,6 @@ class Establecimiento extends Model
     }
     //
     use HasFactory;
+    protected $table = 'establecimientos';
+    protected $primaryKey = 'id_establecimiento';
 }

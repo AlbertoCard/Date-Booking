@@ -42,9 +42,9 @@
             </div>
         </div>
         <!-- Mensaje si no hay resultados -->
-            <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
-                No se encontraron servicios relacionados con "{{ searchText }}".
-            </div>
+        <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
+            No se encontraron servicios relacionados con "{{ searchText }}".
+        </div>
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
@@ -92,7 +92,7 @@
 
 <script>
 import axios from 'axios';
-import Loader from './Loader.vue';
+import Loader from '../Loader.vue';
 
 export default {
     components: {
@@ -165,9 +165,6 @@ export default {
                 .finally(() => {
                     this.cargando = false; // Ocultar el loader al finalizar la carga
                 });
-            console.log(this.servicios);
-            console.log(this.categoriaSeleccionada);
-            console.log(this.searchText)
         }
     },
 
@@ -177,6 +174,7 @@ export default {
 <style scoped>
 .contenedor {
     max-width: 1200px;
+    width: 100%;
     margin: 10px auto;
     margin-top: -50px;
     padding: 60px;
@@ -342,7 +340,16 @@ fieldset {
 /* Responsivo */
 @media (max-width: 768px) {
 
+    .contenedor {
+        padding: 20px;
+        margin-top: -30px;
+    }
+
     .encabezado {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 24px;
         gap: 50px;
         overflow: hidden;
     }
@@ -368,12 +375,7 @@ fieldset {
         margin-top: 8px;
     }
 
-    .encabezado {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        margin-bottom: 24px;
-    }
+    
 
 
 
