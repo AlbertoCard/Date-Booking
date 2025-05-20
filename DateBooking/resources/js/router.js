@@ -14,8 +14,11 @@ import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./components/Registro.vue";
 import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
 import DetalleServicio from "./Components/DetalleServicio.vue";
+<<<<<<< HEAD
 import Busqueda from "./Components/Busqueda.vue";
 // import Registro from "./components/Registro.vue";
+=======
+>>>>>>> 4a80199 (Vistas de servicios, creacion de nuevo servicio y disponibilidad)
 
 const routes = [
   { path: "/", component: Inicio },
