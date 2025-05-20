@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
         <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto p-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-6">Agregar Disponibilidad</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">Editar Servicio</h1>
 
             <!-- Mensajes de estado -->
             <div v-if="mensaje.texto"
@@ -16,6 +16,7 @@
                         <label class="block text-sm font-medium text-gray-700">Fecha de inicio</label>
                         <input type="date" v-model="disponibilidad.fecha" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p v-if="errores.fecha" class="mt-1 text-sm text-red-600">{{ errores.fecha }}</p>
                     </div>
 
                     <!-- Intervalo -->
@@ -31,6 +32,7 @@
                         <label class="block text-sm font-medium text-gray-700">Hora de inicio</label>
                         <input type="time" v-model="disponibilidad.hora_inicio" required step="1"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p v-if="errores.hora_inicio" class="mt-1 text-sm text-red-600">{{ errores.hora_inicio }}</p>
                     </div>
 
                     <!-- Hora Fin -->
@@ -38,6 +40,7 @@
                         <label class="block text-sm font-medium text-gray-700">Hora de fin</label>
                         <input type="time" v-model="disponibilidad.hora_fin" required step="1"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p v-if="errores.hora_fin" class="mt-1 text-sm text-red-600">{{ errores.hora_fin }}</p>
                     </div>
 
                     <!-- Días -->
@@ -50,9 +53,7 @@
                                 <span class="ml-2">{{ dia.nombre }}</span>
                             </label>
                         </div>
-                        <p v-if="!hayDiasSeleccionados" class="mt-2 text-sm text-red-600">
-                            Selecciona al menos un día
-                        </p>
+                        <p v-if="errores.dias" class="mt-2 text-sm text-red-600">{{ errores.dias }}</p>
                     </div>
 
                     <!-- Tipo de Disponibilidad -->
@@ -60,8 +61,8 @@
                         <label class="block text-sm font-medium text-gray-700">Tipo de disponibilidad</label>
                         <select v-model="disponibilidad.tipo" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="regular">Regular</option>
-                            <option value="especial">Especial</option>
+                            <option value="unico">Unico</option>
+                            <option value="recurrente">Recurrente</option>
                         </select>
                     </div>
                 </div>
@@ -85,10 +86,9 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../utils/index.js';
 
 export default {
-    name: 'NuevaDisponibilidad',
+    name: 'EditarServicio',
     data() {
         return {
             disponibilidad: {
@@ -140,8 +140,37 @@ export default {
             return this.disponibilidad.hora_inicio < this.disponibilidad.hora_fin;
         }
     },
+    async mounted() {
+        await this.cargarDisponibilidad();
+    },
     methods: {
+        async cargarDisponibilidad() {
+            try {
+                const response = await axios.get(`/api/servicios/${this.$route.params.id}`);
+                const servicio = response.data;
+
+                if (servicio.disponibilidad && servicio.disponibilidad.length > 0) {
+                    const disp = servicio.disponibilidad[0];
+                    this.disponibilidad = {
+                        id_servicio: this.$route.params.id,
+                        fecha: disp.fecha,
+                        hora_inicio: disp.hora_inicio,
+                        hora_fin: disp.hora_fin,
+                        intervalo: disp.intervalo,
+                        tipo: disp.tipo
+                    };
+                    this.diasSeleccionados = [disp.dias];
+                }
+            } catch (error) {
+                console.error('Error al cargar la disponibilidad:', error);
+                this.mensaje = {
+                    texto: 'Error al cargar la disponibilidad',
+                    tipo: 'error'
+                };
+            }
+        },
         formatearHora(hora) {
+            if (!hora) return '';
             if (hora.split(':').length === 3) return hora;
             return hora + ':00';
         },
@@ -162,6 +191,8 @@ export default {
             } else {
                 const fechaSeleccionada = new Date(this.disponibilidad.fecha);
                 const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                fechaSeleccionada.setHours(0, 0, 0, 0);
                 if (fechaSeleccionada < hoy) {
                     this.errores.fecha = 'La fecha no puede ser anterior a hoy';
                     esValido = false;
@@ -169,6 +200,14 @@ export default {
             }
 
             // Validar horas
+            if (!this.disponibilidad.hora_inicio) {
+                this.errores.hora_inicio = 'La hora de inicio es requerida';
+                esValido = false;
+            }
+            if (!this.disponibilidad.hora_fin) {
+                this.errores.hora_fin = 'La hora de fin es requerida';
+                esValido = false;
+            }
             if (!this.horasValidas) {
                 this.errores.hora_inicio = 'La hora de inicio debe ser menor a la hora de fin';
                 this.errores.hora_fin = 'La hora de fin debe ser mayor a la hora de inicio';
@@ -196,23 +235,34 @@ export default {
             this.mensaje = { texto: '', tipo: '' };
 
             try {
+                // Primero, verificar que tenemos un ID de servicio válido
+                if (!this.disponibilidad.id_servicio) {
+                    throw new Error('ID de servicio no válido');
+                }
+
+                // Primero eliminar las disponibilidades existentes
+                await axios.delete(`/api/disponibilidad/${this.disponibilidad.id_servicio}`);
+
+                // Crear un registro por cada día seleccionado
                 const promesasDisponibilidad = this.diasSeleccionados.map(async (dia) => {
                     const datosAEnviar = {
-                        ...this.disponibilidad,
+                        id_servicio: parseInt(this.disponibilidad.id_servicio),
+                        fecha: this.disponibilidad.fecha,
                         hora_inicio: this.formatearHora(this.disponibilidad.hora_inicio),
                         hora_fin: this.formatearHora(this.disponibilidad.hora_fin),
                         intervalo: this.formatearHora(this.disponibilidad.intervalo),
                         dias: dia,
-                        fecha: this.disponibilidad.fecha
+                        tipo: this.disponibilidad.tipo
                     };
 
-                    return axios.post(API_ROUTES.disponibilidad.crear, datosAEnviar);
+                    console.log('Enviando datos:', datosAEnviar);
+                    return axios.post('/api/disponibilidad', datosAEnviar);
                 });
 
                 await Promise.all(promesasDisponibilidad);
 
                 this.mensaje = {
-                    texto: 'Disponibilidad guardada exitosamente',
+                    texto: 'Disponibilidad actualizada exitosamente',
                     tipo: 'exito'
                 };
 
@@ -222,7 +272,7 @@ export default {
             } catch (error) {
                 console.error('Error completo:', error);
                 this.mensaje = {
-                    texto: error.response?.data?.message || 'Error al guardar la disponibilidad',
+                    texto: error.response?.data?.message || 'Error al actualizar la disponibilidad',
                     tipo: 'error'
                 };
             } finally {

@@ -27,6 +27,18 @@
                                 <option>Otro</option>
                             </select>
                         </div>
+                        <div class="formulario-grupo">
+                            <label class="text-gray-700 font-semibold">Ciudad</label>
+                            <select v-model="servicio.id_ciudad" required
+                                class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                <option value="">Selecciona una ciudad</option>
+                                <option v-for="ciudad in ciudades" :key="ciudad.id_ciudad" :value="ciudad.id_ciudad">
+                                    {{ ciudad.nombre }}
+                                </option>
+                            </select>
+                            <p v-if="formErrors.id_ciudad" class="text-red-500 text-sm mt-1">{{ formErrors.id_ciudad }}
+                            </p>
+                        </div>
                     </div>
 
                     <div class="formulario-grupo">
@@ -69,6 +81,70 @@
                         <p v-if="errorMessage" class="text-red-500 text-sm mt-1">{{ errorMessage }}</p>
                     </div>
 
+                    <!-- Sección de Disponibilidad -->
+                    <div class="mt-8 border-t pt-8">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Disponibilidad del Servicio</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Fecha -->
+                            <div class="formulario-grupo">
+                                <label class="text-gray-700 font-semibold">Fecha de inicio</label>
+                                <input type="date" v-model="disponibilidad.fecha" required
+                                    class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                <p v-if="formErrors.fecha" class="text-red-500 text-sm mt-1">{{ formErrors.fecha }}</p>
+                            </div>
+
+                            <!-- Intervalo -->
+                            <div class="formulario-grupo">
+                                <label class="text-gray-700 font-semibold">Intervalo</label>
+                                <input type="time" v-model="disponibilidad.intervalo" required
+                                    class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                <p class="text-sm text-gray-500 mt-1">Formato: HH:mm</p>
+                            </div>
+
+                            <!-- Hora Inicio -->
+                            <div class="formulario-grupo">
+                                <label class="text-gray-700 font-semibold">Hora de inicio</label>
+                                <input type="time" v-model="disponibilidad.hora_inicio" required step="1"
+                                    class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                <p v-if="formErrors.hora_inicio" class="text-red-500 text-sm mt-1">{{
+                                    formErrors.hora_inicio }}</p>
+                            </div>
+
+                            <!-- Hora Fin -->
+                            <div class="formulario-grupo">
+                                <label class="text-gray-700 font-semibold">Hora de fin</label>
+                                <input type="time" v-model="disponibilidad.hora_fin" required step="1"
+                                    class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                <p v-if="formErrors.hora_fin" class="text-red-500 text-sm mt-1">{{ formErrors.hora_fin
+                                    }}</p>
+                            </div>
+
+                            <!-- Días -->
+                            <div class="formulario-grupo col-span-2">
+                                <label class="text-gray-700 font-semibold mb-2">Días disponibles</label>
+                                <div class="flex flex-wrap gap-4">
+                                    <label v-for="dia in diasSemana" :key="dia.valor" class="inline-flex items-center">
+                                        <input type="checkbox" v-model="diasSeleccionados" :value="dia.valor"
+                                            class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <span class="ml-2">{{ dia.nombre }}</span>
+                                    </label>
+                                </div>
+                                <p v-if="formErrors.dias" class="text-red-500 text-sm mt-1">{{ formErrors.dias }}</p>
+                            </div>
+
+                            <!-- Tipo de Disponibilidad -->
+                            <div class="formulario-grupo col-span-2">
+                                <label class="text-gray-700 font-semibold">Tipo de disponibilidad</label>
+                                <select v-model="disponibilidad.tipo" required
+                                    class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                                    <option value="unico">Único</option>
+                                    <option value="recurrente">Recurrente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex justify-end space-x-4">
                         <button type="button" @click="$router.push('/servicio-agregados')"
                             class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-300">
@@ -92,7 +168,7 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -112,15 +188,43 @@ export default {
             nombre: '',
             descripcion: '',
             categoria: '',
-            costo: ''
+            costo: '',
+            id_ciudad: ''
         });
+
+        const disponibilidad = reactive({
+            fecha: '',
+            hora_inicio: '',
+            hora_fin: '',
+            intervalo: '00:30',
+            tipo: 'recurrente'
+        });
+
+        const diasSemana = [
+            { nombre: 'Lunes', valor: 'lunes' },
+            { nombre: 'Martes', valor: 'martes' },
+            { nombre: 'Miércoles', valor: 'miercoles' },
+            { nombre: 'Jueves', valor: 'jueves' },
+            { nombre: 'Viernes', valor: 'viernes' },
+            { nombre: 'Sábado', valor: 'sabado' },
+            { nombre: 'Domingo', valor: 'domingo' }
+        ];
+
+        const diasSeleccionados = ref([]);
+
+        const ciudades = ref([]);
 
         const formErrors = reactive({
             nombre: '',
             descripcion: '',
             categoria: '',
             costo: '',
-            imagen: ''
+            imagen: '',
+            id_ciudad: '',
+            fecha: '',
+            hora_inicio: '',
+            hora_fin: '',
+            dias: ''
         });
 
         const categorias = [
@@ -130,12 +234,29 @@ export default {
             { id: 'otro', nombre: 'Otro' }
         ];
 
+        const cargarCiudades = async () => {
+            try {
+                const response = await axios.get('/api/ciudades');
+                ciudades.value = response.data;
+            } catch (error) {
+                console.error('Error al cargar ciudades:', error);
+                message.value = {
+                    type: 'error',
+                    text: 'Error al cargar las ciudades'
+                };
+            }
+        };
+
+        onMounted(() => {
+            cargarCiudades();
+        });
+
         const validateForm = () => {
             let isValid = true;
             // Resetear errores
             Object.keys(formErrors).forEach(key => formErrors[key] = '');
 
-            // Validar nombre
+            // Validaciones del servicio
             if (!servicio.nombre.trim()) {
                 formErrors.nombre = 'El nombre es requerido';
                 isValid = false;
@@ -144,7 +265,6 @@ export default {
                 isValid = false;
             }
 
-            // Validar descripción
             if (!servicio.descripcion.trim()) {
                 formErrors.descripcion = 'La descripción es requerida';
                 isValid = false;
@@ -153,13 +273,11 @@ export default {
                 isValid = false;
             }
 
-            // Validar categoría
             if (!servicio.categoria) {
                 formErrors.categoria = 'La categoría es requerida';
                 isValid = false;
             }
 
-            // Validar costo
             if (!servicio.costo) {
                 formErrors.costo = 'El costo es requerido';
                 isValid = false;
@@ -168,7 +286,55 @@ export default {
                 isValid = false;
             }
 
+            if (!servicio.id_ciudad) {
+                formErrors.id_ciudad = 'La ciudad es requerida';
+                isValid = false;
+            }
+
+            // Validaciones de disponibilidad
+            if (!disponibilidad.fecha) {
+                formErrors.fecha = 'La fecha es requerida';
+                isValid = false;
+            } else {
+                const fechaSeleccionada = new Date(disponibilidad.fecha);
+                const hoy = new Date();
+                hoy.setHours(0, 0, 0, 0);
+                fechaSeleccionada.setHours(0, 0, 0, 0);
+                if (fechaSeleccionada < hoy) {
+                    formErrors.fecha = 'La fecha no puede ser anterior a hoy';
+                    isValid = false;
+                }
+            }
+
+            if (!disponibilidad.hora_inicio) {
+                formErrors.hora_inicio = 'La hora de inicio es requerida';
+                isValid = false;
+            }
+
+            if (!disponibilidad.hora_fin) {
+                formErrors.hora_fin = 'La hora de fin es requerida';
+                isValid = false;
+            }
+
+            if (disponibilidad.hora_inicio && disponibilidad.hora_fin &&
+                disponibilidad.hora_inicio >= disponibilidad.hora_fin) {
+                formErrors.hora_inicio = 'La hora de inicio debe ser menor a la hora de fin';
+                formErrors.hora_fin = 'La hora de fin debe ser mayor a la hora de inicio';
+                isValid = false;
+            }
+
+            if (diasSeleccionados.value.length === 0) {
+                formErrors.dias = 'Debe seleccionar al menos un día';
+                isValid = false;
+            }
+
             return isValid;
+        };
+
+        const formatearHora = (hora) => {
+            if (!hora) return '';
+            if (hora.split(':').length === 3) return hora;
+            return hora + ':00';
         };
 
         const handleFileSelect = (event) => {
@@ -219,14 +385,34 @@ export default {
             message.value = null;
 
             try {
-                const response = await axios.post('http://localhost:8000/api/servicios', {
+                // Primero crear el servicio
+                const responseServicio = await axios.post('/api/servicios', {
                     ...servicio,
                     costo: parseFloat(servicio.costo)
                 });
 
+                const idServicio = responseServicio.data.id_servicio;
+
+                // Luego crear las disponibilidades
+                const promesasDisponibilidad = diasSeleccionados.value.map(async (dia) => {
+                    const datosDisponibilidad = {
+                        id_servicio: idServicio,
+                        fecha: disponibilidad.fecha,
+                        hora_inicio: formatearHora(disponibilidad.hora_inicio),
+                        hora_fin: formatearHora(disponibilidad.hora_fin),
+                        intervalo: formatearHora(disponibilidad.intervalo),
+                        dias: dia,
+                        tipo: disponibilidad.tipo
+                    };
+
+                    return axios.post('/api/disponibilidad', datosDisponibilidad);
+                });
+
+                await Promise.all(promesasDisponibilidad);
+
                 message.value = {
                     type: 'success',
-                    text: '¡Servicio creado exitosamente!'
+                    text: '¡Servicio y disponibilidad creados exitosamente!'
                 };
 
                 setTimeout(() => {
@@ -234,6 +420,7 @@ export default {
                 }, 2000);
 
             } catch (error) {
+                console.error('Error al crear servicio:', error);
                 message.value = {
                     type: 'error',
                     text: error.response?.data?.message || 'Error al crear el servicio'
@@ -245,6 +432,9 @@ export default {
 
         return {
             servicio,
+            disponibilidad,
+            diasSemana,
+            diasSeleccionados,
             fileInput,
             imagePreview,
             errorMessage,
@@ -252,6 +442,7 @@ export default {
             message,
             formErrors,
             categorias,
+            ciudades,
             handleFileSelect,
             removeImage,
             guardarServicio
@@ -290,43 +481,47 @@ export default {
 
 .formulario-grupo label {
     margin-bottom: 0.5rem;
+    color: #1f2937;
+    font-weight: 600;
 }
 
 .formulario-grupo input,
 .formulario-grupo select,
 .formulario-grupo textarea {
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
     border-radius: 0.75rem;
-    border: 1px solid rgba(37, 99, 235, 0.1);
+    border: 2px solid #e5e7eb;
     font-size: 0.875rem;
     width: 100%;
-    background: white;
+    background: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.formulario-grupo input:hover,
+.formulario-grupo select:hover,
+.formulario-grupo textarea:hover {
+    border-color: #93c5fd;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .formulario-grupo input:focus,
 .formulario-grupo select:focus,
 .formulario-grupo textarea:focus {
     outline: none;
-    border-color: transparent;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 textarea {
     resize: vertical;
-}
-
-.fecha-inputs {
-    display: flex;
-    gap: 0.75rem;
-}
-
-.fecha-inputs input {
-    width: 100%;
+    min-height: 120px;
 }
 
 .precio-input {
     color: #2563eb;
     font-weight: 600;
+    background-color: #f8fafc;
 }
 
 .subida-archivo {
@@ -334,13 +529,14 @@ textarea {
     padding: 1.5rem;
     text-align: center;
     border-radius: 0.75rem;
-    background: white;
+    background: #ffffff;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .subida-archivo:hover {
-    border-color: #2563eb;
+    border-color: #3b82f6;
+    background-color: #f8fafc;
 }
 
 .upload-area {
@@ -349,6 +545,7 @@ textarea {
     align-items: center;
     justify-content: center;
     min-height: 150px;
+    padding: 1rem;
 }
 
 .preview-container {
@@ -357,6 +554,7 @@ textarea {
     max-height: 200px;
     overflow: hidden;
     border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .preview-image {
@@ -375,10 +573,12 @@ textarea {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
+    transition: all 0.3s ease;
 }
 
 .remove-btn:hover {
     background: #dc2626;
+    transform: translateY(-1px);
 }
 
 .titulo {
@@ -386,13 +586,35 @@ textarea {
     padding-bottom: 1rem;
     margin-bottom: 2rem;
     position: relative;
+    color: #1f2937;
 }
 
 button {
     padding: 0.75rem 2rem;
     border-radius: 0.75rem;
     font-weight: 600;
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    transition: all 0.3s ease;
+}
+
+button[type="submit"] {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px rgba(37, 99, 235, 0.3);
+}
+
+button[type="button"] {
+    border: 2px solid #e5e7eb;
+    color: #4b5563;
+}
+
+button[type="button"]:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
 }
 
 @media (max-width: 768px) {
@@ -407,10 +629,6 @@ button {
 
     .formulario-grupo {
         width: 100%;
-    }
-
-    .fecha-inputs {
-        flex-direction: row;
     }
 }
 

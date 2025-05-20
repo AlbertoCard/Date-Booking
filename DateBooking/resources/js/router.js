@@ -11,7 +11,7 @@ import Dashboard from "./components/Dashboard.vue";
 import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./components/Registro.vue";
-import NuevaDisponibilidad from "./Components/NuevaDisponibilidad.vue";
+import EditarServicio from "./Components/EditarServicio.vue";
 import DetalleServicio from "./Components/DetalleServicio.vue";
 import Busqueda from "./Components/Busqueda.vue";
 
@@ -21,7 +21,7 @@ const routes = [
   { path: "/detalle-servicio/:id", component: DetalleServicio },
   { path: "/nuevo-servicio", component: NuevoServicio },
   { path: "/servicio-agregados", component: VerServicio },
-  { path: "/nueva-disponibilidad/:id", component: NuevaDisponibilidad },
+  { path: "/editar-servicio/:id", component: EditarServicio },
   { path: "/login", component: Login },
   { path: "/dashboard", component: Dashboard },
   { path: "/reset-password", component: RestablecerContraseña },

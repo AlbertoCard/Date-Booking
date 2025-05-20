@@ -105,7 +105,8 @@
 
                             <!-- Botones -->
                             <div class="acciones">
-                                <button class="editar transform hover:scale-105 transition-all duration-300">
+                                <button @click="editarDisponibilidad(servicio.id_servicio)"
+                                    class="editar transform hover:scale-105 transition-all duration-300">
                                     Editar
                                 </button>
                                 <button class="cancelar transform hover:scale-105 transition-all duration-300">
@@ -156,7 +157,6 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../utils/index.js';
 
 export default {
     name: 'VerServicios',
@@ -223,7 +223,7 @@ export default {
     methods: {
         async obtenerServicios() {
             try {
-                const response = await axios.get(API_ROUTES.servicios);
+                const response = await axios.get('/api/servicios');
                 this.servicios = response.data.map(servicio => ({
                     ...servicio,
                     estrellas: Math.floor(Math.random() * 5) + 1
@@ -233,7 +233,10 @@ export default {
             }
         },
         agregarDisponibilidad(idServicio) {
-            this.$router.push(`/nueva-disponibilidad/${idServicio}`);
+            this.$router.push(`/editar-servicio/${idServicio}`);
+        },
+        editarDisponibilidad(idServicio) {
+            this.$router.push(`/editar-servicio/${idServicio}`);
         },
         async toggleDisponibilidad(idServicio) {
             // Encontrar el servicio que se va a toggle
@@ -249,7 +252,7 @@ export default {
             this.loading = true;
 
             try {
-                const response = await axios.put(API_ROUTES.disponibilidad.toggle(this.servicioAToggle.id_servicio));
+                const response = await axios.put(`/api/disponibilidad/${this.servicioAToggle.id_servicio}/toggle`);
 
                 // Actualizar el estado localmente sin recargar todos los servicios
                 const index = this.servicios.findIndex(s => s.id_servicio === this.servicioAToggle.id_servicio);

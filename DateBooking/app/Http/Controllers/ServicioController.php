@@ -13,6 +13,18 @@ class ServicioController extends Controller
         $servicios = Servicio::with('disponibilidad')->get();
         return response()->json($servicios);
     }
+
+    public function show($id)
+    {
+        $servicio = Servicio::with('disponibilidad')->find($id);
+        
+        if (!$servicio) {
+            return response()->json(['message' => 'Servicio no encontrado'], 404);
+        }
+
+        return response()->json($servicio);
+    }
+
     // crear nuevo servicio
     public function store(Request $request)
     {
@@ -20,7 +32,8 @@ class ServicioController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'costo' => 'required|numeric|min:0',
-            'categoria' => 'required|string|max:255'
+            'categoria' => 'required|string|max:255',
+            'id_ciudad' => 'required|exists:ciudades,id_ciudad'
         ]);
 
         $servicio = Servicio::create([
@@ -29,7 +42,7 @@ class ServicioController extends Controller
             'descripcion' => $request->descripcion,
             'costo' => $request->costo,
             'categoria' => $request->categoria,
-            'id_ciudad' => 1
+            'id_ciudad' => $request->id_ciudad
         ]);
 
         return response()->json($servicio, 201);
