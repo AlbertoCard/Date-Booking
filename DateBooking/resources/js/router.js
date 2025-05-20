@@ -18,6 +18,7 @@ import NuevaDisponibilidad from "./Components/Servicios/NuevaDisponibilidad.vue"
 import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
+import MisReservas from "./Components/Reservas/MisReservas.vue";
 
 // Importar middlewares
 import auth from './middleware/auth';
@@ -25,6 +26,8 @@ import role from './middleware/role';
 
 
 const routes = [
+  { path: "/reservas/:id", component: MisReservas },
+    
   { path: "/", component: Inicio, 
     meta: { requiresAuth: false } 
 },

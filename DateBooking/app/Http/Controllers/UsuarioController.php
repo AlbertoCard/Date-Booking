@@ -186,6 +186,7 @@ class UsuarioController extends Controller
         }
     }
 
+
     /**
      * Obtener un usuario específico por su UID
      */
@@ -255,4 +256,3 @@ class UsuarioController extends Controller
     }
 }
 
-}

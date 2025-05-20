@@ -47,6 +47,7 @@ Route::prefix('establecimientos')->group(function () {
 });
 
 
+
 // Rutas de disponibilidad
 Route::prefix('disponibilidad')->group(function () {
     Route::get('/{id_servicio}', [ReservaController::class, 'getDisponibilidad']);

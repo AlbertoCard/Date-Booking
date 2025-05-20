@@ -48,6 +48,11 @@ class Usuario extends Model
         'activo' => 1
     ];
 
+    // Relacion con reservas
+    public function reservas()
+    {
+        return $this->hasMany(Reserva::class, 'id_usuario', 'uid');
+    }
     // Relación muchos a muchos con establecimientos
     public function establecimientos()
     {

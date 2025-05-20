@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Reserva extends Model
 {
     use HasFactory;
+
     
     protected $table = 'reservas';
     protected $primaryKey = 'id_reserva';
