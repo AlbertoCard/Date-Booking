@@ -114,11 +114,12 @@ const routes = [
         component: NotFound,
         meta: { requiresAuth: false }
     }
+
 ];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
 });
 
 // Aplicar middlewares

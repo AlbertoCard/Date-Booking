@@ -26,6 +26,7 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/obtener/{uid}', [UsuarioController::class, 'show']);
     Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
     Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
+    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']); 
 }); 
 
 
