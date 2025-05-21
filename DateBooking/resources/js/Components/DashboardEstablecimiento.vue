@@ -10,7 +10,8 @@
             </div>
           </div>
           <div class="flex items-center">
-            <button @click="cerrarSesion" class="ml-4 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md">
+            <button @click="cerrarSesion"
+              class="ml-4 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md">
               Cerrar Sesión
             </button>
           </div>
@@ -50,7 +51,7 @@ onMounted(async () => {
   try {
     // Obtener información del usuario del localStorage
     const userData = JSON.parse(localStorage.getItem('userData'))
-    
+
     if (!userData || userData.rol !== 'establecimiento') {
       router.push('/dashboard-cliente')
       return
@@ -66,7 +67,7 @@ onMounted(async () => {
 })
 const cerrarSesion = async () => {
   try {
-    await axios.put(`/api/usuarios/${auth.currentUser.uid}/estado`, { activo: 0 }); // ⬅ aquí se desactiva
+    await axios.put(`/api/usuarios/${auth.currentUser.uid}/activo`);
     await signOut(auth);
     localStorage.removeItem('userData');
     router.push('/login');
@@ -84,4 +85,4 @@ const cerrarSesion = async () => {
 //     console.error('Error al cerrar sesión:', error)
 //   }
 // }
-</script> 
+</script>
