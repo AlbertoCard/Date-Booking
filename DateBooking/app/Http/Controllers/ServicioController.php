@@ -6,6 +6,7 @@ use App\Models\Servicio;
 use App\Models\Imagen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ServicioController extends Controller
 {
@@ -13,7 +14,7 @@ class ServicioController extends Controller
     public function index()
     {
         $servicios = Servicio::with(['disponibilidad', 'imagen'])->get();
-        \Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
+        Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }
 
@@ -67,13 +68,13 @@ class ServicioController extends Controller
                     'url' => '/images/' . $nombreImagen
                 ]);
                 
-                \Log::info('Imagen guardada:', [
+                Log::info('Imagen guardada:', [
                     'nombre_original' => $imagen->getClientOriginalName(),
                     'nombre_limpio' => $nombreImagen,
                     'url' => '/images/' . $nombreImagen
                 ]);
             } catch (\Exception $e) {
-                \Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                Log::error('Error al guardar la imagen: ' . $e->getMessage());
             }
         }
 
