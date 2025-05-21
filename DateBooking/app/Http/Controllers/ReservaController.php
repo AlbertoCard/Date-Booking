@@ -12,8 +12,15 @@ class ReservaController extends Controller
      */
     public function index()
     {
-        //
-        return Reserva::all();
+        try {
+            $reservas = Reserva::all();
+            return response()->json(['reservas' => $reservas]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener las reservas',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

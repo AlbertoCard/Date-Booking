@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ReservaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,3 +26,8 @@ Route::middleware('auth:sanctum')->prefix('usuarios')->group(function () {
     Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
     Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
 }); 
+
+// Rutas de reservas
+Route::prefix('reservas')->group(function () {
+    Route::get('/', [ReservaController::class, 'index']);
+});
