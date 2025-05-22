@@ -74,6 +74,6 @@ Route::prefix('servicios')->group(function () {
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
     Route::post('/', [ServicioController::class, 'store']);
 });
-
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
+

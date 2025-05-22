@@ -50,6 +50,10 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+
 export default {
   props: {
     toggleSidebar: {
@@ -108,6 +112,14 @@ export default {
     },
     async logout() {
       try {
+        // Primero actualizamos el estado en la base de datos
+        if (auth.currentUser) {
+          await axios.put(`/api/usuarios/${auth.currentUser.uid}/activo`);
+        }
+        
+        // Luego cerramos sesión en Firebase
+        await signOut(auth);
+        
         // Limpiar datos del usuario
         localStorage.removeItem('userData');
         this.userData = null;
