@@ -39,7 +39,7 @@ class Servicio extends Model
 
     public function ciudad()
     {
-        return $this->belongsTo(Ciudade::class, 'id_ciudad', 'id_ciudad');
+        return $this->belongsTo(Ciudad::class, 'id_ciudad', 'id_ciudad');
     }
     
       public function imagen()

@@ -220,14 +220,15 @@ const loginWithGoogle = async () => {
     console.log('Usuario autenticado con Google:', result.user.uid);
 
     try {
-      // ✅ Marcar como activo en backend
-      const activarResponse = await axios.put(`/api/usuarios/${result.user.uid}/activo`);
-      console.log('Usuario activado:', activarResponse.data);
-
+      // Intentar obtener los datos del usuario
       const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
       console.log('Datos del usuario obtenidos:', response.data);
 
       const userData = response.data.usuario;
+
+      // Marcar como activo en backend
+      const activarResponse = await axios.put(`/api/usuarios/${result.user.uid}/activo`);
+      console.log('Usuario activado:', activarResponse.data);
 
       // Guardar datos del usuario
       localStorage.setItem('userData', JSON.stringify(userData));
@@ -239,8 +240,32 @@ const loginWithGoogle = async () => {
         router.push('/dashboard-cliente');
       }
     } catch (apiError) {
-      console.error('Error en la API:', apiError.response?.data || apiError.message);
-      alert('Error al comunicarse con el servidor. Por favor, intenta nuevamente.');
+      // Si el usuario no existe (404), crearlo
+      if (apiError.response?.status === 404) {
+        console.log('Usuario no encontrado, creando nuevo usuario...');
+        
+        // Crear el usuario en la base de datos
+        const newUserResponse = await axios.post('/api/usuarios', {
+          uid: result.user.uid,
+          nombre: result.user.displayName || 'Usuario Google',
+          email: result.user.email,
+          telefono: result.user.phoneNumber || '0000000000',
+          foto_url: result.user.photoURL || 'https://via.placeholder.com/150',
+          rol: 'cliente' // Por defecto, asignamos rol de cliente
+        });
+
+        console.log('Nuevo usuario creado:', newUserResponse.data);
+
+        // Guardar datos del usuario
+        const userData = newUserResponse.data.usuario;
+        localStorage.setItem('userData', JSON.stringify(userData));
+
+        // Redirigir al dashboard de cliente
+        router.push('/dashboard-cliente');
+      } else {
+        console.error('Error en la API:', apiError.response?.data || apiError.message);
+        alert('Error al comunicarse con el servidor. Por favor, intenta nuevamente.');
+      }
     }
   } catch (error) {
     console.error('Error de Google Sign-In:', error);
