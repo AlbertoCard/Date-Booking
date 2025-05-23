@@ -19,6 +19,7 @@ import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 import MisReservas from "./Components/Reservas/MisReservas.vue";
 import NodoServicio from "./Components/Servicios/NodoServicio.vue";
+import AgregarResena from './Components/Reservas/AgregarResena.vue';
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -127,6 +128,16 @@ const routes = [
             title: 'Detalle de Reserva'
         }
     },
+    {
+        path: '/agregar-resena/:id',
+        name: 'agregar-resena',
+        component: AgregarResena,
+        meta: { 
+            requiresAuth: true,
+            role: "cliente",
+            title: 'Añadir Reseña'
+        }
+    },
 
     // Rutas para establecimientos
     {
@@ -203,7 +214,8 @@ const routes = [
             requiresAuth: false,
             title: 'Página no encontrada'
         }
-    }
+    },
+    
 ];
 
 const router = createRouter({
