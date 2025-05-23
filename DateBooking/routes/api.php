@@ -76,6 +76,8 @@ Route::prefix('servicios')->group(function () {
     Route::post('/', [ServicioController::class, 'store']);
     Route::post('/nuevo-consultorio', [ServicioController::class, 'nuevoConsultorio']);
     Route::post('/nuevo-restaurante', [ServicioController::class, 'nuevoRestaurante']);
+    Route::post('/nuevo-evento', [ServicioController::class, 'nuevoEvento']);
+    Route::post('/nuevo-hotel', [ServicioController::class, 'nuevoHotel']);
 });
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
