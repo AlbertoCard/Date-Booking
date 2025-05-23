@@ -90,7 +90,8 @@ export default {
                 const resenaData = {
                     id_reserva: reservaId,
                     calificacion: this.calificacion,
-                    comentario: this.comentario
+                    comentario: this.comentario,
+                    user_uid: user.uid
                 };
 
                 await axios.post('/api/resenas', resenaData, {
@@ -101,7 +102,7 @@ export default {
 
                 // Mostrar mensaje de éxito y redirigir
                 alert('¡Gracias por tu reseña!');
-                this.$router.push('/mis-reservas');
+                this.$router.push("/reservas/" + user.uid);
             } catch (error) {
                 console.error('Error al enviar la reseña:', error);
                 this.error = error.response?.data?.message || 'Error al enviar la reseña';
