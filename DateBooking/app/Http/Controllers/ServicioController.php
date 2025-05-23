@@ -7,6 +7,7 @@ use App\Models\Imagen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DisponibilidadController;
 use App\Http\Controllers\MedicoController;
 use App\Models\Disponibilidad;
@@ -107,6 +108,7 @@ class ServicioController extends Controller
     //nuevo consultorio
     // Esta función crea un nuevo consultorio con disponibilidad y médicos asociados.
     // Posibles fallos:
+    // - Nombre de servicio ya existe para el establecimiento.
     // - Error en la validación de los datos de entrada.
     // - Error al crear el servicio, disponibilidad o médicos (por ejemplo, por problemas en la base de datos).
     // - Faltan campos requeridos en el request.
@@ -133,7 +135,20 @@ class ServicioController extends Controller
             'medicos.*.especialidad' => 'required|string|max:255'
         ]);
 
+        DB::beginTransaction();
+
         try {
+            // Verificar si ya existe un servicio con el mismo nombre para el establecimiento
+            $existe = Servicio::where('id_establecimiento', $request->id_establecimiento)
+                ->where('nombre', $request->nombre)
+                ->exists();
+
+            if ($existe) {
+                DB::rollBack();
+                return response()->json(['error' => 'Ya existe un servicio con ese nombre para este establecimiento.'], 409);
+            }
+
+
             $servicio = Servicio::create([
                 'id_establecimiento' => $request->id_establecimiento,
                 'nombre' => $request->nombre,
@@ -142,16 +157,11 @@ class ServicioController extends Controller
                 'categoria' => $request->categoria,
                 'id_ciudad' => $request->id_ciudad
             ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al crear el servicio: ' . $e->getMessage()], 500);
-        }
 
-        //obtener el ID del servicio recién creado
-        $id_servicio = $servicio->id_servicio;
+            $id_servicio = $servicio->id_servicio;
 
-        // Guardar disponibilidad
-        foreach ($request->disponibilidad as $disp) {
-            try {
+            // Guardar disponibilidad
+            foreach ($request->disponibilidad as $disp) {
                 \App\Models\Disponibilidad::create([
                     'id_servicio' => $id_servicio,
                     'hora_inicio' => $disp['hora_inicio'],
@@ -161,24 +171,101 @@ class ServicioController extends Controller
                     'tipo' => $disp['tipo'],
                     'activo' => $disp['activo'],
                 ]);
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Error al guardar disponibilidad: ' . $e->getMessage()], 500);
             }
-        }
 
-        // Guardar médicos
-        foreach ($request->medicos as $medico) {
-            try {
+            // Guardar médicos
+            foreach ($request->medicos as $medico) {
                 \App\Models\Medico::create([
                     'id_servicio' => $id_servicio,
                     'nombre' => $medico['nombre'],
                     'especialidad' => $medico['especialidad']
                 ]);
-            } catch (\Exception $e) {
-                return response()->json(['error' => 'Error al guardar médico: ' . $e->getMessage()], 500);
             }
-        }
 
-        return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
+            DB::commit();
+
+            return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al crear el consultorio: ' . $e->getMessage()], 500);
+        }
+    }
+
+    //nuevo restaurante
+    // Esta función crea un nuevo restaurante con disponibilidad y mesas asociadas.
+    // Posibles fallos:
+    // - Nombre de servicio ya existe para el establecimiento.
+    // - Error en la validación de los datos de entrada.
+    // - Error al crear el servicio, disponibilidad o mesas (por ejemplo, por problemas en la base de datos).
+    // - Faltan campos requeridos en el request.
+    // - El método no tiene el modificador de visibilidad (debe ser public).
+
+    public function nuevoRestaurante(Request $request)
+    {
+        $request->validate([
+            'id_establecimiento' => 'required|integer',
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'costo' => 'required|numeric|min:0',
+            'categoria' => 'required|string|max:255',
+            'id_ciudad' => 'required|exists:ciudades,id_ciudad',
+            'disponibilidad' => 'required|array|min:1',
+            'disponibilidad.*.hora_inicio' => 'required|string',
+            'disponibilidad.*.hora_fin' => 'required|string',
+            'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
+            'disponibilidad.*.dias' => 'required|string',
+            'disponibilidad.*.tipo' => 'required|string',
+            'disponibilidad.*.activo' => 'required|integer',
+            'mesas' => 'required|array|min:1',
+            'mesas.*.capacidad' => 'required|integer|min:1'
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Verificar si ya existe un servicio con el mismo nombre para el establecimiento
+            $existe = Servicio::where('id_establecimiento', $request->id_establecimiento)
+                ->where('nombre', $request->nombre)
+                ->exists();
+
+            if ($existe) {
+                DB::rollBack();
+                return response()->json(['error' => 'Ya existe un servicio con ese nombre para este establecimiento.'], 409);
+            }
+            $servicio = Servicio::create([
+                'id_establecimiento' => $request->id_establecimiento,
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'costo' => $request->costo,
+                'categoria' => $request->categoria,
+                'id_ciudad' => $request->id_ciudad
+            ]);
+            $id_servicio = $servicio->id_servicio;
+            // Guardar disponibilidad
+            foreach ($request->disponibilidad as $disp) {
+                \App\Models\Disponibilidad::create([
+                    'id_servicio' => $id_servicio,
+                    'hora_inicio' => $disp['hora_inicio'],
+                    'hora_fin' => $disp['hora_fin'],
+                    'intervalo' => $disp['intervalo'],
+                    'dias' => $disp['dias'],
+                    'tipo' => $disp['tipo'],
+                    'activo' => $disp['activo'],
+                ]);
+            }
+            // Guardar mesas
+            foreach ($request->mesas as $mesa) {
+                \App\Models\Mesa::create([
+                    'id_servicio' => $id_servicio,
+                    'capacidad' => $mesa['capacidad']
+                ]);
+            }
+            DB::commit();
+            return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al crear el restaurante: ' . $e->getMessage()], 500);
+        } 
     }
 }
