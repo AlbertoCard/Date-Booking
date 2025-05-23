@@ -19,6 +19,8 @@
     },
     "dependencies": {
         "firebase": "^11.8.1",
+        "html2canvas": "^1.4.1",
+        "qr-code-styling": "^1.9.2",
         "qrcode.vue": "^3.6.0"
     }
 }
