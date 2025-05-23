@@ -253,7 +253,7 @@ class ServicioController extends Controller
             'disponibilidad.*.tipo' => 'required|string',
             'disponibilidad.*.activo' => 'required|integer',
             'mesas' => 'required|array|min:1',
-            'mesas.*.capacidad' => 'required|integer|min:1'
+            'mesas.*.personas' => 'required|integer|min:1'
         ]);
 
         DB::beginTransaction();
@@ -293,7 +293,7 @@ class ServicioController extends Controller
             foreach ($request->mesas as $mesa) {
                 \App\Models\Mesa::create([
                     'id_servicio' => $id_servicio,
-                    'capacidad' => $mesa['capacidad']
+                    'personas' => $mesa['personas']
                 ]);
             }
             DB::commit();
