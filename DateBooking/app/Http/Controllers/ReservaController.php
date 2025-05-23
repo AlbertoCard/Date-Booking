@@ -155,4 +155,23 @@ class ReservaController extends Controller
             ], 500);
         }
     }
+
+    public function obtenerDetalleReserva($id)
+    {
+        try {
+            $reserva = Reserva::with(['servicio.establecimiento', 'pago'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'reserva' => $reserva
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener el detalle de la reserva',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    
 }

@@ -109,6 +109,15 @@ const routes = [
             title: 'Mis Reservas'
         }
     },
+    {
+        path: '/detalle-reserva/:id',
+        component: () => import('./Components/Reservas/DetalleReserva.vue'),
+        meta: {
+            requiresAuth: true,
+            requiresRole: 'cliente',
+            title: 'Detalle de Reserva'
+        }
+    },
 
     // Rutas para establecimientos
     {
