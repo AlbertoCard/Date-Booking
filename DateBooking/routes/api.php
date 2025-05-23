@@ -55,9 +55,8 @@ Route::prefix('pagos')->group(function () {
 // Rutas para Reservas (públicas)
 Route::prefix('reservas')->group(function () {    
     Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
-    
+    Route::get('/detalle/{id}', [ReservaController::class, 'obtenerDetalleReserva']);
     Route::post('/', [ReservaController::class, 'store']);
-
 });
 
 
@@ -74,6 +73,6 @@ Route::prefix('servicios')->group(function () {
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
     Route::post('/', [ServicioController::class, 'store']);
 });
-
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
+

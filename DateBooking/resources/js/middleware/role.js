@@ -41,7 +41,9 @@ export default async function role(to, from, next) {
     
     if (requiredRole && requiredRole !== userRole) {
       // Si el usuario no tiene el rol correcto, redirigir al dashboard correspondiente
-      next(userRole === 'cliente' ? '/dashboard-cliente' : '/dashboard-establecimiento');
+      //next(userRole === 'cliente' ? '/dashboard-cliente' : '/dashboard-establecimiento');
+      // Redirigir a inicio en lugar del dashboard
+      next('/');
       return;
     }
 
