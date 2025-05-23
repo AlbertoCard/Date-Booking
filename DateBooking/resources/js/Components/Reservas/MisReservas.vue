@@ -133,12 +133,20 @@ export default {
                 const response = await axios.get(`/api/reservas/${userId}`);
                 
                 if (response.data.reservas) {
+                    // Filtrar reservas pendientes y confirmadas
                     this.reservas = response.data.reservas.filter(reserva => 
-                        reserva.estado !== 'COMPLETADA' && reserva.estado !== 'CANCELADA'
+                        reserva.estado.toUpperCase() === 'PENDIENTE' || 
+                        reserva.estado.toUpperCase() === 'CONFIRMADA'
                     );
+                    
+                    // Filtrar reservas completadas y canceladas
                     this.reservasPasadas = response.data.reservas.filter(reserva => 
-                        reserva.estado === 'COMPLETADA' || reserva.estado === 'CANCELADA'
+                        reserva.estado.toUpperCase() === 'COMPLETADA' || 
+                        reserva.estado.toUpperCase() === 'CANCELADA'
                     );
+
+                    console.log('Reservas en curso:', this.reservas);
+                    console.log('Reservas pasadas:', this.reservasPasadas);
                 }
             } catch (error) {
                 console.error('Error al obtener las reservas:', error);
@@ -163,91 +171,112 @@ export default {
 
 .seccion {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.seccion:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .seccion-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
+    padding: 20px;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    background: linear-gradient(to right, #f8fafc, #f1f5f9);
+    transition: all 0.3s ease;
+}
+
+.seccion-header:hover {
+    background: linear-gradient(to right, #f1f5f9, #e2e8f0);
 }
 
 .seccion-header h2 {
-    font-size: 16px;
-    color: #4a90e2;
+    font-size: 18px;
+    color: #1e40af;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-weight: 600;
 }
 
 .seccion-header i {
-    color: #6b7280;
-    font-size: 14px;
+    color: #4b5563;
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.seccion-header:hover i {
+    transform: scale(1.1);
 }
 
 .grid-reservas {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 15px;
-    padding: 15px;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+    padding: 20px;
 }
 
 .tarjeta-reserva {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     cursor: pointer;
+    border: 1px solid #e5e7eb;
 }
 
 .tarjeta-reserva:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-color: #d1d5db;
 }
 
 .info-principal {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
 }
 
 .imagen {
-    width: 50px;
-    height: 50px;
-    background: #4a90e2;
-    border-radius: 8px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 600;
-    font-size: 20px;
+    font-size: 24px;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
 }
 
 .info-reserva {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .info-reserva h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: #1f2937;
 }
 
 .descripcion {
-    font-size: 13px;
+    font-size: 14px;
     color: #6b7280;
     margin: 0;
 }
@@ -256,81 +285,89 @@ export default {
     text-align: right;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
 .fecha, .hora {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: #6b7280;
+    gap: 8px;
+    font-size: 14px;
+    color: #4b5563;
 }
 
 .fecha i, .hora i {
-    color: #4a90e2;
-    font-size: 14px;
+    color: #3b82f6;
+    font-size: 16px;
 }
 
 .estado {
     display: inline-block;
-    padding: 4px 10px;
-    border-radius: 15px;
-    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .estado-confirmada {
-    background: #d4edda;
-    color: #155724;
+    background: #dcfce7;
+    color: #166534;
 }
 
 .estado-pendiente {
-    background: #fff3cd;
-    color: #856404;
+    background: #fef9c3;
+    color: #854d0e;
 }
 
 .estado-cancelada {
-    background: #f8d7da;
-    color: #721c24;
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .estado-completada {
-    background: #e6f3ff;
-    color: #0066cc;
+    background: #e0f2fe;
+    color: #0369a1;
 }
 
 .empty-state {
-    padding: 30px;
+    padding: 40px;
     text-align: center;
     color: #6b7280;
+    background: #f9fafb;
+    border-radius: 12px;
+    margin: 20px;
 }
 
 .empty-state i {
-    font-size: 24px;
-    margin-bottom: 8px;
+    font-size: 32px;
+    margin-bottom: 12px;
+    color: #9ca3af;
 }
 
 .empty-state p {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .error-container {
     text-align: center;
-    padding: 20px;
-    background: #fff5f5;
-    border-radius: 8px;
-    margin: 10px 0;
+    padding: 24px;
+    background: #fef2f2;
+    border-radius: 12px;
+    margin: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    color: #dc3545;
+    gap: 12px;
+    color: #dc2626;
+    border: 1px solid #fecaca;
 }
 
 .error-container i {
-    font-size: 20px;
+    font-size: 24px;
 }
 
 @media (max-width: 768px) {
@@ -340,12 +377,15 @@ export default {
 
     .grid-reservas {
         grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 15px;
     }
 
     .tarjeta-reserva {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
+        padding: 15px;
     }
 
     .info-principal {
@@ -356,6 +396,16 @@ export default {
         width: 100%;
         flex-direction: row;
         justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .seccion-header {
+        padding: 15px;
+    }
+
+    .seccion-header h2 {
+        font-size: 16px;
     }
 }
 </style>

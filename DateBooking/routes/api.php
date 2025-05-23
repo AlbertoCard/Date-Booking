@@ -10,6 +10,8 @@ use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ReservaController;
 use App\Models\Servicio;
+use App\Http\Controllers\ResenaController;
+
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -77,3 +79,7 @@ Route::prefix('servicios')->group(function () {
 });
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
+
+// Rutas para reseñas
+Route::post('/resenas', [ResenaController::class, 'store']);
+

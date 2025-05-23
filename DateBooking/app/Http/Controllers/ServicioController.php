@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Servicio;
 use App\Models\Imagen;
+use App\Models\Reseña;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +23,17 @@ class ServicioController extends Controller
     public function index()
     {
         $servicios = Servicio::with(['disponibilidad', 'imagen'])->get();
+        
+        $servicios = $servicios->map(function ($servicio) {
+            $reseñas = Reseña::where('id_servicio', $servicio->id_servicio)->get();
+            $promedio = $reseñas->avg('calificacion') ?? 0;
+            $total = $reseñas->count();
+
+            $servicio->promedio_reseñas = round($promedio, 1);
+            $servicio->total_reseñas = $total;
+            return $servicio;
+        });
+
         Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }
@@ -35,6 +47,29 @@ class ServicioController extends Controller
         }
 
         return response()->json($servicio);
+    }
+
+    public function getResenas($id)
+    {
+        $servicio = Servicio::find($id);
+        
+        if (!$servicio) {
+            return response()->json(['message' => 'Servicio no encontrado'], 404);
+        }
+
+        $resenas = Reseña::with('usuario')
+            ->where('id_servicio', $id)
+            ->orderBy('fecha', 'desc')
+            ->get();
+
+        $promedio = $resenas->avg('calificacion') ?? 0;
+        $total = $resenas->count();
+
+        return response()->json([
+            'resenas' => $resenas,
+            'promedio' => round($promedio, 1),
+            'total' => $total
+        ]);
     }
 
     // crear nuevo servicio
