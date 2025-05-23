@@ -20,7 +20,7 @@ class ServicioController extends Controller
 
     public function show($id)
     {
-        $servicio = Servicio::with('disponibilidad')->find($id);
+        $servicio = Servicio::with(['disponibilidad', 'ciudad', 'imagen'])->find($id);
         
         if (!$servicio) {
             return response()->json(['message' => 'Servicio no encontrado'], 404);

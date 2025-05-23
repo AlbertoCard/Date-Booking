@@ -18,6 +18,7 @@ import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 import MisReservas from "./Components/Reservas/MisReservas.vue";
+import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -60,7 +61,7 @@ const routes = [
         meta: { requiresAuth: false }
     },
     {
-        path: "/detalle-servicio/:id",
+        path: "/servicio/:id",
         component: DetalleServicio,
         meta: { requiresAuth: false }
     },
@@ -112,6 +113,11 @@ const routes = [
     {
         path: "/:pathMatch(.*)*",
         component: NotFound,
+        meta: { requiresAuth: false }
+    },
+    {
+        path: "/nodo-servicio/:id",
+        component: NodoServicio,
         meta: { requiresAuth: false }
     }
 
