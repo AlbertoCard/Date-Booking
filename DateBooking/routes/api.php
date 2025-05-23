@@ -9,7 +9,7 @@ use App\Http\Controllers\CiudadController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ReservaController;
-
+use App\Models\Servicio;
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -26,8 +26,8 @@ Route::prefix('usuarios')->group(function () {
     Route::get('/obtener/{uid}', [UsuarioController::class, 'show']);
     Route::put('/{uid}/activo', [UsuarioController::class, 'updateActivo']);
     Route::put('/{uid}/activar', [UsuarioController::class, 'activarUsuario']);
-    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']); 
-}); 
+    Route::put('/{uid}/estado', [UsuarioController::class, 'cambiarEstadoActivo']);
+});
 
 
 // Rutas de establecimientos
@@ -47,13 +47,13 @@ Route::get('/establecimientos/usuario/{uid}', [EstablecimientoController::class,
 // Rutas para pagos
 Route::prefix('pagos')->group(function () {
     Route::get('/{id}', [PagoController::class, 'show']);
-    
+
     Route::post('/', [PagoController::class, 'store']);
 });
 
 
 // Rutas para Reservas (públicas)
-Route::prefix('reservas')->group(function () {    
+Route::prefix('reservas')->group(function () {
     Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
     Route::get('/detalle/{id}', [ReservaController::class, 'obtenerDetalleReserva']);
     Route::post('/', [ReservaController::class, 'store']);
@@ -72,7 +72,7 @@ Route::prefix('servicios')->group(function () {
     Route::get('/search/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
     Route::post('/', [ServicioController::class, 'store']);
+    Route::post('/nuevo-consultorio', [ServicioController::class, 'nuevoConsultorio']);
 });
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
-
