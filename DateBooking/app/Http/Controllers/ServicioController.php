@@ -11,9 +11,17 @@ use Illuminate\Support\Facades\Log;
 class ServicioController extends Controller
 {
     // lista de servicios
-    public function index()
+    public function index(Request $request)
     {
-        $servicios = Servicio::with(['disponibilidad', 'imagen'])->get();
+        $idEstablecimiento = $request->query('id_establecimiento');
+        
+        $query = Servicio::with(['disponibilidad', 'imagen']);
+        
+        if ($idEstablecimiento) {
+            $query->where('id_establecimiento', $idEstablecimiento);
+        }
+        
+        $servicios = $query->get();
         Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }
@@ -38,11 +46,12 @@ class ServicioController extends Controller
             'costo' => 'required|numeric|min:0',
             'categoria' => 'required|string|max:255',
             'id_ciudad' => 'required|exists:ciudades,id_ciudad',
+            'id_establecimiento' => 'required|exists:establecimientos,id_establecimiento',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         $servicio = Servicio::create([
-            'id_establecimiento' => 1, // Por ahora fijo
+            'id_establecimiento' => $request->id_establecimiento,
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
             'costo' => $request->costo,

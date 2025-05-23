@@ -230,6 +230,14 @@ const loginWithGoogle = async () => {
       const activarResponse = await axios.put(`/api/usuarios/${result.user.uid}/activo`);
       console.log('Usuario activado:', activarResponse.data);
 
+      // Si es un establecimiento, obtener su id_establecimiento
+      if (userData.rol === 'establecimiento') {
+        const estabResponse = await axios.get(`/api/establecimientos/usuario/${result.user.uid}`);
+        if (estabResponse.data.establecimientos && estabResponse.data.establecimientos.length > 0) {
+          userData.id_establecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+        }
+      }
+
       // Guardar datos del usuario
       localStorage.setItem('userData', JSON.stringify(userData));
 
@@ -243,7 +251,7 @@ const loginWithGoogle = async () => {
       // Si el usuario no existe (404), crearlo
       if (apiError.response?.status === 404) {
         console.log('Usuario no encontrado, creando nuevo usuario...');
-        
+
         // Crear el usuario en la base de datos
         const newUserResponse = await axios.post('/api/usuarios', {
           uid: result.user.uid,

@@ -9,6 +9,7 @@ use App\Http\Controllers\CiudadController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ReservaController;
+use App\Http\Controllers\ResenaController;
 
 
 // Ruta de prueba
@@ -72,7 +73,11 @@ Route::prefix('servicios')->group(function () {
     Route::get('/search/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
     Route::post('/', [ServicioController::class, 'store']);
+    Route::get('/{id}/reseñas', [ResenaController::class, 'getByServicio']);
 });
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
 
+
+
+Route::post('/resenas', [ResenaController::class, 'store']); 
