@@ -18,6 +18,7 @@ import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 import MisReservas from "./Components/Reservas/MisReservas.vue";
+import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -87,6 +88,14 @@ const routes = [
         meta: { 
             requiresAuth: false,
             title: 'Establecimiento'
+        }
+    },
+    {
+        path: "/nodo-servicio/:id",
+        component: NodoServicio,
+        meta: { 
+            requiresAuth: false,
+            title: 'Nodo Servicio'  
         }
     },
 

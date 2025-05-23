@@ -57,7 +57,7 @@
                     <div :key="activeTab">
                         <!-- Lista de servicios -->
                         <div v-for="(servicio, index) in serviciosFiltrados" :key="servicio.id_servicio"
-                            class="tarjeta-servicio group">
+                            class="tarjeta-servicio group" @click="verDetalleServicio(servicio.id_servicio)">
                             <!-- Imagen o ícono -->
                             <div class="imagen transform group-hover:scale-105 transition-all duration-300">
                                 <template v-if="servicio.imagen && servicio.imagen.url">
@@ -290,6 +290,9 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        verDetalleServicio(idServicio) {
+            this.$router.push(`/nodo-servicio/${idServicio}`);
         }
     },
 };
