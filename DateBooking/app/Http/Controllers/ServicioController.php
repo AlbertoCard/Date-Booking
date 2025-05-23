@@ -325,21 +325,21 @@ class ServicioController extends Controller
     {
         try {
             $request->validate([
-            'id_establecimiento' => 'required|integer',
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'costo' => 'required|numeric|min:0',
-            'categoria' => 'required|string|max:255',
-            'id_ciudad' => 'required|exists:ciudades,id_ciudad',
-            'disponibilidad' => 'required|array|min:1',
-            'disponibilidad.*.hora_inicio' => 'required|string',
-            'disponibilidad.*.hora_fin' => 'required|string',
-            'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
-            'disponibilidad.*.tipo' => 'required|string',
-            'disponibilidad.*.activo' => 'required|integer',
-            'lugares' => 'required|array|min:1',
-            'lugares.*.filas' => 'required|integer|min:1',
-            'lugares.*.numeros' => 'required|integer|min:1'
+                'id_establecimiento' => 'required|integer',
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string',
+                'costo' => 'required|numeric|min:0',
+                'categoria' => 'required|string|max:255',
+                'id_ciudad' => 'required|exists:ciudades,id_ciudad',
+                'disponibilidad' => 'required|array|min:1',
+                'disponibilidad.*.hora_inicio' => 'required|string',
+                'disponibilidad.*.hora_fin' => 'required|string',
+                'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
+                'disponibilidad.*.tipo' => 'required|string',
+                'disponibilidad.*.activo' => 'required|integer',
+                'lugares' => 'required|array|min:1',
+                'lugares.*.filas' => 'required|integer|min:1',
+                'lugares.*.numeros' => 'required|integer|min:1'
             ]);
         } catch (ValidationException $e) {
             return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
@@ -418,6 +418,103 @@ class ServicioController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error al crear el evento: ' . $e->getMessage()], 500);
+        }
+    }
+
+
+    // nuevo hotel
+    // Esta función crea un nuevo hotel con disponibilidad y la habitacion asociada.
+    // Posibles fallos:
+    // - Nombre de servicio ya existe para el establecimiento.
+    // - Error en la validación de los datos de entrada.
+    // - Error al crear el servicio, disponibilidad o habitaciones (por ejemplo, por problemas en la base de datos).
+    // - Faltan campos requeridos en el request.
+    // - El método no tiene el modificador de visibilidad (debe ser public).    
+    public function nuevoHotel(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_establecimiento' => 'required|integer',
+                'nombre' => 'required|string|max:255',
+                'descripcion' => 'required|string',
+                'costo' => 'required|numeric|min:0',
+                'categoria' => 'required|string|max:255',
+                'id_ciudad' => 'required|exists:ciudades,id_ciudad',
+                'disponibilidad' => 'required|array|min:1',
+                'disponibilidad.*.hora_inicio' => 'required|string',
+                'disponibilidad.*.hora_fin' => 'required|string',
+                'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
+                'disponibilidad.*.tipo' => 'required|string',
+                'disponibilidad.*.activo' => 'required|integer',
+                'habitacion' => 'required|array|min:1',
+                'habitacion.*.tipo' => 'required|string|max:255',
+                'habitacion.*.numero' => 'required|integer|min:1',
+                'habitacion.*.capacidad' => 'required|integer|min:1',
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Verificar si ya existe un servicio con el mismo nombre para el establecimiento
+            $existe = Servicio::where('id_establecimiento', $request->id_establecimiento)
+                ->where('nombre', $request->nombre)
+                ->exists();
+
+            if ($existe) {
+                DB::rollBack();
+                return response()->json(['error' => 'Ya existe un servicio con ese nombre para este establecimiento.'], 409);
+            }
+
+            $servicio = Servicio::create([
+                'id_establecimiento' => $request->id_establecimiento,
+                'nombre' => $request->nombre,
+                'descripcion' => $request->descripcion,
+                'costo' => $request->costo,
+                'categoria' => $request->categoria,
+                'id_ciudad' => $request->id_ciudad
+            ]);
+
+            $id_servicio = $servicio->id_servicio;
+
+            // Guardar disponibilidad
+            foreach ($request->disponibilidad as $disp) {
+                \App\Models\Disponibilidad::create([
+                    'id_servicio' => $id_servicio,
+                    'hora_inicio' => $disp['hora_inicio'],
+                    'hora_fin' => $disp['hora_fin'],
+                    'intervalo' => $disp['intervalo'],
+                    'dias' => 'Lunes',
+                    'tipo' => $disp['tipo'],
+                    'activo' => $disp['activo'],
+                ]);
+            }
+
+            // Guardar habitaciones
+            try {
+                foreach ($request->habitacion as $hab) {
+                    \App\Models\Habitacione::create([
+                        'id_servicio' => $id_servicio,
+                        'tipo' => $hab['tipo'],
+                        'numero' => $hab['numero'],
+                        'capacidad' => $hab['capacidad'],
+                        'fecha_inicio' => now(), 
+                        'fecha_fin' => now()->addDays(5)
+                    ]);
+                }
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['error' => 'Error al crear las habitaciones: ' . $e->getMessage()], 500);
+            }
+
+            DB::commit();
+
+            return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al crear el hotel: ' . $e->getMessage()], 500);
         }
     }
 }
