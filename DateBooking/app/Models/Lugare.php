@@ -9,12 +9,4 @@ class Lugare extends Model
 {
     //
     use HasFactory;
-
-    protected $table = 'lugares';
-    protected $fillable = [
-        'id_servicio',
-        'fila',
-        'numero',
-        'sector',
-    ];
 }

@@ -34,7 +34,7 @@ class UsuarioSeeder extends Seeder
             'activo' => 0,
         ]);
         Usuario::created([
-            'uid' => 'GulB5E7T0sT3YQcLKwKvl200T0i2',
+            'uid' => 'yeZuUjbQVid28DTBqGmbmYvHqfH2',
             'nombre' => 'Alberto Cardenas',
             'email' => 'alberto.cardenaszazueta@gmail.com',
             'telefono' => '6671791711',
