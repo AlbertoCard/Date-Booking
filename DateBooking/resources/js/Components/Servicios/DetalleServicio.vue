@@ -36,21 +36,22 @@
               <!-- Galería de imágenes -->
               <div class="space-y-4">
                 <div class="grid grid-cols-3 gap-3">
-                  <div v-for="i in 3" :key="i" 
-                       class="aspect-square bg-gray-100 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 cursor-pointer overflow-hidden group">
+                  <div v-for="i in 3" :key="i"
+                    class="aspect-square bg-gray-100 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors duration-200 cursor-pointer overflow-hidden group">
                     <div class="w-full h-full flex items-center justify-center relative">
-                      <i class="material-icons text-gray-400 text-3xl group-hover:scale-110 transition-transform duration-200">image</i>
-                      <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-200"></div>
+                      <i
+                        class="material-icons text-gray-400 text-3xl group-hover:scale-110 transition-transform duration-200">image</i>
+                      <div
+                        class="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-200">
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div class="flex justify-center space-x-2">
-                  <span v-for="(_, index) in 3" :key="index"
-                        :class="[
-                          'w-2 h-2 rounded-full transition-all duration-300 cursor-pointer',
-                          currentSlide === index ? 'w-6 bg-black' : 'bg-gray-300 hover:bg-gray-400'
-                        ]"
-                        @click="currentSlide = index">
+                  <span v-for="(_, index) in 3" :key="index" :class="[
+                    'w-2 h-2 rounded-full transition-all duration-300 cursor-pointer',
+                    currentSlide === index ? 'w-6 bg-black' : 'bg-gray-300 hover:bg-gray-400'
+                  ]" @click="currentSlide = index">
                   </span>
                 </div>
               </div>
@@ -111,12 +112,9 @@
                     <span class="text-xl">📅</span>
                     <span>Fecha de reserva</span>
                   </label>
-                  <input 
-                    type="date" 
-                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors" 
-                    v-model="fechaSeleccionada"
-                    :min="fechaMinima" 
-                  />
+                  <input type="date"
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors"
+                    v-model="fechaSeleccionada" :min="fechaMinima" />
                 </div>
 
                 <!-- Horario -->
@@ -125,28 +123,38 @@
                     <span class="text-xl">⏰</span>
                     <span>Horario disponible</span>
                   </label>
-                  <select 
+                  <select
                     class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors appearance-none bg-white"
-                    v-model="horaSeleccionada"
-                    :disabled="!fechaSeleccionada"
-                  >
+                    v-model="horaSeleccionada" :disabled="!fechaSeleccionada">
                     <option disabled value="">Selecciona un horario</option>
                     <option v-for="hora in horasDisponibles" :key="hora" :value="hora">
                       {{ hora }}
                     </option>
                   </select>
                 </div>
+
+                <!-- Selector de Médico (solo para consultorios) -->
+                <div v-if="servicio?.categoria === 'consultorio'" class="space-y-2">
+                  <label class="flex items-center space-x-2 text-gray-700 font-medium">
+                    <span class="text-xl">👨‍⚕️</span>
+                    <span>Seleccionar Médico</span>
+                  </label>
+                  <select
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors appearance-none bg-white"
+                    v-model="medicoSeleccionado">
+                    <option disabled value="">Selecciona un médico</option>
+                    <option value="1">Dr. Juan Pérez</option>
+                    <option value="2">Dra. María García</option>
+                    <option value="3">Dr. Carlos López</option>
+                  </select>
+                </div>
               </div>
 
               <!-- Botón de reserva -->
-              <button
-                @click="realizarReserva"
-                :disabled="!puedeReservar"
-                class="w-full bg-black text-white py-4 rounded-lg font-medium 
+              <button @click="realizarReserva" :disabled="!puedeReservar" class="w-full bg-black text-white py-4 rounded-lg font-medium 
                        hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black 
                        disabled:bg-gray-300 disabled:cursor-not-allowed
-                       transition-all duration-200 transform hover:scale-[1.02]"
-              >
+                       transition-all duration-200 transform hover:scale-[1.02]">
                 {{ puedeReservar ? 'Realizar Reservación!' : 'Selecciona fecha y hora' }}
               </button>
 
@@ -177,6 +185,7 @@ const fechaSeleccionada = ref('');
 const horaSeleccionada = ref('');
 const horasDisponibles = ref([]);
 const currentSlide = ref(0);
+const medicoSeleccionado = ref('');
 
 // Computed properties
 const fechaMinima = computed(() => {
@@ -185,6 +194,9 @@ const fechaMinima = computed(() => {
 });
 
 const puedeReservar = computed(() => {
+  if (servicio.value?.categoria === 'consultorio') {
+    return fechaSeleccionada.value && horaSeleccionada.value && medicoSeleccionado.value;
+  }
   return fechaSeleccionada.value && horaSeleccionada.value;
 });
 
@@ -198,10 +210,10 @@ const cargarServicio = async () => {
     console.log('ID del servicio:', route.params.id);
     const url = `/api/servicios/${route.params.id}`;
     console.log('URL de la petición:', url);
-    
+
     const response = await axios.get(url);
     console.log('Respuesta del servidor:', response.data);
-    
+
     servicio.value = response.data;
   } catch (err) {
     console.error('Error completo:', err);
@@ -244,7 +256,7 @@ const realizarReserva = async () => {
     console.log('Datos del pago:', pagoData);
     const pagoResponse = await axios.post('/api/pagos', pagoData);
     console.log('Respuesta del pago:', pagoResponse.data);
-    
+
     if (pagoResponse.data.id_pago) {
       // Luego creamos la reserva
       const reservaData = {
@@ -261,7 +273,7 @@ const realizarReserva = async () => {
       console.log('Datos de la reserva:', reservaData);
       const reservaResponse = await axios.post('/api/reservas', reservaData);
       console.log('Respuesta de la reserva:', reservaResponse.data);
-      
+
       if (reservaResponse.data.id_reserva) {
         alert(`¡Reservación exitosa! Te esperamos el ${fechaSeleccionada.value} a las ${horaSeleccionada.value}`);
         router.push(`/pago/${pagoResponse.data.id_pago}`);
