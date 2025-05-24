@@ -18,6 +18,7 @@
         "vue-router": "^4.5.1"
     },
     "dependencies": {
+        "@stripe/stripe-js": "^7.3.0",
         "firebase": "^11.8.1",
         "html2canvas": "^1.4.1",
         "qr-code-styling": "^1.9.2",

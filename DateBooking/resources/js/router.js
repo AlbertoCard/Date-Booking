@@ -20,6 +20,7 @@ import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 import MisReservas from "./Components/Reservas/MisReservas.vue";
 import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 import AgregarResena from './Components/Reservas/AgregarResena.vue';
+import StripePayment from './Components/StripePayment.vue';
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -214,6 +215,11 @@ const routes = [
             requiresAuth: false,
             title: 'Página no encontrada'
         }
+    },
+    {
+        path: '/prueba-pago',
+        name: 'prueba-pago',
+        component: StripePayment
     },
     
 ];
