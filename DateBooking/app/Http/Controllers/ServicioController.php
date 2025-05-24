@@ -20,26 +20,21 @@ class ServicioController extends Controller
     protected $medicoController;
 
 
-    // lista de servicios
     public function index(Request $request)
     {
-
-        $servicios = Servicio::with(['disponibilidad', 'imagen'])->get();
-
-        $servicios = $servicios->map(function ($servicio) {
-            $reseñas = Reseña::where('id_servicio', $servicio->id_servicio)->get();
-            $promedio = $reseñas->avg('calificacion') ?? 0;
-            $total = $reseñas->count();
-
-            $servicio->promedio_reseñas = round($promedio, 1);
-            $servicio->total_reseñas = $total;
-            return $servicio;
-        });
-
+        $idEstablecimiento = $request->query('id_establecimiento');
+        
+        $query = Servicio::with(['disponibilidad', 'imagen']);
+        
+        if ($idEstablecimiento) {
+            $query->where('id_establecimiento', $idEstablecimiento);
+        }
+        
+        $servicios = $query->get();
         Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }
-
+    
     public function show($id)
     {
         $servicio = Servicio::with(['disponibilidad', 'ciudad', 'imagen'])->find($id);
