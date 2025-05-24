@@ -49,12 +49,12 @@
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Categoría</span>
                                         <p class="font-medium text-gray-900">{{ servicio?.categoria || 'No especificada'
-                                            }}</p>
+                                        }}</p>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">ID Establecimiento</span>
                                         <p class="font-medium text-gray-900">#{{ servicio?.id_establecimiento || '000'
-                                            }}</p>
+                                        }}</p>
                                     </div>
                                 </div>
 
@@ -67,7 +67,8 @@
                                         </div>
                                         <div>
                                             <span class="text-sm text-gray-500 block">Ubicación</span>
-                                            <p class="font-medium text-gray-900">Ciudad {{ servicio?.id_ciudad }}</p>
+                                            <p class="font-medium text-gray-900">{{ servicio?.ciudad?.nombre ||
+                                                'Ciudad no especificada' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -92,9 +93,10 @@
                                         <span class="text-xl">📅</span>
                                         <span>Fecha de la consulta</span>
                                     </label>
-                                    <input type="date"
-                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors"
-                                        v-model="fechaSeleccionada" :min="fechaMinima" />
+                                    <div class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50">
+                                        {{ disponibilidad?.fecha ? new Date(disponibilidad.fecha +
+                                            'T00:00:00').toLocaleDateString() : 'Cargando fecha...' }}
+                                    </div>
                                 </div>
 
                                 <!-- Horario -->
@@ -105,12 +107,16 @@
                                     </label>
                                     <select
                                         class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors appearance-none bg-white"
-                                        v-model="horaSeleccionada" :disabled="!fechaSeleccionada">
+                                        v-model="horaSeleccionada" :disabled="!disponibilidad">
                                         <option disabled value="">Selecciona un horario</option>
                                         <option v-for="hora in horasDisponibles" :key="hora" :value="hora">
                                             {{ hora }}
                                         </option>
                                     </select>
+                                    <p v-if="disponibilidad && horasDisponibles.length === 0"
+                                        class="text-sm text-red-500 mt-1">
+                                        No hay horarios disponibles para esta fecha
+                                    </p>
                                 </div>
 
                                 <!-- Selector de Médico -->
@@ -123,9 +129,10 @@
                                         class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors appearance-none bg-white"
                                         v-model="medicoSeleccionado">
                                         <option disabled value="">Selecciona un médico</option>
-                                        <option value="1">Dr. Juan Pérez - Medicina General</option>
-                                        <option value="2">Dra. María García - Pediatría</option>
-                                        <option value="3">Dr. Carlos López - Cardiología</option>
+                                        <option v-for="medico in medicos" :key="medico.id_medico"
+                                            :value="medico.id_medico">
+                                            {{ medico.nombre }} - {{ medico.especialidad }}
+                                        </option>
                                     </select>
                                 </div>
 
@@ -134,7 +141,6 @@
                                     <h3 class="font-medium text-gray-900 mb-2">Información del Médico</h3>
                                     <div class="space-y-2 text-sm text-gray-600">
                                         <p>Especialidad: {{ obtenerEspecialidadMedico(medicoSeleccionado) }}</p>
-                                        <p>Experiencia: 10+ años</p>
                                         <p>Horario de atención: Lunes a Viernes</p>
                                     </div>
                                 </div>
@@ -145,7 +151,7 @@
                        hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black 
                        disabled:bg-gray-300 disabled:cursor-not-allowed
                        transition-all duration-200 transform hover:scale-[1.02]">
-                                {{ puedeReservar ? 'Realizar Reservación!' : 'Selecciona fecha, hora y médico' }}
+                                {{ puedeReservar ? 'Realizar Reservación!' : 'Selecciona un médico' }}
                             </button>
 
                             <!-- Nota informativa -->
@@ -161,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import Loader from '../Loader.vue';
@@ -171,25 +177,47 @@ const route = useRoute();
 const servicio = ref(null);
 const cargando = ref(true);
 const error = ref(null);
-const fechaSeleccionada = ref('');
 const horaSeleccionada = ref('');
 const medicoSeleccionado = ref('');
-
-// Horarios disponibles
-const horasDisponibles = [
-    '09:00', '10:00', '11:00', '12:00', '13:00',
-    '14:00', '15:00', '16:00', '17:00'
-];
+const medicos = ref([]);
+const horasDisponibles = ref([]);
+const disponibilidad = ref(null);
 
 // Computed properties
-const fechaMinima = computed(() => {
-    const hoy = new Date();
-    return hoy.toISOString().split('T')[0];
+const puedeReservar = computed(() => {
+    return horaSeleccionada.value && medicoSeleccionado.value;
 });
 
-const puedeReservar = computed(() => {
-    return fechaSeleccionada.value && horaSeleccionada.value && medicoSeleccionado.value;
-});
+const calcularHorasDisponibles = () => {
+    if (!disponibilidad.value) return;
+
+    try {
+        // Convertir las horas a objetos Date para facilitar el cálculo
+        const horaInicio = new Date(`2000-01-01T${disponibilidad.value.hora_inicio}`);
+        const horaFin = new Date(`2000-01-01T${disponibilidad.value.hora_fin}`);
+
+        // Convertir el intervalo a minutos
+        const [horasIntervalo, minutosIntervalo] = disponibilidad.value.intervalo.split(':');
+        const intervaloMinutos = parseInt(horasIntervalo) * 60 + parseInt(minutosIntervalo);
+
+        const horasArray = [];
+        let horaActual = horaInicio;
+
+        while (horaActual <= horaFin) {
+            horasArray.push(horaActual.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }));
+            horaActual = new Date(horaActual.getTime() + intervaloMinutos * 60000);
+        }
+
+        horasDisponibles.value = horasArray;
+    } catch (err) {
+        console.error('Error al calcular horas disponibles:', err);
+        horasDisponibles.value = [];
+    }
+};
 
 // Métodos
 const volver = () => {
@@ -197,32 +225,66 @@ const volver = () => {
 };
 
 const obtenerEspecialidadMedico = (idMedico) => {
-    const especialidades = {
-        '1': 'Medicina General',
-        '2': 'Pediatría',
-        '3': 'Cardiología'
-    };
-    return especialidades[idMedico] || 'No especificada';
+    const medico = medicos.value.find(m => m.id_medico === idMedico);
+    return medico ? medico.especialidad : 'No especificada';
 };
 
 const cargarServicio = async () => {
     try {
-        const response = await axios.get(`/api/servicios/${route.params.id}`);
-        servicio.value = response.data;
+        // Realizar las llamadas en paralelo
+        const [servicioResponse, medicosResponse, disponibilidadResponse] = await Promise.all([
+            axios.get(`/api/servicios/${route.params.id}`),
+            axios.get(`/api/medicos/${route.params.id}`),
+            axios.get(`/api/disponibilidad/${route.params.id}`)
+        ]);
+
+        servicio.value = servicioResponse.data;
+        medicos.value = medicosResponse.data;
+        disponibilidad.value = disponibilidadResponse.data;
+
+        // Calcular las horas disponibles cuando se carga la disponibilidad
+        if (disponibilidad.value) {
+            calcularHorasDisponibles();
+        }
     } catch (err) {
-        error.value = `Error al cargar el servicio: ${err.response?.data?.message || err.message}`;
+        console.error('Error al cargar los datos:', err);
+        error.value = `Error al cargar los datos: ${err.response?.data?.message || err.message}`;
     } finally {
         cargando.value = false;
     }
 };
 
-const realizarReserva = () => {
-    // Aquí irá la lógica de reserva cuando se implemente
-    console.log('Reserva realizada:', {
-        fecha: fechaSeleccionada.value,
-        hora: horaSeleccionada.value,
-        medico: medicoSeleccionado.value
-    });
+const realizarReserva = async () => {
+    if (!puedeReservar.value) return;
+
+    try {
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData || !userData.uid) {
+            alert('Error: No se encontró la información del usuario. Por favor, inicia sesión nuevamente.');
+            return;
+        }
+
+        const fechaHora = `${disponibilidad.value.fecha} ${horaSeleccionada.value}:00`;
+
+        const reservaData = {
+            id_usuario: userData.uid,
+            id_servicio: parseInt(route.params.id),
+            estado: 'apartado',
+            fecha: fechaHora,
+            tipo_servicio: 'consultorio',
+            detalle_1: medicoSeleccionado.value
+        };
+
+        const response = await axios.post('/api/reservas/consultorio', reservaData);
+
+        if (response.data.id_reserva) {
+            alert('¡Reserva realizada con éxito! Tienes 15 minutos para completar el pago.');
+            router.push(`/pago/${response.data.id_reserva}`);
+        }
+    } catch (err) {
+        console.error('Error al realizar la reserva:', err);
+        alert(err.response?.data?.message || 'Error al realizar la reserva. Por favor, intenta nuevamente.');
+    }
 };
 
 // Lifecycle

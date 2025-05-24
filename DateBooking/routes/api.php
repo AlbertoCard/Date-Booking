@@ -12,6 +12,7 @@ use App\Http\Controllers\ReservaController;
 use App\Models\Servicio;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\MedicoController;
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -59,10 +60,12 @@ Route::prefix('reservas')->group(function () {
     Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
     Route::get('/detalle/{id}', [ReservaController::class, 'obtenerDetalleReserva']);
     Route::post('/', [ReservaController::class, 'store']);
+    Route::post('/consultorio', [ReservaController::class, 'reservarConsultorio']);
 });
 
 
 // Rutas de disponibilidad
+Route::get('/disponibilidad/{id_servicio}', [DisponibilidadController::class, 'getByServicio']);
 Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
 Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
 Route::delete('/disponibilidad/{id_servicio}', [DisponibilidadController::class, 'destroy']);
@@ -91,3 +94,6 @@ Route::prefix('stripe')->group(function () {
     Route::get('/cancel', [StripeController::class, 'cancel']);
 });
 Route::post('/resenas', [ResenaController::class, 'store']); 
+
+// Rutas para médicos
+Route::get('/medicos/{id_servicio}', [MedicoController::class, 'getByServicio']); 
