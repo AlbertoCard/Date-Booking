@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Inicio from "./Components/Inicio.vue";
-import Nosotros from "./Components/Nosotros.vue";
 import NotFound from "./Components/NotFound.vue";
 import NuevoServicio from "./Components/Servicios/NuevoServicio.vue";
 import VerServicio from "./Components/Servicios/VerServicios.vue";
@@ -40,14 +39,6 @@ const routes = [
         meta: { 
             requiresAuth: false,
             title: 'Inicio'
-        } 
-    },
-    { 
-        path: "/nosotros", 
-        component: Nosotros, 
-        meta: { 
-            requiresAuth: false,
-            title: 'Nosotros'
         } 
     },
     { 
