@@ -21,6 +21,10 @@ import MisReservas from "./Components/Reservas/MisReservas.vue";
 import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 import AgregarResena from './Components/Reservas/AgregarResena.vue';
 import StripePayment from './Components/StripePayment.vue';
+import ReservaConsultorio from './Components/Reservas/ReservaConsultorio.vue';
+import ReservaRestaurante from './Components/Reservas/ReservaRestaurante.vue';
+import ReservaEvento from './Components/Reservas/ReservaEvento.vue';
+import ReservaHotel from './Components/Reservas/ReservaHotel.vue';
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -98,6 +102,38 @@ const routes = [
         meta: { 
             requiresAuth: false,
             title: 'Nodo Servicio'  
+        }
+    },
+    {
+        path: "/reserva-consultorio/:id",
+        component: ReservaConsultorio,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Consultorio'
+        }
+    },
+    {
+        path: "/reserva-restaurante/:id",
+        component: ReservaRestaurante,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Restaurante'
+        }
+    },
+    {
+        path: "/reserva-evento/:id",
+        component: ReservaEvento,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Evento'
+        }
+    },
+    {
+        path: "/reserva-hotel/:id",
+        component: ReservaHotel,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Hotel'
         }
     },
 

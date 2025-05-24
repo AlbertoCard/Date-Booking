@@ -37,7 +37,7 @@ class ServicioController extends Controller
     
     public function show($id)
     {
-        $servicio = Servicio::with(['disponibilidad', 'ciudad', 'imagen'])->find($id);
+        $servicio = Servicio::with(['disponibilidad', 'ciudad', 'imagen', 'establecimiento'])->find($id);
 
         if (!$servicio) {
             return response()->json(['message' => 'Servicio no encontrado'], 404);
@@ -385,7 +385,7 @@ class ServicioController extends Controller
             }
 
             // Definir sectores y letras de filas
-            $sectores = ['norte', 'sur', 'este', 'oeste'];
+            $sectores = ['VIP', 'A', 'B', 'C'];
             $letrasFilas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
             try {
