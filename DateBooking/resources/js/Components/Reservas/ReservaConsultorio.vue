@@ -49,12 +49,12 @@
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Categoría</span>
                                         <p class="font-medium text-gray-900">{{ servicio?.categoria || 'No especificada'
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">ID Establecimiento</span>
                                         <p class="font-medium text-gray-900">#{{ servicio?.id_establecimiento || '000'
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                 </div>
 

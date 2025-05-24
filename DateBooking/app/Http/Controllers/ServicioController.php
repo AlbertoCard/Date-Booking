@@ -329,6 +329,7 @@ class ServicioController extends Controller
                 'categoria' => 'required|string|max:255',
                 'id_ciudad' => 'required|exists:ciudades,id_ciudad',
                 'disponibilidad' => 'required|array|min:1',
+                'disponibilidad.*.fecha' => 'required|date',
                 'disponibilidad.*.hora_inicio' => 'required|string',
                 'disponibilidad.*.hora_fin' => 'required|string',
                 'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
@@ -355,13 +356,16 @@ class ServicioController extends Controller
                 return response()->json(['error' => 'Ya existe un servicio con ese nombre para este establecimiento.'], 409);
             }
 
+
+
             $servicio = Servicio::create([
                 'id_establecimiento' => $request->id_establecimiento,
                 'nombre' => $request->nombre,
                 'descripcion' => $request->descripcion,
                 'costo' => $request->costo,
                 'categoria' => $request->categoria,
-                'id_ciudad' => $request->id_ciudad
+                'id_ciudad' => $request->id_ciudad,
+                'fecha' => $request->disponibilidad[0]['fecha']
             ]);
 
             $id_servicio = $servicio->id_servicio;
@@ -370,6 +374,7 @@ class ServicioController extends Controller
             foreach ($request->disponibilidad as $disp) {
                 \App\Models\Disponibilidad::create([
                     'id_servicio' => $id_servicio,
+                    'fecha' => $disp['fecha'], 
                     'hora_inicio' => $disp['hora_inicio'],
                     'hora_fin' => $disp['hora_fin'],
                     'intervalo' => $disp['intervalo'],

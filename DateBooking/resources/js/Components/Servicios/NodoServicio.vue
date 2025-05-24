@@ -304,6 +304,8 @@ export default {
         realizarReservacion() {
             if (this.servicio.categoria === 'consultorio') {
                 this.$router.push(`/reserva-consultorio/${this.$route.params.id}`);
+            } else if (this.servicio.categoria === 'restaurante') {
+                this.$router.push(`/reserva-restaurante/${this.$route.params.id}`);
             } else {
                 this.$router.push(`/servicio/${this.$route.params.id}`);
             }
