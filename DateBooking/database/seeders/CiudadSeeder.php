@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Ciudad;
 use App\Models\Ciudade;
 use App\Models\Estado;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -56,7 +57,7 @@ class CiudadSeeder extends Seeder
 
             if ($estado) {
                 foreach ($ciudades as $ciudad) {
-                    Ciudade::create([
+                    Ciudad::create([
                         'nombre' => $ciudad,
                         'id_estado' => $estado->id_estado,
                     ]);

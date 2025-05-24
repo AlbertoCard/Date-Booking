@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call(PaisSeeder::class);
         $this->call(EstadoSeeder::class);
         $this->call(CiudadSeeder::class);
-        $this->call(UsuarioSeeder::class);
+        // $this->call(UsuarioSeeder::class);
 
         EstabXusuario::factory(10)->create();
         Servicio::factory(20)->create();

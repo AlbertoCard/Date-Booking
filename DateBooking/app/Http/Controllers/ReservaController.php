@@ -173,5 +173,95 @@ class ReservaController extends Controller
         }
     }
 
-    
+    public function reservarConsultorio(Request $request)
+    {
+        // validar datos de entrada
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_usuario' => 'required|string',
+                'id_servicio' => 'required|integer|exists:servicios,id_servicio',
+                'estado' => 'required|string',
+                'fecha' => 'required|date_format:Y-m-d H:i:s',
+                'tipo_servicio' => 'required|string|in:consultorio',
+                'detalle_1' => 'required|integer'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+            // validar si la reserva ya existe
+            // Usar SELECT FOR UPDATE para bloquear el registro si existe
+            $reservaExistente = Reserva::where('id_servicio', $request->id_servicio)
+                ->where('fecha', $request->fecha)
+                ->where('tipo_servicio', 'consultorio')
+                ->where('detalle_1', (string)$request->detalle_1)
+                ->lockForUpdate()
+                ->first();
+
+            $ahora = Carbon::now();
+
+            if (!$reservaExistente) {
+                // crear la reserva
+                $reserva = new Reserva();
+                $reserva->id_usuario = $request->id_usuario;
+                $reserva->id_servicio = $request->id_servicio;
+                $reserva->estado = "apartado";
+                $reserva->fecha = $request->fecha;
+                $reserva->tipo_servicio = "consultorio";
+                $reserva->detalle_1 = (string)$request->detalle_1;
+                $reserva->detalle_2 = "";
+                $reserva->disponible_hasta = $ahora->copy()->addMinutes(15);
+                $reserva->save();
+
+                DB::commit();
+                return response()->json([
+                    'message' => 'Reserva creada exitosamente',
+                    'id_reserva' => $reserva->id_reserva
+                ], 201);
+            }
+
+
+            if (
+                $reservaExistente->estado === 'apartado' &&
+                $reservaExistente->disponible_hasta &&
+                Carbon::parse($reservaExistente->disponible_hasta)->lt($ahora)
+            ) {
+                // Actualizar id_usuario y disponible_hasta
+                $reservaExistente->id_usuario = $request->id_usuario;
+                $reservaExistente->disponible_hasta = $ahora->copy()->addMinutes(15);
+                $reservaExistente->save();
+
+                DB::commit();
+                return response()->json([
+                    'message' => 'Reserva actualizada exitosamente',
+                    'id_reserva' => $reservaExistente->id_reserva
+                ], 200);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Ya existe una reserva para este consultorio en la fecha y hora seleccionada'
+                ], 400);
+            }
+
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
+        }
+
+
+
+
+
+
+        // validar si el consultorio está disponible
+
+        // crear la reserva
+
+
+    }
 }
