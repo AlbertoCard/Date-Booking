@@ -92,20 +92,42 @@
                                         </div>
                                     </div>
 
-                                    <!-- Código QR -->
+                                    <!-- Código QR o Botón de Reseña -->
                                     <div class="flex flex-col items-center">
-                                        <qrcode-vue
-                                            ref="qrCode"
-                                            :value="qrValue"
-                                            :size="120"
-                                            level="H"
-                                            render-as="svg"
-                                            class="qr-code"
-                                        />
-                                        <button @click="descargarQR" class="mt-4 px-4 py-2 border-2 border-gray-300 rounded-full text-sm font-semibold hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                                            <i class="fas fa-download"></i>
-                                            Descargar QR
-                                        </button>
+                                        <template v-if="reserva.estado.toUpperCase() === 'PENDIENTE'">
+                                            <div class="flex flex-col items-center">
+                                                <QrPersonalizado ref="qrPersonalizado" :value="qrValue" />
+                                                <div class="mt-4 text-center">
+                                                    <p class="text-sm text-gray-600 mb-3">Muestra este código al establecimiento</p>
+                                                    <button @click="descargarQR" class="px-5 py-2 bg-white text-gray-800 rounded-full hover:bg-gray-50 transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md border border-gray-200">
+                                                        <i class="fas fa-download"></i>
+                                                        Descargar QR
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <!-- Plantilla oculta para descarga personalizada -->
+                                            <div ref="plantillaDescarga" style="display:none;">
+                                                <div style="width:350px; background:#fff; border-radius:18px; box-shadow:0 2px 10px #0001; padding:24px; text-align:center;">
+                                                    <h2 style="color:#4f46e5; margin-bottom:8px;">Reserva #{{ reserva.id_reserva }}</h2>
+                                                    <div style="font-size:16px; color:#222; margin-bottom:8px;">{{ reserva.servicio.nombre }}</div>
+                                                    <div style="font-size:14px; color:#555; margin-bottom:8px;">{{ reserva.fecha }}</div>
+                                                    <div style="font-size:14px; color:#555; margin-bottom:8px;">{{ reserva.servicio.establecimiento.nombre }}</div>
+                                                    <div style="font-size:14px; color:#555; margin-bottom:16px;">Estado: {{ reserva.estado }}</div>
+                                                    <div style="display:flex; justify-content:center; margin-top:16px;">
+                                                        <QrPersonalizado :value="qrValue" :size="200" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template v-else-if="reserva.estado.toUpperCase() === 'COMPLETADA'">
+                                            <div class="text-center">
+                                                <i class="fas fa-star text-4xl text-yellow-400 mb-4"></i>
+                                                <button @click="agregarResena" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-lg font-medium flex items-center gap-2">
+                                                    <i class="fas fa-pen"></i>
+                                                    Añadir Reseña
+                                                </button>
+                                            </div>
+                                        </template>
                                     </div>
                                 </div>
                             </div>
@@ -142,11 +164,14 @@ import axios from 'axios';
 import Loader from '../Loader.vue';
 import { getAuth } from 'firebase/auth';
 import QrcodeVue from 'qrcode.vue';
+import QrPersonalizado from './QrPersonalizado.vue';
+import html2canvas from 'html2canvas';
 
 export default {
     components: {
         Loader,
-        QrcodeVue
+        QrcodeVue,
+        QrPersonalizado
     },
     data() {
         return {
@@ -177,6 +202,7 @@ export default {
                 });
 
                 this.reserva = response.data.reserva;
+                console.log('Estado de la reserva:', this.reserva.estado);
                 this.qrValue = JSON.stringify({
                     id: this.reserva.id_reserva,
                     servicio: this.reserva.servicio.nombre,
@@ -227,34 +253,26 @@ export default {
         },
         async descargarQR() {
             try {
-                // Esperar a que el componente QR se renderice
+                const plantilla = this.$refs.plantillaDescarga;
+                plantilla.style.display = 'block'; // Mostrar temporalmente
                 await this.$nextTick();
-                
-                // Obtener el componente QR
-                const qrComponent = this.$refs.qrCode;
-                if (!qrComponent) {
-                    throw new Error('No se encontró el componente QR');
-                }
 
-                // Obtener el canvas del QR
-                const canvas = qrComponent.$el.querySelector('canvas');
-                if (!canvas) {
-                    throw new Error('No se pudo obtener el canvas del QR');
-                }
+                const canvas = await html2canvas(plantilla, { backgroundColor: null });
+                const link = document.createElement('a');
+                link.download = `reserva-${this.reserva.id_reserva}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
 
-                // Convertir el canvas a PNG
-                const pngFile = canvas.toDataURL('image/png');
-                
-                // Crear el enlace de descarga
-                const downloadLink = document.createElement('a');
-                downloadLink.download = `reserva-${this.reserva.id_reserva}.png`;
-                downloadLink.href = pngFile;
-                downloadLink.click();
-                
+                plantilla.style.display = 'none'; // Ocultar de nuevo
             } catch (error) {
-                console.error('Error al descargar el QR:', error);
-                alert('Error al descargar el código QR. Por favor, intente nuevamente.');
+                console.error('Error al descargar la plantilla:', error);
+                alert('Error al descargar la plantilla. Por favor, intente nuevamente.');
             }
+        },
+        agregarResena() {
+            // Aquí puedes implementar la lógica para redirigir a la página de reseñas
+            // o abrir un modal para añadir la reseña
+            this.$router.push(`/agregar-resena/${this.reserva.id_reserva}`);
         }
     },
     mounted() {
@@ -539,5 +557,64 @@ export default {
 
 .h-48 {
     height: 12rem;
+}
+
+/* Estilos para el QR */
+.qr-container {
+    position: relative;
+    padding: 15px;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.qr-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 25px;
+    overflow: hidden;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.qr-container:hover .qr-wrapper {
+    transform: scale(1.05);
+}
+
+.qr-code {
+    border-radius: 20px;
+    padding: 8px;
+    background: white;
+}
+
+.qr-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.qr-container:hover .qr-overlay {
+    opacity: 1;
+}
+
+/* Ajustes responsivos para el QR */
+@media (max-width: 768px) {
+    .qr-container {
+        padding: 12px;
+    }
+
+    .qr-wrapper {
+        width: 120px;
+        height: 120px;
+    }
 }
 </style> 
