@@ -14,12 +14,11 @@ return new class extends Migration
         Schema::disableForeignKeyConstraints();
 
         Schema::create('lugares', function (Blueprint $table) {
-            $table->bigIncrements('id_lugar')->primary();
-            $table->unsignedBigInteger('id_servicio');
-            $table->foreign('id_servicio')->references('id_servicio')->on('servicios');
-            $table->string('fila', 5);
-            $table->unsignedInteger('numero');
-            $table->string('sector', 50);
+            $table->id('id_lugar');
+            $table->foreignId('id_servicio')->constrained('servicios')->onDelete('cascade');
+            $table->string('fila');
+            $table->integer('numero');
+            $table->string('sector');
             $table->timestamps();
         });
 

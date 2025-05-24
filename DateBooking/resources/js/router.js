@@ -23,6 +23,7 @@ import AgregarResena from './Components/Reservas/AgregarResena.vue';
 import StripePayment from './Components/StripePayment.vue';
 import ReservaConsultorio from './Components/Reservas/ReservaConsultorio.vue';
 import ReservaRestaurante from './Components/Reservas/ReservaRestaurante.vue';
+import ReservaEvento from './Components/Reservas/ReservaEvento.vue';
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -116,6 +117,14 @@ const routes = [
         meta: { 
             requiresAuth: true,
             title: 'Reserva de Restaurante'
+        }
+    },
+    {
+        path: "/reserva-evento/:id",
+        component: ReservaEvento,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Evento'
         }
     },
 

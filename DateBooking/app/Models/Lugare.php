@@ -7,14 +7,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lugare extends Model
 {
-    //
     use HasFactory;
 
     protected $table = 'lugares';
+    protected $primaryKey = 'id_lugar';
+
     protected $fillable = [
         'id_servicio',
         'fila',
         'numero',
-        'sector',
+        'sector'
     ];
+
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class, 'id_servicio');
+    }
 }
