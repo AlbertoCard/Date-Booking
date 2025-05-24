@@ -58,6 +58,28 @@
                         ></textarea>
                     </div>
 
+                    <div class="formulario-grupo">
+                        <label class="text-gray-700 font-semibold">Imagen del servicio (opcional)</label>
+                        <div class="col-span-2">
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <svg v-if="!formData.imagen" class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <img v-else :src="previewUrl" class="mx-auto h-32 w-32 object-cover rounded-lg">
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Subir una imagen</span>
+                                            <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="handleImageUpload" accept="image/*">
+                                        </label>
+                                        <p class="pl-1">o arrastrar y soltar</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 2MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Sección de Disponibilidad -->
                     <div class="mt-8 border-t pt-8">
                         <h2 class="titulo text-2xl font-bold text-gray-900 relative mb-6">
@@ -120,16 +142,13 @@
                             </div>
                         </h2>
 
-                        <div v-for="(lugar, index) in formData.lugares" :key="index" 
-                            class="border p-6 rounded-lg mb-4 bg-gray-50">
-                            <h3 class="text-lg font-semibold mb-4">Sección {{ index + 1 }}</h3>
-                            
+                        <div class="border p-6 rounded-lg mb-4 bg-gray-50">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="formulario-grupo">
                                     <label class="text-gray-700 font-semibold">Número de Filas</label>
                                     <input 
                                         type="number" 
-                                        v-model="lugar.filas" 
+                                        v-model="formData.lugares[0].filas" 
                                         required
                                         min="1"
                                         class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
@@ -140,7 +159,7 @@
                                     <label class="text-gray-700 font-semibold">Número de Asientos por Fila</label>
                                     <input 
                                         type="number" 
-                                        v-model="lugar.numeros" 
+                                        v-model="formData.lugares[0].numeros" 
                                         required
                                         min="1"
                                         class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
@@ -148,17 +167,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <button 
-                            type="button"
-                            @click="agregarLugar"
-                            class="w-full p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Agregar Sección
-                        </button>
                     </div>
 
                     <div class="flex justify-end space-x-4 mt-8">
@@ -188,14 +196,15 @@ import axios from 'axios'
 
 const emit = defineEmits(['submit', 'cancel'])
 const ciudades = ref([])
+const previewUrl = ref(null)
 
 const formData = ref({
-    id_establecimiento: 1,
     nombre: '',
     descripcion: '',
     costo: '',
     categoria: 'evento',
     id_ciudad: '',
+    imagen: null,
     disponibilidad: [
         {
             hora_inicio: '',
@@ -226,15 +235,16 @@ onMounted(() => {
     cargarCiudades()
 })
 
-const agregarLugar = () => {
-    formData.value.lugares.push({
-        filas: '',
-        numeros: ''
-    })
-}
-
 const handleSubmit = () => {
     emit('submit', formData.value)
+}
+
+const handleImageUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+        formData.value.imagen = file
+        previewUrl.value = URL.createObjectURL(file)
+    }
 }
 </script>
 

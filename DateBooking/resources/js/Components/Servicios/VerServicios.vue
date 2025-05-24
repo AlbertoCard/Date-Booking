@@ -383,10 +383,20 @@ export default {
         },
         seleccionarCategoria(categoria) {
             this.showDropdown = false;
-            this.$router.push({
-                path: '/nuevo-servicio',
-                query: { categoria: categoria.nombre }
-            });
+            switch (categoria.id) {
+                case 'hotel':
+                    this.$router.push('/nuevo-servicio/hotel');
+                    break;
+                case 'evento':
+                    this.$router.push('/nuevo-servicio/evento');
+                    break;
+                case 'restaurante':
+                    this.$router.push('/nuevo-servicio/restaurante');
+                    break;
+                case 'consultorio':
+                    this.$router.push('/nuevo-servicio/consultorio');
+                    break;
+            }
         },
         getCategoriaDescripcion(id) {
             const descripciones = {

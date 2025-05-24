@@ -21,6 +21,10 @@ import MisReservas from "./Components/Reservas/MisReservas.vue";
 import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 import AgregarResena from './Components/Reservas/AgregarResena.vue';
 import StripePayment from './Components/StripePayment.vue';
+import HotelForm from './Components/Servicios/HotelForm.vue';
+import EventoForm from './Components/Servicios/EventoForm.vue';
+import RestauranteForm from './Components/Servicios/RestauranteForm.vue';
+import ConsultorioForm from './Components/Servicios/ConsultorioForm.vue';
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -177,6 +181,43 @@ const routes = [
             title: 'Editar Servicio'
         }
     },
+    {
+        path: "/nuevo-servicio/hotel",
+        component: HotelForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Hotel'
+        }
+    },
+    {
+        path: "/nuevo-servicio/evento",
+        component: EventoForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Evento'
+        }
+    },
+    {
+        path: "/nuevo-servicio/restaurante",
+        component: RestauranteForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Restaurante'
+        }
+    },
+    {
+        path: "/nuevo-servicio/consultorio",
+        component: ConsultorioForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Consultorio'
+        }
+    },
+
 
     // Rutas para administradores
     { 
