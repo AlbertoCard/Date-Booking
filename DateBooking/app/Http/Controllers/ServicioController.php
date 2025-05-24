@@ -329,7 +329,6 @@ class ServicioController extends Controller
                 'categoria' => 'required|string|max:255',
                 'id_ciudad' => 'required|exists:ciudades,id_ciudad',
                 'disponibilidad' => 'required|array|min:1',
-                'disponibilidad.*.fecha' => 'required|date',
                 'disponibilidad.*.hora_inicio' => 'required|string',
                 'disponibilidad.*.hora_fin' => 'required|string',
                 'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
@@ -356,16 +355,13 @@ class ServicioController extends Controller
                 return response()->json(['error' => 'Ya existe un servicio con ese nombre para este establecimiento.'], 409);
             }
 
-
-
             $servicio = Servicio::create([
                 'id_establecimiento' => $request->id_establecimiento,
                 'nombre' => $request->nombre,
                 'descripcion' => $request->descripcion,
                 'costo' => $request->costo,
                 'categoria' => $request->categoria,
-                'id_ciudad' => $request->id_ciudad,
-                'fecha' => $request->disponibilidad[0]['fecha']
+                'id_ciudad' => $request->id_ciudad
             ]);
 
             $id_servicio = $servicio->id_servicio;
@@ -374,7 +370,6 @@ class ServicioController extends Controller
             foreach ($request->disponibilidad as $disp) {
                 \App\Models\Disponibilidad::create([
                     'id_servicio' => $id_servicio,
-                    'fecha' => $disp['fecha'], 
                     'hora_inicio' => $disp['hora_inicio'],
                     'hora_fin' => $disp['hora_fin'],
                     'intervalo' => $disp['intervalo'],
@@ -388,34 +383,28 @@ class ServicioController extends Controller
             $sectores = ['VIP', 'A', 'B', 'C'];
             $letrasFilas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
-            try {
-                foreach ($request->lugares as $lugarData) {
-                    $filasCount = $lugarData['filas'];
-                    $numerosCount = $lugarData['numeros'];
+            // Crear lugares
+            foreach ($request->lugares as $lugarData) {
+                $filasCount = $lugarData['filas'];
+                $numerosCount = $lugarData['numeros'];
 
-                    for ($sectorIndex = 0; $sectorIndex < count($sectores); $sectorIndex++) {
-                        $sector = $sectores[$sectorIndex];
-                        for ($fila = 0; $fila < $filasCount && $fila < count($letrasFilas); $fila++) {
-                            $letraFila = $letrasFilas[$fila];
-                            for ($numero = 1; $numero <= $numerosCount; $numero++) {
-                                \App\Models\Lugare::create([
-                                    'id_servicio' => $id_servicio,
-                                    'fila' => $letraFila,
-                                    'numero' => $numero,
-                                    'sector' => $sector
-                                ]);
-                            }
+                for ($sectorIndex = 0; $sectorIndex < count($sectores); $sectorIndex++) {
+                    $sector = $sectores[$sectorIndex];
+                    for ($fila = 0; $fila < $filasCount && $fila < count($letrasFilas); $fila++) {
+                        $letraFila = $letrasFilas[$fila];
+                        for ($numero = 1; $numero <= $numerosCount; $numero++) {
+                            \App\Models\Lugare::create([
+                                'id_servicio' => $id_servicio,
+                                'fila' => $letraFila,
+                                'numero' => $numero,
+                                'sector' => $sector
+                            ]);
                         }
                     }
                 }
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json(['error' => 'Error al crear los lugares: ' . $e->getMessage()], 500);
             }
 
             DB::commit();
-
-            // Cargar relaciones si existen en el modelo
             return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -495,24 +484,18 @@ class ServicioController extends Controller
             }
 
             // Guardar habitaciones
-            try {
-                foreach ($request->habitacion as $hab) {
-                    \App\Models\Habitacione::create([
-                        'id_servicio' => $id_servicio,
-                        'tipo' => $hab['tipo'],
-                        'numero' => $hab['numero'],
-                        'capacidad' => $hab['capacidad'],
-                        'fecha_inicio' => now(), 
-                        'fecha_fin' => now()->addDays(5)
-                    ]);
-                }
-            } catch (\Exception $e) {
-                DB::rollBack();
-                return response()->json(['error' => 'Error al crear las habitaciones: ' . $e->getMessage()], 500);
+            foreach ($request->habitacion as $hab) {
+                \App\Models\Habitacione::create([
+                    'id_servicio' => $id_servicio,
+                    'tipo' => $hab['tipo'],
+                    'numero' => $hab['numero'],
+                    'capacidad' => $hab['capacidad'],
+                    'fecha_inicio' => now(), 
+                    'fecha_fin' => now()->addDays(5)
+                ]);
             }
 
             DB::commit();
-
             return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
         } catch (\Exception $e) {
             DB::rollBack();
