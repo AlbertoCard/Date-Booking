@@ -20,7 +20,7 @@ class EstabXUsuarioFactory extends Factory
 
         return [
             'id_usuario' => $usuario->uid,
-            'id_establecimiento' => \App\Models\Establecimiento::factory()->create()->getKey(),
+            'id_establecimiento' => \App\Models\Establecimiento::factory()->create()->id,
         ];
     }
 }

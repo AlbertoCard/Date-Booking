@@ -17,8 +17,6 @@ return new class extends Migration
             $table->bigIncrements('id_pago')->primary();
             $table->string('id_usuario', 128);
             $table->foreign('id_usuario')->references('uid')->on('usuarios');
-            $table->unsignedBigInteger('id_reserva');
-            $table->foreign('id_reserva')->references('id_reserva')->on('reservas');
             $table->string('stripe_payment_intent_id')->default('');
             $table->string('stripe_customer_id')->default('');
             $table->decimal('monto', 10, 2);
