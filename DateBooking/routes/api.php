@@ -11,7 +11,7 @@ use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ReservaController;
 use App\Models\Servicio;
 use App\Http\Controllers\ResenaController;
-
+use App\Http\Controllers\StripeController;
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -84,4 +84,10 @@ Route::prefix('servicios')->group(function () {
 Route::get('/ciudades', [CiudadController::class, 'index']);
 
 
+// Rutas para Stripe
+Route::prefix('stripe')->group(function () {
+    Route::post('/checkout', [StripeController::class, 'checkout']);
+    Route::get('/success', [StripeController::class, 'success']);
+    Route::get('/cancel', [StripeController::class, 'cancel']);
+});
 Route::post('/resenas', [ResenaController::class, 'store']); 
