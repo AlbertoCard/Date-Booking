@@ -35,10 +35,46 @@
             <!-- Encabezado con título y botón nuevo servicio -->
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold text-gray-900">Mis Servicios</h1>
-                <button @click="$router.push('/nuevo-servicio')"
-                    class="nuevo-servicio bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300">
-                    + Nuevo Servicio
-                </button>
+                <div class="relative">
+                    <button @click="toggleDropdown"
+                        class="nuevo-servicio bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 flex items-center gap-4">
+                        <span>+ Nuevo Servicio</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                            :class="{ 'transform rotate-180': showDropdown }" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <Transition enter-active-class="transition duration-200 ease-out"
+                        enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100"
+                        leave-active-class="transition duration-150 ease-in"
+                        leave-from-class="transform scale-100 opacity-100"
+                        leave-to-class="transform scale-95 opacity-0">
+                        <div v-if="showDropdown"
+                            class="absolute right-0 mt-2 w-52 rounded-xl shadow-xl bg-white ring-1 ring-black ring-opacity-5 z-50 overflow-hidden">
+                            <div class="py-2" role="menu" aria-orientation="vertical">
+                                <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                    Selecciona una categoría
+                                </div>
+                                <div class="border-t border-gray-100"></div>
+                                <button v-for="categoria in categorias" :key="categoria.id"
+                                    @click="seleccionarCategoria(categoria)"
+                                    class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 flex items-center gap-3 transition-all duration-200 group"
+                                    role="menuitem">
+                                    <div class="flex flex-col">
+                                        <span class="font-medium">{{ categoria.nombre }}</span>
+                                        <span class="text-xs text-gray-500 group-hover:text-blue-500">
+                                            {{ getCategoriaDescripcion(categoria.id) }}
+                                        </span>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </Transition>
+                </div>
             </div>
 
             <!-- Tabs de navegación -->
@@ -49,10 +85,6 @@
                 <button class="tab" :class="{ active: activeTab === 'inactivos' }" @click="activeTab = 'inactivos'">
                     Inactivos
                 </button>
-                <button class="tab" :class="{ active: activeTab === 'sin-disponibilidad' }"
-                    @click="activeTab = 'sin-disponibilidad'">
-                    Sin Disponibilidad
-                </button>
             </div>
 
             <!-- Contenido de los tabs -->
@@ -60,84 +92,95 @@
                 <Transition name="slide-fade" mode="out-in">
                     <div :key="activeTab">
                         <!-- Lista de servicios -->
-                        <div v-for="servicio in serviciosFiltrados" :key="servicio.id_servicio"
+                        <div v-for="(servicio, index) in serviciosFiltrados" :key="servicio.id_servicio"
                             class="tarjeta-servicio group">
-                            <!-- Imagen o ícono -->
-                            <div class="imagen transform group-hover:scale-105 transition-all duration-300"></div>
-
-                            <!-- Contenido -->
-                            <div class="info-servicio">
-                                <h2 class="text-xl font-bold text-gray-800">{{ servicio.nombre }}</h2>
-                                <p class="descripcion text-gray-600">{{ servicio.descripcion }}</p>
-
-                                <!-- Estado de disponibilidad -->
-                                <div class="mt-3">
-                                    <div v-if="servicio.disponibilidad && servicio.disponibilidad.length > 0" :class="[
-                                        'estado-disponibilidad',
-                                        servicio.disponibilidad[0].activo === 1 ? 'activo' : 'inactivo'
-                                    ]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path v-if="servicio.disponibilidad[0].activo === 1" stroke-linecap="round"
-                                                stroke-linejoin="round" stroke-width="2"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        {{ servicio.disponibilidad[0].activo === 1
-                                            ? 'Servicio con disponibilidad'
-                                            : 'Servicio temporalmente no disponible' }}
-                                    </div>
-                                    <div v-else class="estado-disponibilidad sin-disponibilidad">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                            <!-- Contenido clickeable -->
+                            <div class="contenido-clickeable" @click="verDetalleServicio(servicio.id_servicio)">
+                                <!-- Imagen o ícono -->
+                                <div class="imagen transform group-hover:scale-105 transition-all duration-300">
+                                    <template v-if="servicio.imagen && servicio.imagen.url">
+                                        <img :src="servicio.imagen.url" :alt="servicio.nombre"
+                                            class="w-full h-full object-cover rounded-lg" @error="handleImageError"
+                                            @load="handleImageLoad">
+                                    </template>
+                                    <div v-else
+                                        class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M6 18L18 6M6 6l12 12" />
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
-                                        <p class="mb-2">Servicio no disponible</p>
-                                        <button @click="agregarDisponibilidad(servicio.id_servicio)"
-                                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 text-sm">
-                                            + Añadir disponibilidad
-                                        </button>
                                     </div>
+                                </div>
+
+                                <!-- Contenido -->
+                                <div class="info-servicio">
+                                    <h2 class="text-xl font-bold text-gray-800">{{ servicio.nombre }}</h2>
+                                    <p class="descripcion text-gray-600">{{ servicio.descripcion }}</p>
+
+                                    <!-- Estado de disponibilidad -->
+                                    <div class="mt-3">
+                                        <div v-if="servicio.disponibilidad && servicio.disponibilidad.length > 0"
+                                            :class="[
+                                                'estado-disponibilidad',
+                                                servicio.disponibilidad[0].activo === 1 ? 'activo' : 'inactivo'
+                                            ]">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path v-if="servicio.disponibilidad[0].activo === 1"
+                                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                <path v-else stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            {{ servicio.disponibilidad[0].activo === 1
+                                                ? 'Servicio con disponibilidad'
+                                                : 'Servicio temporalmente no disponible' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Precio y estrellas -->
+                                <div class="precio-estrellas">
+                                    <p class="precio text-blue-600">${{ servicio.costo }}</p>
+                                    <p class="estrellas">
+                                        <span v-for="i in 5" :key="i" class="transition-colors duration-300">
+                                            {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
+                                    </p>
                                 </div>
                             </div>
 
-                            <!-- Botones -->
-                            <div class="acciones">
-                                <button class="editar transform hover:scale-105 transition-all duration-300">
-                                    Editar
-                                </button>
-                                <button class="cancelar transform hover:scale-105 transition-all duration-300">
-                                    Cancelar
-                                </button>
-                            </div>
+                            <!-- Botones y controles (no clickeables) -->
+                            <div class="controles">
+                                <!-- Botones -->
+                                <div class="acciones">
+                                    <button @click.stop="editarDisponibilidad(servicio.id_servicio)"
+                                        class="editar transform hover:scale-105 transition-all duration-300">
+                                        Editar
+                                    </button>
+                                    <button @click.stop="cancelarServicio(servicio.id_servicio)"
+                                        class="cancelar transform hover:scale-105 transition-all duration-300">
+                                        Cancelar
+                                    </button>
+                                </div>
 
-                            <!-- Precio y estrellas -->
-                            <div class="precio-estrellas">
-                                <p class="precio text-blue-600">${{ servicio.costo }}</p>
-                                <p class="estrellas">
-                                    <span v-for="i in 5" :key="i" class="transition-colors duration-300">
-                                        {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
-                                </p>
-                            </div>
-
-                            <!-- Switch ON/OFF -->
-                            <div class="estado">
-                                <button @click="toggleDisponibilidad(servicio.id_servicio)" :class="[
-                                    'toggle-button',
-                                    {
-                                        'active': servicio.disponibilidad &&
-                                            servicio.disponibilidad.length > 0 &&
-                                            servicio.disponibilidad[0].activo === 1
-                                    }
-                                ]" :disabled="!servicio.disponibilidad || servicio.disponibilidad.length === 0">
-                                    <span class="toggle-slider"></span>
-                                    <span class="toggle-text">
-                                        {{ servicio.disponibilidad && servicio.disponibilidad.length > 0 &&
-                                            servicio.disponibilidad[0].activo === 1 ? 'Activo' : 'Inactivo' }}
-                                    </span>
-                                </button>
+                                <!-- Switch ON/OFF -->
+                                <div class="estado">
+                                    <button @click.stop="toggleDisponibilidad(servicio.id_servicio)" :class="[
+                                        'toggle-button',
+                                        {
+                                            'active': servicio.disponibilidad &&
+                                                servicio.disponibilidad.length > 0 &&
+                                                servicio.disponibilidad[0].activo === 1
+                                        }
+                                    ]" :disabled="!servicio.disponibilidad || servicio.disponibilidad.length === 0">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text">
+                                            {{ servicio.disponibilidad && servicio.disponibilidad.length > 0 &&
+                                                servicio.disponibilidad[0].activo === 1 ? 'Activo' : 'Inactivo' }}
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -156,7 +199,6 @@
 
 <script>
 import axios from 'axios';
-import API_ROUTES from '../../utils/index.js';
 
 export default {
     name: 'VerServicios',
@@ -165,6 +207,7 @@ export default {
             servicios: [],
             activeTab: 'activos',
             showModal: false,
+            showDropdown: false,
             servicioAToggle: null,
             loading: false,
             // Constantes para estados
@@ -174,9 +217,14 @@ export default {
             },
             TABS: {
                 ACTIVOS: 'activos',
-                INACTIVOS: 'inactivos',
-                SIN_DISPONIBILIDAD: 'sin-disponibilidad'
-            }
+                INACTIVOS: 'inactivos'
+            },
+            categorias: [
+                { id: 'hotel', nombre: 'Hotel', icono: 'fas fa-hotel' },
+                { id: 'restaurante', nombre: 'Restaurante', icono: 'fas fa-utensils' },
+                { id: 'consultorio', nombre: 'Consultorio', icono: 'fas fa-stethoscope' },
+                { id: 'evento', nombre: 'Evento', icono: 'fas fa-calendar-alt' },
+            ]
         };
     },
     computed: {
@@ -184,13 +232,15 @@ export default {
             return this.servicios.filter(servicio => {
                 const tieneDisponibilidad = servicio.disponibilidad && servicio.disponibilidad.length > 0;
 
+                if (!tieneDisponibilidad) {
+                    return false;
+                }
+
                 switch (this.activeTab) {
                     case this.TABS.ACTIVOS:
-                        return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
+                        return servicio.disponibilidad[0].activo === this.ESTADOS.ACTIVO;
                     case this.TABS.INACTIVOS:
-                        return tieneDisponibilidad && servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
-                    case this.TABS.SIN_DISPONIBILIDAD:
-                        return !tieneDisponibilidad;
+                        return servicio.disponibilidad[0].activo === this.ESTADOS.INACTIVO;
                     default:
                         return false;
                 }
@@ -199,17 +249,14 @@ export default {
         mensajeNoServicios() {
             const mensajes = {
                 [this.TABS.ACTIVOS]: 'No hay servicios activos',
-                [this.TABS.INACTIVOS]: 'No hay servicios inactivos',
-                [this.TABS.SIN_DISPONIBILIDAD]: 'No hay servicios sin disponibilidad'
+                [this.TABS.INACTIVOS]: 'No hay servicios inactivos'
             };
             return mensajes[this.activeTab] || 'No hay servicios disponibles';
         },
-        // Nuevo computed property para el estado del servicio
         estadoServicio() {
             if (!this.servicioAToggle?.disponibilidad?.length) return null;
             return this.servicioAToggle.disponibilidad[0].activo;
         },
-        // Nuevo computed property para el mensaje del modal
         mensajeModal() {
             if (!this.servicioAToggle) return '';
             return this.estadoServicio === this.ESTADOS.INACTIVO
@@ -219,21 +266,78 @@ export default {
     },
     mounted() {
         this.obtenerServicios();
+        // Agregar event listener para cerrar el dropdown al hacer clic fuera
+        document.addEventListener('click', this.handleClickOutside);
+    },
+    beforeUnmount() {
+        // Remover event listener al desmontar el componente
+        document.removeEventListener('click', this.handleClickOutside);
     },
     methods: {
         async obtenerServicios() {
             try {
-                const response = await axios.get(API_ROUTES.servicios);
-                this.servicios = response.data.map(servicio => ({
-                    ...servicio,
-                    estrellas: Math.floor(Math.random() * 5) + 1
-                }));
+                console.log('Obteniendo servicios...');
+                // Obtener datos del usuario del localStorage
+                const userData = JSON.parse(localStorage.getItem('userData'));
+
+                if (!userData || userData.rol !== 'establecimiento') {
+                    console.error('Usuario no es un establecimiento');
+                    return;
+                }
+
+                // Obtener el establecimiento del usuario
+                const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
+                console.log('Respuesta del establecimiento:', estabResponse.data);
+
+                if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
+                    console.error('No se encontró el establecimiento');
+                    return;
+                }
+
+                const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+                console.log('ID del establecimiento:', idEstablecimiento);
+
+                // Obtener los servicios del establecimiento
+                const response = await axios.get(`/api/servicios?id_establecimiento=${idEstablecimiento}`);
+                console.log('Respuesta del servidor:', response.data);
+
+                this.servicios = response.data.map(servicio => {
+                    console.log('Procesando servicio:', {
+                        id: servicio.id_servicio,
+                        nombre: servicio.nombre,
+                        tieneImagen: !!servicio.imagen,
+                        urlImagen: servicio.imagen?.url
+                    });
+
+                    return {
+                        ...servicio,
+                        estrellas: Math.floor(Math.random() * 5) + 1
+                    };
+                });
             } catch (error) {
-                console.error('Error al obtener los servicios:', error);
+                console.error('Error al obtener servicios:', error);
+                this.error = 'Error al cargar los servicios';
             }
         },
+        handleImageError(e) {
+            console.error('Error al cargar la imagen:', {
+                src: e.target.src,
+                servicio: this.servicios.find(s => s.imagen?.url === e.target.src)
+            });
+            e.target.style.display = 'none';
+            e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-600');
+        },
+        handleImageLoad(e) {
+            console.log('Imagen cargada exitosamente:', {
+                src: e.target.src,
+                servicio: this.servicios.find(s => s.imagen?.url === e.target.src)
+            });
+        },
         agregarDisponibilidad(idServicio) {
-            this.$router.push(`/nueva-disponibilidad/${idServicio}`);
+            this.$router.push(`/editar-servicio/${idServicio}`);
+        },
+        editarDisponibilidad(idServicio) {
+            this.$router.push(`/editar-servicio/${idServicio}`);
         },
         async toggleDisponibilidad(idServicio) {
             // Encontrar el servicio que se va a toggle
@@ -249,7 +353,7 @@ export default {
             this.loading = true;
 
             try {
-                const response = await axios.put(API_ROUTES.disponibilidad.toggle(this.servicioAToggle.id_servicio));
+                const response = await axios.put(`/api/disponibilidad/${this.servicioAToggle.id_servicio}/toggle`);
 
                 // Actualizar el estado localmente sin recargar todos los servicios
                 const index = this.servicios.findIndex(s => s.id_servicio === this.servicioAToggle.id_servicio);
@@ -264,6 +368,45 @@ export default {
             } finally {
                 this.loading = false;
             }
+        },
+        verDetalleServicio(idServicio) {
+            this.$router.push(`/nodo-servicio/${idServicio}`);
+        },
+        toggleDropdown() {
+            this.showDropdown = !this.showDropdown;
+        },
+        handleClickOutside(event) {
+            const dropdown = this.$el.querySelector('.relative');
+            if (dropdown && !dropdown.contains(event.target)) {
+                this.showDropdown = false;
+            }
+        },
+        seleccionarCategoria(categoria) {
+            this.showDropdown = false;
+            switch (categoria.id) {
+                case 'hotel':
+                    this.$router.push('/nuevo-servicio/hotel');
+                    break;
+                case 'evento':
+                    this.$router.push('/nuevo-servicio/evento');
+                    break;
+                case 'restaurante':
+                    this.$router.push('/nuevo-servicio/restaurante');
+                    break;
+                case 'consultorio':
+                    this.$router.push('/nuevo-servicio/consultorio');
+                    break;
+            }
+        },
+        getCategoriaDescripcion(id) {
+            const descripciones = {
+                hotel: 'Servicios de alojamiento',
+                restaurante: 'Servicios gastronómicos',
+                consultorio: 'Servicios de salud',
+                evento: 'Servicios de eventos',
+                otro: 'Otros servicios'
+            };
+            return descripciones[id] || '';
         }
     },
 };
@@ -289,11 +432,11 @@ export default {
 }
 
 .tab {
-    padding: 12px 24px;
+    padding: 10px 50px;
     border: none;
     border-radius: 20px;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 1.1rem;
     color: #64748b;
     background-color: transparent;
     transition: all 0.3s ease;
@@ -406,7 +549,6 @@ export default {
     font-weight: bold;
     background: linear-gradient(to right, #2563eb, #3b82f6);
     -webkit-background-clip: text;
-    background-clip: text;
     color: transparent;
 }
 
@@ -689,25 +831,123 @@ export default {
     border: 1px dashed #ca8a04;
 }
 
-.estado-disponibilidad.sin-disponibilidad {
-    background-color: #fee2e2;
-    color: #dc2626;
-    flex-direction: column;
-    align-items: flex-start;
+.contenido-clickeable {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    flex: 1;
 }
 
-.estado-disponibilidad svg {
-    flex-shrink: 0;
+.controles {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-left: 1rem;
+    border-left: 1px solid #e5e7eb;
 }
 
 @media (max-width: 768px) {
-    .estado-disponibilidad {
-        justify-content: center;
-        text-align: center;
+    .tarjeta-servicio {
+        flex-direction: column;
     }
 
-    .estado-disponibilidad.sin-disponibilidad {
-        align-items: center;
+    .contenido-clickeable {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .controles {
+        width: 100%;
+        padding-left: 0;
+        border-left: none;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 1rem;
+    }
+}
+
+.categorias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.categoria-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.categoria-button:hover {
+    transform: translateY(-2px);
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+}
+
+.categoria-icon {
+    font-size: 2rem;
+    color: #3b82f6;
+    margin-bottom: 0.5rem;
+}
+
+.categoria-button span {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Ajustes para el modal de categorías */
+.modal-content {
+    max-width: 600px;
+    width: 90%;
+}
+
+@media (max-width: 640px) {
+    .categorias-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Estilos mejorados para el dropdown */
+.dropdown-enter-active,
+.dropdown-leave-active {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+/* Animación para los botones del menú */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.dropdown-menu button {
+    animation: slideIn 0.2s ease-out forwards;
+    animation-delay: calc(var(--index) * 0.05s);
+}
+
+@media (max-width: 768px) {
+    .nuevo-servicio {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
     }
 }
 </style>

@@ -31,4 +31,19 @@ class Servicio extends Model
     {
         return $this->hasMany(Disponibilidad::class, 'id_servicio', 'id_servicio');
     }
+
+    public function establecimiento()
+    {
+        return $this->belongsTo(Establecimiento::class, 'id_establecimiento', 'id_establecimiento');
+    }
+
+    public function ciudad()
+    {
+        return $this->belongsTo(Ciudad::class, 'id_ciudad', 'id_ciudad');
+    }
+    
+      public function imagen()
+    {
+        return $this->hasOne(Imagen::class, 'id_servicio', 'id_servicio');
+    }
 }   

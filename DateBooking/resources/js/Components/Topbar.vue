@@ -31,17 +31,29 @@
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
-        <span class="userName">UserName</span>
+        <span class="userName">{{ userName }}</span>
       </button>
       <div v-if="showUserDropdown" class="user-dropdown">
-        <button class="dropdown-item" @click="login">Login</button>
-        <button class="dropdown-item" @click="logout">Logout</button>
+        <template v-if="!isAuthenticated">
+          <button class="dropdown-item" @click="login">Iniciar Sesión</button>
+          <router-link to="/registro" class="dropdown-item">Registrarse</router-link>
+        </template>
+        <template v-else>
+          <router-link :to="userData.rol === 'establecimiento' ? '/dashboard-establecimiento' : '/dashboard-cliente'" class="dropdown-item">
+            Mi Dashboard
+          </router-link>
+          <button class="dropdown-item" @click="logout">Cerrar Sesión</button>
+        </template>
       </div>
     </div>
   </header>
 </template>
 
 <script>
+import axios from 'axios';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+
 export default {
   props: {
     toggleSidebar: {
@@ -53,13 +65,23 @@ export default {
     return {
       searchText: '',
       showUserDropdown: false,
+      isAuthenticated: false,
+      userData: null
     };
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
+    // Verificar si hay datos de usuario en localStorage
+    const userDataStr = localStorage.getItem('userData');
+    if (userDataStr) {
+      this.userData = JSON.parse(userDataStr);
+      this.isAuthenticated = true;
+    }
   },
-  beforeUnmount() {
-    document.removeEventListener('click', this.handleClickOutside);
+  computed: {
+    userName() {
+      return this.userData ? this.userData.nombre : 'Invitado';
+    }
   },
   methods: {
     redirectToSearch() {
@@ -85,12 +107,32 @@ export default {
       }
     },
     login() {
-      // Implement login logic here
-      alert('Login clicked');
+      this.$router.push('/login');
+      this.closeDropdown();
     },
-    logout() {
-      // Implement logout logic here
-      alert('Logout clicked');
+    async logout() {
+      try {
+        // Primero actualizamos el estado en la base de datos
+        if (auth.currentUser) {
+          await axios.put(`/api/usuarios/${auth.currentUser.uid}/activo`);
+        }
+        
+        // Luego cerramos sesión en Firebase
+        await signOut(auth);
+        
+        // Limpiar datos del usuario
+        localStorage.removeItem('userData');
+        this.userData = null;
+        this.isAuthenticated = false;
+        
+        // Redireccionar al inicio
+        await this.$router.push('/');
+        
+        // Cerrar el dropdown
+        this.closeDropdown();
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error);
+      }
     },
   },
 };

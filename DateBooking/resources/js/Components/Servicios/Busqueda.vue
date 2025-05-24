@@ -110,7 +110,7 @@ export default {
     mounted() {
         this.cargando = true; // Mostrar el loader al inicio
         const search = this.$route.params.search; // Obtener el parámetro del URL
-        axios.get(`/api/servicios/` + search)
+        axios.get(`/api/servicios/search/` + search)
             .then(response => {
                 this.servicios = response.data;
             })
@@ -141,7 +141,7 @@ export default {
         obtenerServiciosPorCategoria(categoria) {
             this.cargando = true;
             if (categoria === 'todos') {
-                axios.get(`/api/servicios/${this.searchText}`)
+                axios.get(`/api/servicios/search/${this.searchText}`)
                     .then(response => {
                         this.servicios = response.data;
                         //this.categoriaSeleccionada = 'todos';
