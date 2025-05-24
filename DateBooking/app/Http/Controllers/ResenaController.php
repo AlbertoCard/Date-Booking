@@ -35,4 +35,14 @@ class ResenaController extends Controller
 
         return response()->json(['message' => 'Reseña guardada correctamente'], 201);
     }
+
+    public function getByServicio($id_servicio)
+    {
+        $reseñas = Reseña::with('usuario')
+            ->where('id_servicio', $id_servicio)
+            ->orderBy('fecha', 'desc')
+            ->get();
+
+        return response()->json($reseñas);
+    }
 } 

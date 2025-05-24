@@ -104,7 +104,7 @@ const registrar = async () => {
         })
         console.log('Respuesta del servidor (establecimiento):', establecimientoResponse.data)
       }
-      
+
       // 4. Redireccionar al dashboard correspondiente
       if (activeTab.value === 'establecimiento') {
         //router.push('/dashboard-establecimiento')
@@ -176,18 +176,10 @@ const validarTelefono = () => {
   <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white flex items-center justify-center p-6">
     <div class="container">
       <div class="tab-container">
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'cliente' }"
-          @click="activeTab = 'cliente'"
-        >
+        <button class="tab" :class="{ active: activeTab === 'cliente' }" @click="activeTab = 'cliente'">
           Cliente
         </button>
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'establecimiento' }"
-          @click="activeTab = 'establecimiento'"
-        >
+        <button class="tab" :class="{ active: activeTab === 'establecimiento' }" @click="activeTab = 'establecimiento'">
           Establecimiento
         </button>
       </div>
@@ -197,20 +189,18 @@ const validarTelefono = () => {
           <!-- Lado Imagen -->
           <div class="image-side">
             <div class="image-container">
-              <img 
-                :src="activeTab === 'cliente' ? 
-                  'https://img.freepik.com/free-vector/appointment-booking-with-calendar_23-2148553008.jpg' : 
-                  'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_23-2148547718.jpg'"
+              <img :src="activeTab === 'cliente' ?
+                'https://img.freepik.com/free-vector/appointment-booking-with-calendar_23-2148553008.jpg' :
+                'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_23-2148547718.jpg'"
                 :alt="activeTab === 'cliente' ? 'Cliente Registro' : 'Establecimiento Registro'"
-                class="featured-image"
-              />
+                class="featured-image" />
             </div>
             <h3 class="image-title">
               {{ activeTab === 'cliente' ? 'Reserva tus citas fácilmente' : 'Gestiona tu negocio' }}
             </h3>
             <p class="image-description">
-              {{ activeTab === 'cliente' ? 
-                'Encuentra y agenda citas con tus establecimientos favoritos' : 
+              {{ activeTab === 'cliente' ?
+                'Encuentra y agenda citas con tus establecimientos favoritos' :
                 'Administra tus reservas y horarios de manera eficiente' }}
             </p>
           </div>
@@ -226,48 +216,26 @@ const validarTelefono = () => {
                 <label for="nombre">
                   {{ activeTab === 'cliente' ? 'Nombre completo' : 'Nombre del establecimiento' }}
                 </label>
-                <input 
-                  v-model="nombre" 
-                  type="text" 
-                  id="nombre" 
-                  :placeholder="activeTab === 'cliente' ? 'Tu nombre completo' : 'Nombre de tu negocio'" 
-                  required 
-                />
+                <input v-model="nombre" type="text" id="nombre"
+                  :placeholder="activeTab === 'cliente' ? 'Tu nombre completo' : 'Nombre de tu negocio'" required />
               </div>
 
               <div class="form-group">
                 <label for="correo">Correo electrónico</label>
-                <input 
-                  v-model="correo" 
-                  type="email" 
-                  id="correo" 
-                  placeholder="correo@ejemplo.com" 
-                  required 
-                />
+                <input v-model="correo" type="email" id="correo" placeholder="correo@ejemplo.com" required />
               </div>
 
               <div class="form-group">
                 <label for="telefono">Teléfono de contacto</label>
-                <input 
-                  v-model="telefono" 
-                  type="tel" 
-                  id="telefono" 
-                  placeholder="10 dígitos" 
-                  required 
-                />
+                <input v-model="telefono" type="tel" id="telefono" placeholder="10 dígitos" required />
               </div>
 
               <div class="form-group">
                 <label for="contrasena">Contraseña</label>
-                <input
-                  v-model="contrasena"
-                  type="password"
-                  id="contrasena"
-                  placeholder="Mínimo 6 caracteres"
-                  required
-                />
+                <input v-model="contrasena" type="password" id="contrasena" placeholder="Mínimo 6 caracteres"
+                  required />
               </div>
-              
+
               <div v-if="error" class="error-message">
                 {{ error }}
               </div>
@@ -279,11 +247,7 @@ const validarTelefono = () => {
                 </label>
               </div>
 
-              <button 
-                type="submit" 
-                class="submit-button"
-                :disabled="loading"
-              >
+              <button type="submit" class="submit-button" :disabled="loading">
                 {{ loading ? 'Procesando...' : 'Crear cuenta' }}
               </button>
             </form>
@@ -500,12 +464,10 @@ const validarTelefono = () => {
   left: 0;
   width: 200%;
   height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(120deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transform: translateX(-100%);
 }
 
@@ -527,7 +489,7 @@ const validarTelefono = () => {
   .content-wrapper {
     flex-direction: column;
   }
-  
+
   .content-wrapper.reverse {
     flex-direction: column;
   }
@@ -639,12 +601,10 @@ const validarTelefono = () => {
   left: 0;
   width: 200%;
   height: 100%;
-  background: linear-gradient(
-    120deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
+  background: linear-gradient(120deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   transform: translateX(-100%);
 }
 

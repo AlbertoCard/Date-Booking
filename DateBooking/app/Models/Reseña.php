@@ -20,4 +20,9 @@ class Reseña extends Model
         'descripcion',
         'fecha'
     ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'id_usuario', 'uid');
+    }
 }

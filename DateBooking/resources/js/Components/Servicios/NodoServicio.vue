@@ -138,6 +138,69 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Sección de Reseñas -->
+            <div class="mt-8 border-t pt-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Reseñas de Clientes</h2>
+
+                <!-- Estadísticas de reseñas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <div class="text-3xl font-bold text-blue-600">{{ promedioCalificacion }}</div>
+                        <div class="flex items-center mt-1">
+                            <div class="flex">
+                                <span v-for="i in 5" :key="i" class="text-yellow-400 text-lg">
+                                    {{ i <= Math.round(promedioCalificacion) ? '★' : '☆' }} </span>
+                            </div>
+                            <span class="ml-2 text-gray-600">({{ reseñas.length }} reseñas)</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <div class="text-lg font-semibold text-gray-700 mb-2">Distribución de calificaciones</div>
+                        <div class="space-y-2">
+                            <div v-for="i in 5" :key="i" class="flex items-center">
+                                <span class="text-sm text-gray-600 w-8">{{ i }}★</span>
+                                <div class="flex-1 h-2 bg-gray-200 rounded-full mx-2">
+                                    <div class="h-2 bg-yellow-400 rounded-full transition-all duration-300"
+                                        :style="{ width: `${calcularPorcentajeCalificacion(i)}%` }">
+                                    </div>
+                                </div>
+                                <span class="text-sm text-gray-600 w-12">{{ calcularPorcentajeCalificacion(i) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de reseñas -->
+                <div class="space-y-6">
+                    <div v-if="reseñas.length === 0" class="text-center py-8 bg-gray-50 rounded-xl">
+                        <p class="text-gray-500">No hay reseñas disponibles para este servicio</p>
+                    </div>
+
+                    <div v-for="reseña in reseñas" :key="reseña.id_reseña"
+                        class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <span class="text-blue-600 font-semibold">
+                                        {{ reseña.usuario?.nombre?.charAt(0) || 'U' }}
+                                    </span>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-semibold text-gray-900">{{ reseña.usuario?.nombre || 'Usuario' }}</p>
+                                    <p class="text-sm text-gray-500">{{ new Date(reseña.fecha).toLocaleDateString() }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <span v-for="i in 5" :key="i" class="text-yellow-400">
+                                    {{ i <= Math.min(Math.max(reseña.calificacion, 1), 5) ? '★' : '☆' }} </span>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-gray-600">{{ reseña.descripcion }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div v-else class="text-center py-12">
@@ -154,11 +217,20 @@ export default {
     data() {
         return {
             servicio: null,
-            loading: true
+            loading: true,
+            reseñas: []
         };
+    },
+    computed: {
+        promedioCalificacion() {
+            if (this.reseñas.length === 0) return 0;
+            const suma = this.reseñas.reduce((acc, reseña) => acc + Math.min(reseña.calificacion, 5), 0);
+            return Math.min((suma / this.reseñas.length).toFixed(1), 5);
+        }
     },
     mounted() {
         this.obtenerServicio();
+        this.obtenerReseñas();
     },
     methods: {
         async obtenerServicio() {
@@ -179,6 +251,15 @@ export default {
                 this.loading = false;
             }
         },
+        async obtenerReseñas() {
+            try {
+                const idServicio = this.$route.params.id;
+                const response = await axios.get(`/api/servicios/${idServicio}/reseñas`);
+                this.reseñas = response.data;
+            } catch (error) {
+                console.error('Error al obtener las reseñas:', error);
+            }
+        },
         handleImageError(e) {
             console.error('Error al cargar la imagen:', {
                 src: e.target.src,
@@ -194,6 +275,13 @@ export default {
                 servicio: this.servicio,
                 imagen: this.servicio.imagen
             });
+        },
+        calcularPorcentajeCalificacion(calificacion) {
+            if (this.reseñas.length === 0) return 0;
+            // Aseguramos que la calificación esté entre 1 y 5
+            const calificacionNormalizada = Math.min(Math.max(calificacion, 1), 5);
+            const cantidad = this.reseñas.filter(r => Math.min(Math.max(r.calificacion, 1), 5) === calificacionNormalizada).length;
+            return Math.round((cantidad / this.reseñas.length) * 100);
         }
     }
 };
@@ -225,5 +313,18 @@ export default {
     transform-style: preserve-3d;
     perspective: 1000px;
     background: rgba(255, 255, 255, 0.9);
+}
+
+/* Estilos para las reseñas */
+.reseña-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.reseña-card:hover {
+    transform: translateY(-2px);
+}
+
+.rating-bar {
+    transition: width 0.3s ease-in-out;
 }
 </style>

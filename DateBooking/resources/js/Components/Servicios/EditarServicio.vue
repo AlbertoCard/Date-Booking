@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
         <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-2xl mx-auto p-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-6">Editar Servicio</h1>
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">Editar disponibilidad del servicio</h1>
 
             <!-- Mensajes de estado -->
             <div v-if="mensaje.texto"
