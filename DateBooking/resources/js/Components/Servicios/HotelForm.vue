@@ -58,6 +58,28 @@
                         ></textarea>
                     </div>
 
+                    <div class="formulario-grupo">
+                        <label class="text-gray-700 font-semibold">Imagen del servicio (opcional)</label>
+                        <div class="col-span-2">
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                <div class="space-y-1 text-center">
+                                    <svg v-if="!formData.imagen" class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <img v-else :src="previewUrl" class="mx-auto h-32 w-32 object-cover rounded-lg">
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Subir una imagen</span>
+                                            <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="handleImageUpload" accept="image/*">
+                                        </label>
+                                        <p class="pl-1">o arrastrar y soltar</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF hasta 2MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Sección de Disponibilidad -->
                     <div class="mt-8 border-t pt-8">
                         <h2 class="titulo text-2xl font-bold text-gray-900 relative mb-6">
@@ -98,16 +120,17 @@
 
                                 <div class="formulario-grupo">
                                     <label class="text-gray-700 font-semibold">Intervalo entre reservas</label>
-                                    <input 
-                                        type="text" 
+                                    <select 
                                         v-model="formData.disponibilidad[0].intervalo" 
                                         required
-                                        placeholder="HH:mm"
-                                        pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                                         class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                        @input="validarHora($event, 'intervalo', 0)"
-                                    />
-                                    <p class="text-sm text-gray-500 mt-1">Formato: HH:mm (24 horas)</p>
+                                    >
+                                        <option value="">Seleccione el intervalo</option>
+                                        <option value="12:00:00">12 horas</option>
+                                        <option value="24:00:00">24 horas</option>
+                                        <option value="23:59:59">1 día completo</option>
+                                    </select>
+                                    <p class="text-sm text-gray-500 mt-1">Tiempo asignado para cada reserva</p>
                                 </div>
 
                                 <div class="formulario-grupo">
@@ -133,53 +156,81 @@
                             </div>
                         </h2>
 
-                        <div v-for="(habitacion, index) in formData.habitacion" :key="index" 
-                            class="border p-6 rounded-lg mb-4 bg-gray-50">
-                            <h3 class="text-lg font-semibold mb-4">Habitación {{ index + 1 }}</h3>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="formulario-grupo">
-                                    <label class="text-gray-700 font-semibold">Tipo de Habitación</label>
-                                    <input 
-                                        type="text" 
-                                        v-model="habitacion.tipo" 
-                                        required
-                                        class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                    />
-                                </div>
+                        <div v-if="formData.habitacion.length === 0" class="border p-6 rounded-lg mb-4 bg-gray-50">
+                            <div class="w-full flex flex-col items-center">
+                                <div class="w-full grid grid-cols-2 gap-4 p-4">
+                                    <div class="formulario-grupo">
+                                        <label class="text-gray-700 font-semibold">Tipo</label>
+                                        <select 
+                                            v-model="nuevaHabitacion.tipo" 
+                                            class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent w-full"
+                                        >
+                                            <option value="">Seleccione tipo</option>
+                                            <option value="Individual">Individual</option>
+                                            <option value="Doble">Doble</option>
+                                            <option value="Suite">Suite</option>
+                                            <option value="Familiar">Familiar</option>
+                                        </select>
+                                    </div>
 
-                                <div class="formulario-grupo">
-                                    <label class="text-gray-700 font-semibold">Número de Habitación</label>
-                                    <input 
-                                        type="number" 
-                                        v-model="habitacion.numero" 
-                                        required
-                                        class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                    />
-                                </div>
+                                    <div class="formulario-grupo">
+                                        <label class="text-gray-700 font-semibold">Número Inicial</label>
+                                        <input 
+                                            type="number" 
+                                            v-model="nuevaHabitacion.numeroInicial" 
+                                            min="1"
+                                            class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent w-full"
+                                        />
+                                    </div>
 
-                                <div class="formulario-grupo">
-                                    <label class="text-gray-700 font-semibold">Capacidad</label>
-                                    <input 
-                                        type="number" 
-                                        v-model="habitacion.capacidad" 
-                                        required
-                                        class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                    />
+                                    <div class="formulario-grupo">
+                                        <label class="text-gray-700 font-semibold">Capacidad</label>
+                                        <input 
+                                            type="number" 
+                                            v-model="nuevaHabitacion.capacidad" 
+                                            min="1"
+                                            class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent w-full"
+                                        />
+                                    </div>
+
+                                    <div class="formulario-grupo">
+                                        <label class="text-gray-700 font-semibold">Cantidad</label>
+                                        <input 
+                                            type="number" 
+                                            v-model="nuevaHabitacion.cantidad" 
+                                            min="1"
+                                            class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent w-full"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <button 
-                            type="button"
-                            @click="agregarHabitacion"
-                            class="w-full p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                            Agregar Habitación
-                        </button>
+                        <!-- Lista de habitaciones agregadas -->
+                        <div v-if="formData.habitacion.length > 0" class="mt-6">
+                            <h3 class="text-lg font-semibold mb-4">Habitaciones registradas</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div v-for="(habitacion, index) in formData.habitacion" :key="index" 
+                                    class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-semibold">{{ habitacion.tipo }}</p>
+                                            <p class="text-sm text-gray-600">Número: {{ habitacion.numero }}</p>
+                                            <p class="text-sm text-gray-600">Capacidad: {{ habitacion.capacidad }} personas</p>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            @click="eliminarHabitacion(index)"
+                                            class="text-red-600 hover:text-red-800"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="flex justify-end space-x-4 mt-8">
@@ -206,17 +257,27 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
 const ciudades = ref([])
+const previewUrl = ref(null)
+
+const nuevaHabitacion = ref({
+    tipo: '',
+    numeroInicial: 1,
+    capacidad: 1,
+    cantidad: 1
+})
 
 const formData = ref({
-    id_establecimiento: 1,
     nombre: '',
     descripcion: '',
     costo: '',
     categoria: 'hotel',
     id_ciudad: '',
+    imagen: null,
     disponibilidad: [
         {
             hora_inicio: '',
@@ -226,13 +287,7 @@ const formData = ref({
             activo: 1
         }
     ],
-    habitacion: [
-        {
-            tipo: '',
-            numero: '',
-            capacidad: ''
-        }
-    ]
+    habitacion: []
 })
 
 const cargarCiudades = async () => {
@@ -248,12 +303,8 @@ onMounted(() => {
     cargarCiudades()
 })
 
-const agregarHabitacion = () => {
-    formData.value.habitacion.push({
-        tipo: '',
-        numero: '',
-        capacidad: ''
-    })
+const eliminarHabitacion = (index) => {
+    formData.value.habitacion.splice(index, 1);
 }
 
 const validarHora = (event, tipo, index) => {
@@ -281,8 +332,87 @@ const validarHora = (event, tipo, index) => {
     }
 }
 
-const handleSubmit = () => {
-    emit('submit', formData.value)
+const handleImageUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+        formData.value.imagen = file
+        previewUrl.value = URL.createObjectURL(file)
+    }
+}
+
+const handleSubmit = async () => {
+    try {
+        // Obtener datos del usuario del localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (!userData || userData.rol !== 'establecimiento') {
+            alert('Error: Debes ser un establecimiento para crear servicios');
+            return;
+        }
+
+        // Obtener el establecimiento del usuario
+        const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
+        
+        if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
+            alert('Error: No se encontró el establecimiento');
+            return;
+        }
+
+        const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+
+        // Verificar que se hayan ingresado los datos de la habitación
+        if (!nuevaHabitacion.value.tipo || !nuevaHabitacion.value.numeroInicial || !nuevaHabitacion.value.capacidad || !nuevaHabitacion.value.cantidad) {
+            alert('Por favor complete todos los datos de la habitación');
+            return;
+        }
+
+        // Preparar las habitaciones para enviar
+        const habitaciones = [];
+        const numeroInicial = parseInt(nuevaHabitacion.value.numeroInicial);
+        const cantidad = parseInt(nuevaHabitacion.value.cantidad);
+        const tipo = nuevaHabitacion.value.tipo;
+        const capacidad = parseInt(nuevaHabitacion.value.capacidad);
+
+        // Generar las habitaciones
+        for (let i = 0; i < cantidad; i++) {
+            habitaciones.push({
+                tipo: tipo,
+                numero: numeroInicial + i,
+                capacidad: capacidad
+            });
+        }
+
+        // Preparar los datos para enviar
+        const datosHotel = {
+            id_establecimiento: idEstablecimiento,
+            nombre: formData.value.nombre,
+            descripcion: formData.value.descripcion,
+            costo: formData.value.costo,
+            categoria: formData.value.categoria,
+            id_ciudad: formData.value.id_ciudad,
+            disponibilidad: formData.value.disponibilidad.map(disp => ({
+                hora_inicio: disp.hora_inicio,
+                hora_fin: disp.hora_fin,
+                intervalo: disp.intervalo,
+                tipo: disp.tipo,
+                activo: disp.activo
+            })),
+            habitacion: habitaciones
+        };
+
+        // Enviar los datos al endpoint
+        const response = await axios.post('/api/servicios/nuevo-hotel', datosHotel);
+        
+        if (response.status === 201) {
+            alert('Hotel creado exitosamente');
+            emit('submit', response.data);
+            // Redirigir a la página de servicios agregados
+            router.push('/servicio-agregados');
+        }
+    } catch (error) {
+        console.error('Error al crear el hotel:', error);
+        alert('Error al crear el hotel: ' + (error.response?.data?.error || error.message));
+    }
 }
 </script>
 

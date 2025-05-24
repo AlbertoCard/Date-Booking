@@ -109,29 +109,7 @@ class ReservaController extends Controller
                 return response()->json([], 200);
             }
 
-            // Generar horas disponibles
-            $horaInicio = Carbon::parse($disponibilidad->hora_inicio);
-            $horaFin = Carbon::parse($disponibilidad->hora_fin);
-            $intervalo = Carbon::parse($disponibilidad->intervalo)->diffInMinutes(Carbon::today());
-
-            $horasDisponibles = [];
-            $horaActual = $horaInicio->copy();
-
-            while ($horaActual <= $horaFin) {
-                // Verificar si ya hay una reserva para esta hora
-                $reservaExistente = Reserva::where('id_servicio', $id_servicio)
-                    ->where('fecha', $fecha->format('Y-m-d') . ' ' . $horaActual->format('H:i:s'))
-                    ->where('estado', '!=', 'cancelada')
-                    ->first();
-
-                if (!$reservaExistente) {
-                    $horasDisponibles[] = $horaActual->format('H:i');
-                }
-
-                $horaActual->addMinutes($intervalo);
-            }
-
-            return response()->json($horasDisponibles);
+            return response()->json($disponibilidad);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener disponibilidad',
@@ -190,28 +168,20 @@ class ReservaController extends Controller
         }
 
         $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-            ->where(function ($query) use ($request) {
-                $fecha = Carbon::parse($request->fecha);
-                $query->where('fecha', $fecha->format('Y-m-d'))
-                    ->orWhere('dias', strtolower($fecha->format('l')));
-            })
             ->where('activo', 1)
             ->first();
 
         if (!$disponibilidad) {
             return response()->json([
-                'message' => 'No hay disponibilidad para la fecha seleccionada'
+                'message' => 'El servicio no está disponible actualmente'
             ], 400);
         }
 
-        // Extraer hora de la fecha solicitada
+        // Validar que la hora de la reserva esté dentro del rango permitido
         $horaReserva = Carbon::parse($request->fecha)->format('H:i:s');
-
-        // Extraer hora inicio y fin de la disponibilidad
         $horaInicio = Carbon::parse($disponibilidad->hora_inicio)->format('H:i:s');
         $horaFin = Carbon::parse($disponibilidad->hora_fin)->format('H:i:s');
 
-        // Validar que la hora de la reserva esté dentro del rango permitido
         if ($horaReserva < $horaInicio || $horaReserva > $horaFin) {
             return response()->json([
                 'message' => 'La hora seleccionada está fuera del horario disponible'
@@ -306,19 +276,14 @@ class ReservaController extends Controller
             return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
         }
 
-        // Verificar disponibilidad del servicio
+        //Verificar disponibilidad del servicio
         $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-            ->where(function ($query) use ($request) {
-                $fecha = Carbon::parse($request->fecha);
-                $query->where('fecha', $fecha->format('Y-m-d'))
-                    ->orWhere('dias', strtolower($fecha->format('l')));
-            })
             ->where('activo', 1)
             ->first();
 
         if (!$disponibilidad) {
             return response()->json([
-                'message' => 'No hay disponibilidad para la fecha seleccionada'
+                'message' => 'El servicio no está disponible actualmente'
             ], 400);
         }
 
