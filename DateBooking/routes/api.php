@@ -61,6 +61,7 @@ Route::prefix('reservas')->group(function () {
     Route::post('/', [ReservaController::class, 'store']);
     Route::post('/consultorio', [ReservaController::class, 'reservarConsultorio']);
     Route::post('/restaurante', [ReservaController::class, 'reservarRestaurante']);
+    Route::post('/evento', [ReservaController::class, 'reservarEvento']);
 });
 
 

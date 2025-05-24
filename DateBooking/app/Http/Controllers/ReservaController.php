@@ -411,7 +411,6 @@ class ReservaController extends Controller
                 'id_reserva' => $reserva->id_reserva,
                 'id_mesa' => $mesaAsignada
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
@@ -421,6 +420,83 @@ class ReservaController extends Controller
     //reservar evento
     public function reservarEvento(Request $request)
     {
-        
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_usuario' => 'required|string',
+                'id_servicio' => 'required|integer|exists:servicios,id_servicio',
+                'estado' => 'required|string',
+                'fecha' => 'required|date_format:Y-m-d H:i:s',
+                'tipo_servicio' => 'required|string|in:evento',
+                'lugares' => 'required|array|min:1',
+                'lugares.*' => 'required|string'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
+        }
+
+
+        DB::beginTransaction();
+
+        try {
+            $ahora = Carbon::now();
+            $lugaresSolicitados = $request->lugares; // array de lugares, ej: ['a1','a2','a3']
+            $lugaresOcupados = [];
+
+            // Eliminar reservas "apartado" expiradas antes de continuar
+            Reserva::where('id_servicio', $request->id_servicio)
+                ->where('fecha', $request->fecha)
+                ->where('tipo_servicio', 'evento')
+                ->where('estado', 'apartado')
+                ->whereNotNull('disponible_hasta')
+                ->where('disponible_hasta', '<', $ahora)
+                ->delete();
+
+            // Buscar reservas existentes para esa fecha y hora
+            $reservasExistentes = Reserva::where('id_servicio', $request->id_servicio)
+                ->where('fecha', $request->fecha)
+                ->where('tipo_servicio', 'evento')
+                ->lockForUpdate()
+                ->get();
+
+            // Revisar si alguno de los lugares ya está reservado
+            foreach ($reservasExistentes as $reservaExistente) {
+                $lugaresReservados = array_map('trim', explode(',', $reservaExistente->detalle_1));
+                foreach ($lugaresSolicitados as $lugar) {
+                    if (in_array($lugar, $lugaresReservados)) {
+                        $lugaresOcupados[] = $lugar;
+                    }
+                }
+            }
+
+            if (!empty($lugaresOcupados)) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Algunos lugares ya están reservados para la fecha y hora seleccionadas',
+                    'lugares_ocupados' => array_unique($lugaresOcupados)
+                ], 400);
+            }
+
+            // Crear una sola reserva con todos los lugares solicitados como string separado por coma
+            $reserva = new Reserva();
+            $reserva->id_usuario = $request->id_usuario;
+            $reserva->id_servicio = $request->id_servicio;
+            $reserva->estado = "apartado";
+            $reserva->fecha = $request->fecha;
+            $reserva->tipo_servicio = "evento";
+            $reserva->detalle_1 = implode(',', $lugaresSolicitados);
+            $reserva->detalle_2 = "";
+            $reserva->disponible_hasta = $ahora->copy()->addMinutes(15);
+            $reserva->save();
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Reserva creada exitosamente',
+                'id_reserva' => $reserva->id_reserva,
+                'lugares' => $lugaresSolicitados
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
+        }
     }
 }
