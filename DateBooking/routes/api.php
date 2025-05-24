@@ -74,6 +74,7 @@ Route::prefix('servicios')->group(function () {
     Route::get('/search/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);
     Route::post('/', [ServicioController::class, 'store']);
+    Route::get('/{id}/reseñas', [ResenaController::class, 'getByServicio']);
     Route::post('/nuevo-consultorio', [ServicioController::class, 'nuevoConsultorio']);
     Route::post('/nuevo-restaurante', [ServicioController::class, 'nuevoRestaurante']);
     Route::post('/nuevo-evento', [ServicioController::class, 'nuevoEvento']);
@@ -82,6 +83,5 @@ Route::prefix('servicios')->group(function () {
 // Rutas de ciudades
 Route::get('/ciudades', [CiudadController::class, 'index']);
 
-// Rutas para reseñas
-Route::post('/resenas', [ResenaController::class, 'store']);
 
+Route::post('/resenas', [ResenaController::class, 'store']); 

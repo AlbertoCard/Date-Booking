@@ -18,8 +18,11 @@
                         </div>
                         <div class="formulario-grupo">
                             <label class="text-gray-700 font-semibold">Categoría</label>
-                            <input type="text" v-model="servicio.categoria" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <input type="text" v-model="servicio.categoria" required :disabled="isCategoriaBloqueada"
+                                :class="[
+                                    'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500',
+                                    isCategoriaBloqueada ? 'bg-gray-100 cursor-not-allowed' : ''
+                                ]">
                         </div>
                         <div class="formulario-grupo">
                             <label class="text-gray-700 font-semibold">Ciudad</label>
@@ -78,14 +81,14 @@
 
                     <!-- Sección de Disponibilidad -->
                     <div class="mt-8 border-t pt-8">
-                        <h1 class="titulo text-3xl font-bold text-gray-900 relative">
+                        <h1 class="titulo text-2xl md:text-3xl font-bold text-gray-900 relative">
                             Disponibilidad del servicio
                             <div
                                 class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-blue-600 to-blue-700">
                             </div>
                         </h1>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-6">
                             <!-- Fecha -->
                             <div class="formulario-grupo">
                                 <label class="text-gray-700 font-semibold">Fecha de inicio</label>
@@ -121,10 +124,10 @@
                             </div>
 
                             <!-- Días -->
-                            <div class="formulario-grupo col-span-2">
+                            <div class="formulario-grupo col-span-1 md:col-span-2">
                                 <label class="text-gray-700 font-semibold mb-2">Días disponibles</label>
-                                <div class="flex flex-wrap gap-4">
-                                    <label v-for="dia in diasSemana" :key="dia.valor" class="inline-flex items-center">
+                                <div class="dias-grid">
+                                    <label v-for="dia in diasSemana" :key="dia.valor" class="dia-checkbox">
                                         <input type="checkbox" v-model="diasSeleccionados" :value="dia.valor"
                                             class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                                         <span class="ml-2">{{ dia.nombre }}</span>
@@ -134,7 +137,7 @@
                             </div>
 
                             <!-- Tipo de Disponibilidad -->
-                            <div class="formulario-grupo col-span-2">
+                            <div class="formulario-grupo col-span-1 md:col-span-2">
                                 <label class="text-gray-700 font-semibold">Tipo de disponibilidad</label>
                                 <select v-model="disponibilidad.tipo" required
                                     class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
@@ -168,14 +171,15 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, reactive, onMounted, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 
 export default {
     name: 'NuevoServicio',
     setup() {
         const router = useRouter();
+        const route = useRoute();
         const fileInput = ref(null);
         const imagePreview = ref(null);
         const errorMessage = ref('');
@@ -187,7 +191,7 @@ export default {
         const servicio = reactive({
             nombre: '',
             descripcion: '',
-            categoria: '',
+            categoria: route.query.categoria || '',
             costo: '',
             id_ciudad: '',
             imagen: null
@@ -251,6 +255,10 @@ export default {
         };
 
         onMounted(() => {
+            if (!route.query.categoria) {
+                router.push('/servicio-agregados');
+                return;
+            }
             cargarCiudades();
         });
 
@@ -389,12 +397,31 @@ export default {
             message.value = null;
 
             try {
+                // Obtener datos del usuario del localStorage
+                const userData = JSON.parse(localStorage.getItem('userData'));
+
+                if (!userData || userData.rol !== 'establecimiento') {
+                    throw new Error('Usuario no es un establecimiento');
+                }
+
+                // Obtener el establecimiento del usuario
+                const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
+                console.log('Respuesta del establecimiento:', estabResponse.data);
+
+                if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
+                    throw new Error('No se encontró el establecimiento');
+                }
+
+                const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+                console.log('ID del establecimiento:', idEstablecimiento);
+
                 const formData = new FormData();
                 formData.append('nombre', servicio.nombre);
                 formData.append('descripcion', servicio.descripcion);
                 formData.append('costo', servicio.costo);
                 formData.append('categoria', servicio.categoria);
                 formData.append('id_ciudad', servicio.id_ciudad);
+                formData.append('id_establecimiento', idEstablecimiento);
                 if (servicio.imagen) {
                     formData.append('imagen', servicio.imagen);
                 }
@@ -437,7 +464,7 @@ export default {
                 console.error('Error al crear servicio:', error);
                 message.value = {
                     type: 'error',
-                    text: error.response?.data?.message || 'Error al crear el servicio'
+                    text: error.response?.data?.message || error.message || 'Error al crear el servicio'
                 };
             } finally {
                 loading.value = false;
@@ -461,7 +488,8 @@ export default {
             handleFileSelect,
             removeImage,
             handleImageUpload,
-            guardarServicio
+            guardarServicio,
+            isCategoriaBloqueada: computed(() => !!route.query.categoria)
         };
     }
 };
@@ -662,5 +690,73 @@ button[type="button"]:hover {
 
 .subida-archivo {
     animation: float 6s ease-in-out infinite;
+}
+
+.dias-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.dia-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dia-checkbox:hover {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.dia-checkbox input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+@media (max-width: 768px) {
+    .formulario {
+        padding: 1rem;
+    }
+
+    .titulo {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .dias-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .formulario-grupo {
+        margin-bottom: 1rem;
+    }
+
+    .formulario-grupo input,
+    .formulario-grupo select,
+    .formulario-grupo textarea {
+        font-size: 1rem;
+        padding: 0.625rem;
+    }
+
+    .dia-checkbox {
+        padding: 0.375rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dias-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .formulario-grupo {
+        min-width: 100%;
+    }
 }
 </style>
