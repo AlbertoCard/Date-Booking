@@ -7,8 +7,6 @@ import NuevoServicio from "./Components/Servicios/NuevoServicio.vue";
 import VerServicio from "./Components/Servicios/VerServicios.vue";
 import Login from "./Components/Auth/Login.vue";
 import RestablecerContraseña from "./Components/Auth/RestablecerContraseña.vue";
-import DashboardCliente from "./Components/DashboardCliente.vue";
-import DashboardEstablecimiento from "./Components/DashboardEstablecimiento.vue";
 import Dashboard from "./Components/Dashboard.vue";
 import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
@@ -143,15 +141,6 @@ const routes = [
 
     // Rutas para clientes
     {
-        path: "/dashboard-cliente",
-        component: DashboardCliente,
-        meta: { 
-            requiresAuth: true, 
-            role: "cliente",
-            title: 'Dashboard Cliente'
-        }
-    },
-    {
         path: "/reservas/:id",
         component: MisReservas,
         meta: { 
@@ -181,15 +170,6 @@ const routes = [
     },
 
     // Rutas para establecimientos
-    {
-        path: "/dashboard-establecimiento",
-        component: DashboardEstablecimiento,
-        meta: { 
-            requiresAuth: true, 
-            role: "establecimiento",
-            title: 'Dashboard Establecimiento'
-        }
-    },
     {
         path: "/nuevo-servicio",
         component: NuevoServicio,

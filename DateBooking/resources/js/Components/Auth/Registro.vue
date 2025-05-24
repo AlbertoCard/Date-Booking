@@ -106,13 +106,7 @@ const registrar = async () => {
       }
 
       // 4. Redireccionar al dashboard correspondiente
-      if (activeTab.value === 'establecimiento') {
-        //router.push('/dashboard-establecimiento')
-        router.push('/inicio')
-      } else {
-        //router.push('/dashboard-cliente')
-        router.push('/inicio')
-      }
+      router.push('/')
     } catch (apiError) {
       console.error('Error al guardar en la base de datos:', apiError)
       if (apiError.response) {
