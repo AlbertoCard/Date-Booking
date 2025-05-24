@@ -90,23 +90,41 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="formulario-grupo">
-                                <label class="text-gray-700 font-semibold">Hora de inicio</label>
+                                <label class="text-gray-700 font-semibold">Fecha del Evento</label>
                                 <input 
-                                    type="time" 
-                                    v-model="formData.disponibilidad[0].hora_inicio" 
+                                    type="date" 
+                                    v-model="formData.disponibilidad[0].fecha" 
                                     required
                                     class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
 
                             <div class="formulario-grupo">
+                                <label class="text-gray-700 font-semibold">Hora de inicio</label>
+                                <input 
+                                    type="text" 
+                                    v-model="formData.disponibilidad[0].hora_inicio" 
+                                    required
+                                    placeholder="HH:mm"
+                                    pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
+                                    class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    @input="validarHora($event, 'inicio', 0)"
+                                />
+                                <p class="text-sm text-gray-500 mt-1">Formato: HH:mm (24 horas)</p>
+                            </div>
+
+                            <div class="formulario-grupo">
                                 <label class="text-gray-700 font-semibold">Hora de fin</label>
                                 <input 
-                                    type="time" 
+                                    type="text" 
                                     v-model="formData.disponibilidad[0].hora_fin" 
                                     required
+                                    placeholder="HH:mm"
+                                    pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                                     class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                                    @input="validarHora($event, 'fin', 0)"
                                 />
+                                <p class="text-sm text-gray-500 mt-1">Formato: HH:mm (24 horas)</p>
                             </div>
 
                             <div class="formulario-grupo">
@@ -193,7 +211,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
 const ciudades = ref([])
 const previewUrl = ref(null)
@@ -209,7 +229,7 @@ const formData = ref({
         {
             hora_inicio: '',
             hora_fin: '',
-            intervalo: '',
+            intervalo: '00:00:00',
             tipo: 'unica',
             activo: 1
         }
@@ -221,6 +241,13 @@ const formData = ref({
         }
     ]
 })
+
+const formatTime = (time) => {
+    if (!time) return '';
+    // Asegurarse de que la hora tenga el formato HH:mm
+    const [hours, minutes] = time.split(':');
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+}
 
 const cargarCiudades = async () => {
     try {
@@ -235,8 +262,60 @@ onMounted(() => {
     cargarCiudades()
 })
 
-const handleSubmit = () => {
-    emit('submit', formData.value)
+const handleSubmit = async () => {
+    try {
+        // Obtener datos del usuario del localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (!userData || userData.rol !== 'establecimiento') {
+            alert('Error: Debes ser un establecimiento para crear servicios');
+            return;
+        }
+
+        // Obtener el establecimiento del usuario
+        const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
+        
+        if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
+            alert('Error: No se encontró el establecimiento');
+            return;
+        }
+
+        const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+
+        // Preparar los datos para enviar
+        const datosEvento = {
+            id_establecimiento: idEstablecimiento,
+            nombre: formData.value.nombre,
+            descripcion: formData.value.descripcion,
+            costo: formData.value.costo,
+            categoria: 'evento',
+            id_ciudad: formData.value.id_ciudad,
+            disponibilidad: [{
+                hora_inicio: formatTime(formData.value.disponibilidad[0].hora_inicio) + ':00',
+                hora_fin: formatTime(formData.value.disponibilidad[0].hora_fin) + ':00',
+                intervalo: '00:00:00',
+                tipo: formData.value.disponibilidad[0].tipo,
+                activo: 1
+            }],
+            lugares: [{
+                filas: parseInt(formData.value.lugares[0].filas),
+                numeros: parseInt(formData.value.lugares[0].numeros)
+            }]
+        };
+
+        // Enviar los datos al endpoint
+        const response = await axios.post('/api/servicios/nuevo-evento', datosEvento);
+        
+        if (response.status === 201) {
+            alert('Evento creado exitosamente');
+            emit('submit', response.data);
+            // Redirigir a la página de servicios agregados
+            router.push('/servicio-agregados');
+        }
+    } catch (error) {
+        console.error('Error al crear el evento:', error);
+        alert('Error al crear el evento: ' + (error.response?.data?.error || error.message));
+    }
 }
 
 const handleImageUpload = (event) => {
@@ -244,6 +323,29 @@ const handleImageUpload = (event) => {
     if (file) {
         formData.value.imagen = file
         previewUrl.value = URL.createObjectURL(file)
+    }
+}
+
+const validarHora = (event, tipo, index) => {
+    const valor = event.target.value;
+    const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    
+    if (valor && !regex.test(valor)) {
+        // Si el valor no coincide con el formato, intentamos formatearlo
+        const numeros = valor.replace(/[^0-9]/g, '');
+        if (numeros.length >= 4) {
+            const horas = numeros.slice(0, 2);
+            const minutos = numeros.slice(2, 4);
+            
+            if (parseInt(horas) <= 23 && parseInt(minutos) <= 59) {
+                const horaFormateada = `${horas}:${minutos}`;
+                if (tipo === 'inicio') {
+                    formData.value.disponibilidad[index].hora_inicio = horaFormateada;
+                } else {
+                    formData.value.disponibilidad[index].hora_fin = horaFormateada;
+                }
+            }
+        }
     }
 }
 </script>

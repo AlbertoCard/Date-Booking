@@ -152,13 +152,19 @@
 
                                 <div class="formulario-grupo">
                                     <label class="text-gray-700 font-semibold">Duración de consulta</label>
-                                    <input 
-                                        type="text" 
+                                    <select 
                                         v-model="disponibilidad.intervalo" 
                                         required
-                                        placeholder="00:20:00"
                                         class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                    />
+                                    >
+                                        <option value="">Seleccione la duración</option>
+                                        <option value="00:15:00">15 minutos</option>
+                                        <option value="00:20:00">20 minutos</option>
+                                        <option value="00:30:00">30 minutos</option>
+                                        <option value="00:45:00">45 minutos</option>
+                                        <option value="01:00:00">1 hora</option>
+                                    </select>
+                                    <p class="text-sm text-gray-500 mt-1">Tiempo asignado para cada consulta</p>
                                 </div>
 
                                 <div class="formulario-grupo">
@@ -258,7 +264,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
 const ciudades = ref([])
 const previewUrl = ref(null)
@@ -356,8 +364,58 @@ const handleImageUpload = (event) => {
     }
 }
 
-const handleSubmit = () => {
-    emit('submit', formData.value)
+const handleSubmit = async () => {
+    try {
+        // Obtener datos del usuario del localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (!userData || userData.rol !== 'establecimiento') {
+            alert('Error: Debes ser un establecimiento para crear servicios');
+            return;
+        }
+
+        // Obtener el establecimiento del usuario
+        const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
+        
+        if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
+            alert('Error: No se encontró el establecimiento');
+            return;
+        }
+
+        const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+
+        // Preparar los datos para enviar
+        const datosConsultorio = {
+            id_establecimiento: idEstablecimiento,
+            nombre: formData.value.nombre,
+            descripcion: formData.value.descripcion,
+            costo: formData.value.costo,
+            categoria: formData.value.categoria,
+            id_ciudad: formData.value.id_ciudad,
+            disponibilidad: formData.value.disponibilidad.map(disp => ({
+                hora_inicio: disp.hora_inicio + ':00',
+                hora_fin: disp.hora_fin + ':00',
+                intervalo: disp.intervalo,
+                dias: disp.dias,
+                tipo: disp.tipo,
+                activo: disp.activo
+            })),
+            medicos: formData.value.medicos
+        };
+
+        // Enviar los datos al endpoint
+        const response = await axios.post('/api/servicios/nuevo-consultorio', datosConsultorio);
+        
+        if (response.status === 201) {
+            alert('Consultorio creado exitosamente');
+            emit('submit', response.data);
+            // Redirigir a la página de servicios agregados
+            router.push('/servicio-agregados');
+        }
+    } catch (error) {
+        console.error('Error al crear el consultorio:', error);
+        alert('Error al crear el consultorio: ' + (error.response?.data?.error || error.message));
+    }
 }
 </script>
 

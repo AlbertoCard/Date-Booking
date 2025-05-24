@@ -120,16 +120,17 @@
 
                                 <div class="formulario-grupo">
                                     <label class="text-gray-700 font-semibold">Intervalo entre reservas</label>
-                                    <input 
-                                        type="text" 
+                                    <select 
                                         v-model="formData.disponibilidad[0].intervalo" 
                                         required
-                                        placeholder="HH:mm"
-                                        pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                                         class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                                        @input="validarHora($event, 'intervalo', 0)"
-                                    />
-                                    <p class="text-sm text-gray-500 mt-1">Formato: HH:mm (24 horas)</p>
+                                    >
+                                        <option value="">Seleccione el intervalo</option>
+                                        <option value="12:00:00">12 horas</option>
+                                        <option value="24:00:00">24 horas</option>
+                                        <option value="23:59:59">1 día completo</option>
+                                    </select>
+                                    <p class="text-sm text-gray-500 mt-1">Tiempo asignado para cada reserva</p>
                                 </div>
 
                                 <div class="formulario-grupo">
@@ -256,7 +257,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
 const ciudades = ref([])
 const previewUrl = ref(null)
@@ -337,35 +340,79 @@ const handleImageUpload = (event) => {
     }
 }
 
-const handleSubmit = () => {
-    // Agregar las habitaciones antes de enviar el formulario
-    if (nuevaHabitacion.value.tipo && nuevaHabitacion.value.numeroInicial && nuevaHabitacion.value.capacidad && nuevaHabitacion.value.cantidad) {
+const handleSubmit = async () => {
+    try {
+        // Obtener datos del usuario del localStorage
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        
+        if (!userData || userData.rol !== 'establecimiento') {
+            alert('Error: Debes ser un establecimiento para crear servicios');
+            return;
+        }
+
+        // Obtener el establecimiento del usuario
+        const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
+        
+        if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
+            alert('Error: No se encontró el establecimiento');
+            return;
+        }
+
+        const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
+
+        // Verificar que se hayan ingresado los datos de la habitación
+        if (!nuevaHabitacion.value.tipo || !nuevaHabitacion.value.numeroInicial || !nuevaHabitacion.value.capacidad || !nuevaHabitacion.value.cantidad) {
+            alert('Por favor complete todos los datos de la habitación');
+            return;
+        }
+
+        // Preparar las habitaciones para enviar
+        const habitaciones = [];
         const numeroInicial = parseInt(nuevaHabitacion.value.numeroInicial);
         const cantidad = parseInt(nuevaHabitacion.value.cantidad);
         const tipo = nuevaHabitacion.value.tipo;
         const capacidad = parseInt(nuevaHabitacion.value.capacidad);
 
-        // Verificar si ya existen habitaciones con los mismos números
-        const numerosExistentes = formData.value.habitacion.map(h => h.numero);
+        // Generar las habitaciones
         for (let i = 0; i < cantidad; i++) {
-            const nuevoNumero = numeroInicial + i;
-            if (numerosExistentes.includes(nuevoNumero)) {
-                alert(`El número de habitación ${nuevoNumero} ya existe`);
-                return;
-            }
-        }
-
-        // Agregar las nuevas habitaciones
-        for (let i = 0; i < cantidad; i++) {
-            formData.value.habitacion.push({
+            habitaciones.push({
                 tipo: tipo,
                 numero: numeroInicial + i,
                 capacidad: capacidad
             });
         }
-    }
 
-    emit('submit', formData.value)
+        // Preparar los datos para enviar
+        const datosHotel = {
+            id_establecimiento: idEstablecimiento,
+            nombre: formData.value.nombre,
+            descripcion: formData.value.descripcion,
+            costo: formData.value.costo,
+            categoria: formData.value.categoria,
+            id_ciudad: formData.value.id_ciudad,
+            disponibilidad: formData.value.disponibilidad.map(disp => ({
+                hora_inicio: disp.hora_inicio,
+                hora_fin: disp.hora_fin,
+                intervalo: disp.intervalo,
+                tipo: disp.tipo,
+                activo: disp.activo
+            })),
+            habitacion: habitaciones
+        };
+
+        // Enviar los datos al endpoint
+        const response = await axios.post('/api/servicios/nuevo-hotel', datosHotel);
+        
+        if (response.status === 201) {
+            alert('Hotel creado exitosamente');
+            emit('submit', response.data);
+            // Redirigir a la página de servicios agregados
+            router.push('/servicio-agregados');
+        }
+    } catch (error) {
+        console.error('Error al crear el hotel:', error);
+        alert('Error al crear el hotel: ' + (error.response?.data?.error || error.message));
+    }
 }
 </script>
 
