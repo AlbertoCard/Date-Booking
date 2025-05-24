@@ -308,6 +308,8 @@ export default {
                 this.$router.push(`/reserva-restaurante/${this.$route.params.id}`);
             } else if (this.servicio.categoria === 'evento') {
                 this.$router.push(`/reserva-evento/${this.$route.params.id}`);
+            } else if (this.servicio.categoria === 'hotel') {
+                this.$router.push(`/reserva-hotel/${this.$route.params.id}`);
             } else {
                 this.$router.push(`/servicio/${this.$route.params.id}`);
             }

@@ -464,4 +464,89 @@ class ReservaController extends Controller
             return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
         }
     }
+
+    public function reservarHotel(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_usuario' => 'required|string',
+                'id_servicio' => 'required|integer|exists:servicios,id_servicio',
+                'estado' => 'required|string',
+                'tipo_servicio' => 'required|string|in:hotel',
+                'fecha_inicio' => 'required|date|after_or_equal:today',
+                'fecha_fin' => 'required|date|after:fecha_inicio'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
+        }
+
+        // Buscar habitaciones asociadas al servicio
+        $habitacionesDisponibles = DB::table('habitaciones')
+            ->where('id_servicio', $request->id_servicio)
+            ->pluck('id_habitacion');
+
+        if ($habitacionesDisponibles->isEmpty()) {
+            return response()->json([
+                'message' => 'No hay habitaciones disponibles para este servicio'
+            ], 400);
+        }
+
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
+
+        DB::beginTransaction();
+
+        try {
+            $habitacionAsignada = null;
+
+            foreach ($habitacionesDisponibles as $id_habitacion) {
+                // Buscar reservas existentes que se crucen con el rango solicitado
+                $reservaExistente = Reserva::where('id_servicio', $request->id_servicio)
+                    ->where('tipo_servicio', 'hotel')
+                    ->where('detalle_1', (string)$id_habitacion)
+                    ->where(function ($query) use ($fechaInicio, $fechaFin) {
+                        $query->whereRaw("STR_TO_DATE(SUBSTRING_INDEX(detalle_2, ',', 1), '%Y-%m-%d') <= ?", [$fechaFin])
+                              ->whereRaw("STR_TO_DATE(SUBSTRING_INDEX(detalle_2, ',', -1), '%Y-%m-%d') >= ?", [$fechaInicio]);
+                    })
+                    ->where('estado', '!=', 'cancelada')
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$reservaExistente) {
+                    $habitacionAsignada = $id_habitacion;
+                    break;
+                }
+            }
+
+            if (!$habitacionAsignada) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'No hay habitaciones disponibles para las fechas seleccionadas'
+                ], 400);
+            }
+
+            $ahora = Carbon::now();
+
+            $reserva = new Reserva();
+            $reserva->id_usuario = $request->id_usuario;
+            $reserva->id_servicio = $request->id_servicio;
+            $reserva->estado = "apartada";
+            $reserva->fecha = $fechaInicio; 
+            $reserva->tipo_servicio = "hotel";
+            $reserva->detalle_1 = (string)$habitacionAsignada;
+            $reserva->detalle_2 = $fechaInicio . ',' . $fechaFin;
+            $reserva->disponible_hasta = $ahora->copy()->addMinutes(15);
+            $reserva->save();
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Reserva creada exitosamente',
+                'id_reserva' => $reserva->id_reserva,
+                'id_habitacion' => $habitacionAsignada
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
+        }
+    }
 }

@@ -14,6 +14,7 @@ use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\LugareController;
+use App\Http\Controllers\HabitacioneController;
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -64,6 +65,7 @@ Route::prefix('reservas')->group(function () {
     Route::post('/consultorio', [ReservaController::class, 'reservarConsultorio']);
     Route::post('/restaurante', [ReservaController::class, 'reservarRestaurante']);
     Route::post('/evento', [ReservaController::class, 'reservarEvento']);
+    Route::post('/hotel', [ReservaController::class, 'reservarHotel']);
 });
 
 
@@ -103,3 +105,6 @@ Route::get('/medicos/{id_servicio}', [MedicoController::class, 'getByServicio'])
 
 // Rutas para lugares
 Route::get('/lugares/{id_servicio}', [LugareController::class, 'getByServicio']); 
+
+// Rutas para habitaciones
+Route::get('/habitaciones/{id_servicio}', [HabitacioneController::class, 'getByServicio']); 
