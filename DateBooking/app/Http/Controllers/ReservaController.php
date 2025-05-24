@@ -417,4 +417,10 @@ class ReservaController extends Controller
             return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
         }
     }
+
+    //reservar evento
+    public function reservarEvento(Request $request)
+    {
+        
+    }
 }
