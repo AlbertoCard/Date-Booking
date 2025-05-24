@@ -93,10 +93,9 @@
                                         <span class="text-xl">📅</span>
                                         <span>Fecha de la consulta</span>
                                     </label>
-                                    <div class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50">
-                                        {{ disponibilidad?.fecha ? new Date(disponibilidad.fecha +
-                                            'T00:00:00').toLocaleDateString() : 'Cargando fecha...' }}
-                                    </div>
+                                    <input type="date" v-model="fechaSeleccionada" :min="fechaMinima"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors bg-white"
+                                        @change="cargarDisponibilidad" />
                                 </div>
 
                                 <!-- Horario -->
@@ -182,10 +181,16 @@ const medicoSeleccionado = ref('');
 const medicos = ref([]);
 const horasDisponibles = ref([]);
 const disponibilidad = ref(null);
+const fechaSeleccionada = ref('');
 
 // Computed properties
+const fechaMinima = computed(() => {
+    const hoy = new Date();
+    return hoy.toISOString().split('T')[0];
+});
+
 const puedeReservar = computed(() => {
-    return horaSeleccionada.value && medicoSeleccionado.value;
+    return fechaSeleccionada.value && horaSeleccionada.value && medicoSeleccionado.value;
 });
 
 const calcularHorasDisponibles = () => {
@@ -229,23 +234,38 @@ const obtenerEspecialidadMedico = (idMedico) => {
     return medico ? medico.especialidad : 'No especificada';
 };
 
+const cargarDisponibilidad = async () => {
+    if (!fechaSeleccionada.value) return;
+
+    try {
+        const response = await axios.get(`/api/disponibilidad/${route.params.id}`, {
+            params: {
+                fecha: fechaSeleccionada.value
+            }
+        });
+
+        disponibilidad.value = response.data;
+
+        if (disponibilidad.value) {
+            calcularHorasDisponibles();
+        } else {
+            horasDisponibles.value = [];
+        }
+    } catch (err) {
+        console.error('Error al cargar la disponibilidad:', err);
+        error.value = `Error al cargar la disponibilidad: ${err.response?.data?.message || err.message}`;
+    }
+};
+
 const cargarServicio = async () => {
     try {
-        // Realizar las llamadas en paralelo
-        const [servicioResponse, medicosResponse, disponibilidadResponse] = await Promise.all([
+        const [servicioResponse, medicosResponse] = await Promise.all([
             axios.get(`/api/servicios/${route.params.id}`),
-            axios.get(`/api/medicos/${route.params.id}`),
-            axios.get(`/api/disponibilidad/${route.params.id}`)
+            axios.get(`/api/medicos/${route.params.id}`)
         ]);
 
         servicio.value = servicioResponse.data;
         medicos.value = medicosResponse.data;
-        disponibilidad.value = disponibilidadResponse.data;
-
-        // Calcular las horas disponibles cuando se carga la disponibilidad
-        if (disponibilidad.value) {
-            calcularHorasDisponibles();
-        }
     } catch (err) {
         console.error('Error al cargar los datos:', err);
         error.value = `Error al cargar los datos: ${err.response?.data?.message || err.message}`;
@@ -264,7 +284,7 @@ const realizarReserva = async () => {
             return;
         }
 
-        const fechaHora = `${disponibilidad.value.fecha} ${horaSeleccionada.value}:00`;
+        const fechaHora = `${fechaSeleccionada.value} ${horaSeleccionada.value}:00`;
 
         const reservaData = {
             id_usuario: userData.uid,

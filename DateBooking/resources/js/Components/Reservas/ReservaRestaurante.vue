@@ -93,10 +93,9 @@
                                         <span class="text-xl">📅</span>
                                         <span>Fecha de la reserva</span>
                                     </label>
-                                    <div class="w-full px-4 py-2 rounded-lg border border-gray-300 bg-gray-50">
-                                        {{ disponibilidad?.fecha ? new Date(disponibilidad.fecha +
-                                            'T00:00:00').toLocaleDateString() : 'Cargando fecha...' }}
-                                    </div>
+                                    <input type="date" v-model="fechaSeleccionada" :min="fechaMinima"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors bg-white"
+                                        @change="cargarDisponibilidad" />
                                 </div>
 
                                 <!-- Horario -->
@@ -180,10 +179,16 @@ const horaSeleccionada = ref('');
 const numeroPersonas = ref('');
 const horasDisponibles = ref([]);
 const disponibilidad = ref(null);
+const fechaSeleccionada = ref('');
 
 // Computed properties
+const fechaMinima = computed(() => {
+    const hoy = new Date();
+    return hoy.toISOString().split('T')[0];
+});
+
 const puedeReservar = computed(() => {
-    return horaSeleccionada.value && numeroPersonas.value;
+    return fechaSeleccionada.value && horaSeleccionada.value && numeroPersonas.value;
 });
 
 // Métodos
@@ -191,21 +196,33 @@ const volver = () => {
     router.back();
 };
 
-const cargarServicio = async () => {
+const cargarDisponibilidad = async () => {
+    if (!fechaSeleccionada.value) return;
+
     try {
-        // Realizar las llamadas en paralelo
-        const [servicioResponse, disponibilidadResponse] = await Promise.all([
-            axios.get(`/api/servicios/${route.params.id}`),
-            axios.get(`/api/disponibilidad/${route.params.id}`)
-        ]);
+        const response = await axios.get(`/api/disponibilidad/${route.params.id}`, {
+            params: {
+                fecha: fechaSeleccionada.value
+            }
+        });
 
-        servicio.value = servicioResponse.data;
-        disponibilidad.value = disponibilidadResponse.data;
+        disponibilidad.value = response.data;
 
-        // Calcular las horas disponibles cuando se carga la disponibilidad
         if (disponibilidad.value) {
             calcularHorasDisponibles();
+        } else {
+            horasDisponibles.value = [];
         }
+    } catch (err) {
+        console.error('Error al cargar la disponibilidad:', err);
+        error.value = `Error al cargar la disponibilidad: ${err.response?.data?.message || err.message}`;
+    }
+};
+
+const cargarServicio = async () => {
+    try {
+        const servicioResponse = await axios.get(`/api/servicios/${route.params.id}`);
+        servicio.value = servicioResponse.data;
     } catch (err) {
         console.error('Error al cargar los datos:', err);
         error.value = `Error al cargar los datos: ${err.response?.data?.message || err.message}`;
@@ -255,7 +272,7 @@ const realizarReserva = async () => {
             return;
         }
 
-        const fechaHora = `${disponibilidad.value.fecha} ${horaSeleccionada.value}:00`;
+        const fechaHora = `${fechaSeleccionada.value} ${horaSeleccionada.value}:00`;
 
         const reservaData = {
             id_usuario: userData.uid,

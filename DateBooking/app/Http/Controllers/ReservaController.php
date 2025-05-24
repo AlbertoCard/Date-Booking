@@ -168,28 +168,20 @@ class ReservaController extends Controller
         }
 
         $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-            ->where(function ($query) use ($request) {
-                $fecha = Carbon::parse($request->fecha);
-                $query->where('fecha', $fecha->format('Y-m-d'))
-                    ->orWhere('dias', strtolower($fecha->format('l')));
-            })
             ->where('activo', 1)
             ->first();
 
         if (!$disponibilidad) {
             return response()->json([
-                'message' => 'No hay disponibilidad para la fecha seleccionada'
+                'message' => 'El servicio no está disponible actualmente'
             ], 400);
         }
 
-        // Extraer hora de la fecha solicitada
+        // Validar que la hora de la reserva esté dentro del rango permitido
         $horaReserva = Carbon::parse($request->fecha)->format('H:i:s');
-
-        // Extraer hora inicio y fin de la disponibilidad
         $horaInicio = Carbon::parse($disponibilidad->hora_inicio)->format('H:i:s');
         $horaFin = Carbon::parse($disponibilidad->hora_fin)->format('H:i:s');
 
-        // Validar que la hora de la reserva esté dentro del rango permitido
         if ($horaReserva < $horaInicio || $horaReserva > $horaFin) {
             return response()->json([
                 'message' => 'La hora seleccionada está fuera del horario disponible'
@@ -284,19 +276,14 @@ class ReservaController extends Controller
             return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
         }
 
-        // Verificar disponibilidad del servicio
+        //Verificar disponibilidad del servicio
         $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-            ->where(function ($query) use ($request) {
-                $fecha = Carbon::parse($request->fecha);
-                $query->where('fecha', $fecha->format('Y-m-d'))
-                    ->orWhere('dias', strtolower($fecha->format('l')));
-            })
             ->where('activo', 1)
             ->first();
 
         if (!$disponibilidad) {
             return response()->json([
-                'message' => 'No hay disponibilidad para la fecha seleccionada'
+                'message' => 'El servicio no está disponible actualmente'
             ], 400);
         }
 
