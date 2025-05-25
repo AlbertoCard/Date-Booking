@@ -173,6 +173,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import Loader from '../Loader.vue';
+import { loadStripe } from '@stripe/stripe-js';
 
 const router = useRouter();
 const route = useRoute();
@@ -271,8 +272,27 @@ const realizarReserva = async () => {
         const response = await axios.post('/api/reservas/hotel', reservaData);
 
         if (response.data.id_reserva) {
-            alert('¡Reserva realizada con éxito! Tienes 15 minutos para completar el pago.');
-            router.push(`/pago/${response.data.id_reserva}`);
+            // Iniciamos el proceso de pago con Stripe
+            try {
+                const stripeResponse = await axios.post('/api/stripe/checkout', {
+                    userId: userData.uid,
+                    reservaId: response.data.id_reserva,
+                    monto: calcularTotal.value // Usamos el total calculado que incluye el número de noches
+                });
+
+                // Cargamos Stripe y redirigimos al checkout
+                const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+                const result = await stripe.redirectToCheckout({ 
+                    sessionId: stripeResponse.data.id 
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+            } catch (stripeError) {
+                console.error('Error al procesar el pago:', stripeError);
+                alert('Error al procesar el pago. Por favor, intenta nuevamente.');
+            }
         }
     } catch (err) {
         console.error('Error al realizar la reserva:', err);

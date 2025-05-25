@@ -42,6 +42,10 @@ class StripeController extends Controller
             $monto = $request->monto ?? 5000; // Por defecto $50.00 USD si no se especifica
             $reservaId = $request->reservaId;
 
+            // Obtener el tipo de servicio de la reserva
+            $reserva = \App\Models\Reserva::find($reservaId);
+            $tipoServicio = $reserva ? $reserva->tipo_servicio : 'servicio';
+
             // Crear la sesión de checkout
             $session = Session::create([
                 'payment_method_types' => ['card'],
@@ -49,7 +53,7 @@ class StripeController extends Controller
                     'price_data' => [
                         'currency' => 'mxn', // Cambiado a pesos mexicanos
                         'product_data' => [
-                            'name' => 'Reservación de restaurante',
+                            'name' => 'Reservación de ' . ucfirst($tipoServicio),
                             'description' => 'Reserva #' . $reservaId,
                         ],
                         'unit_amount' => $monto * 100, // Stripe usa centavos
