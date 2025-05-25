@@ -293,7 +293,7 @@ const realizarReserva = async () => {
                 const stripeResponse = await axios.post('/api/stripe/checkout', {
                     userId: userData.uid,
                     reservaId: response.data.id_reserva,
-                    monto: servicio.value.costo * numeroPersonas.value
+                    monto: servicio.value.costo
                 });
 
                 // Cargamos Stripe y redirigimos al checkout
