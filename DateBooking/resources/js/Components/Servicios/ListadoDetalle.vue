@@ -31,7 +31,7 @@
                   <span
                     :class="{
                       'text-green-600 font-semibold': reserva.estado === 'confirmada',
-                      'text-yellow-600 font-semibold': reserva.estado === 'apartada',
+                      'text-yellow-600 font-semibold': reserva.estado === 'apartada' || 'apartado',
                       'text-red-600 font-semibold': reserva.estado === 'cancelada'
                     }"
                   >
@@ -41,12 +41,15 @@
                 <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
                 <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
 
-                <button
-                  class="btn_validar mt-3"
-                  @click="validarQR(reserva.id_reserva)"
-                >
+                <div class="div_btnValidar">
+                  <button
+                    class="btn_validar mt-3"
+                    @click="validarQR(reserva.id_reserva)"
+                  >
                   Validar QR
-                </button>
+                  </button>
+                </div>
+                
               </li>
           </ul>
         </div>
@@ -180,6 +183,11 @@
 
   .reserva{
     font-size: 20px;
+  }
+
+  .div_btnValidar{
+    display: flex;
+    justify-content: flex-end;
   }
 
   .btn_validar {
