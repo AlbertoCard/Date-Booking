@@ -27,6 +27,8 @@ import ReservaConsultorio from './Components/Reservas/ReservaConsultorio.vue';
 import ReservaRestaurante from './Components/Reservas/ReservaRestaurante.vue';
 import ReservaEvento from './Components/Reservas/ReservaEvento.vue';
 import ReservaHotel from './Components/Reservas/ReservaHotel.vue';
+import ServicioListado from './Components/Servicios/ServicioListado.vue';
+import ListadoDetalle from "./Components/Servicios/ListadoDetalle.vue";
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -225,6 +227,15 @@ const routes = [
             title: 'Nuevo Servicio de Consultorio'
         }
     },
+    {
+        path: "/afiliados",
+        component: Afiliados,
+        meta: {
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Gestion de Afiliados'
+        }
+    },
 
 
     // Rutas para administradores
@@ -258,12 +269,22 @@ const routes = [
 
     // Ruta para Afiliados
     {
-        path: "/afiliados",
-        component: Afiliados,
-        // meta: {
-        //     requiresAuth: true,
-        //     role: "establecimiento"
-        // }
+        path: "/servicios-listado",
+        component: ServicioListado,
+        meta: {
+            requiresAuth: true,
+            role: 'afiliado',
+            title: 'Listado de Servicios'
+        }
+    },
+    {
+        path: "/detalle-listado/:id",
+        component: ListadoDetalle,
+        meta: {
+            requiresAuth: true,
+            role: 'afiliado',
+            title: 'Validacion de Reservas'
+        }
     },
 
     // Ruta 404

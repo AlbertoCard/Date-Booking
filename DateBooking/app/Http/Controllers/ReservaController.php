@@ -570,4 +570,14 @@ class ReservaController extends Controller
             return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
         }
     }
+
+    public function getReservasByServicio($id_servicio){
+
+        // Obtenemos las reservas de un servicio
+        $reservas = Reserva::where('id_servicio', $id_servicio)
+            ->get();
+
+            return response()->json(['reservas' => $reservas], 200);
+
+    }
 }

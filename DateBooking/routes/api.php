@@ -60,6 +60,7 @@ Route::prefix('pagos')->group(function () {
 
 // Rutas para Reservas (públicas)
 Route::prefix('reservas')->group(function () {
+    Route::get('/servicios/{id_servicio}', [ReservaController::class, 'getReservasByServicio']);
     Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
     Route::get('/detalle/{id}', [ReservaController::class, 'obtenerDetalleReserva']);
     Route::post('/', [ReservaController::class, 'store']);
@@ -101,10 +102,10 @@ Route::prefix('stripe')->group(function () {
 });
 Route::post('/resenas', [ResenaController::class, 'store']); 
 
-
-    Route::get('/afiliados/{uid}', [AfiliadoController::class, 'getAfiliadosByEstablecimiento']);
-    Route::post('/afiliados/agregar', [AfiliadoController::class, 'agregarAfiliado']);
-    Route::delete('/afiliados/desafiliar/{uid}/{id_establecimiento}', [AfiliadoController::class, 'dropRelacionAfiliado']);
+// Rutas para afiliados
+Route::get('/afiliados/{uid}', [AfiliadoController::class, 'getAfiliadosByEstablecimiento']);
+Route::post('/afiliados/agregar', [AfiliadoController::class, 'agregarAfiliado']);
+Route::delete('/afiliados/desafiliar/{uid}/{id_establecimiento}', [AfiliadoController::class, 'dropRelacionAfiliado']);
 
 // Rutas para médicos
 Route::get('/medicos/{id_servicio}', [MedicoController::class, 'getByServicio']); 

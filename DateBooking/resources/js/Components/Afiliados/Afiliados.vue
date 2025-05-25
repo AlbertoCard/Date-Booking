@@ -4,7 +4,11 @@
 
         <div class="div_encabezado">
             <h1 class="bold">Afiliados</h1>
-            <button class="btn_nuevoAfiliado" @click="mostrarFormulario = true">Añadir</button>
+
+            <button class="btn_nuevoAfiliado transform hover:scale-105 transition-all duration-300" 
+                @click="mostrarFormulario = true">
+                Añadir
+            </button>
         </div>
   
         <div v-if="this.afiliados.length == 0" >
@@ -38,7 +42,7 @@
                     </template>
                 </div>
                 <div class="div_info">
-                    <h2>{{ afiliado.nombre }}</h2>
+                    <h2 class="bold">{{ afiliado.nombre }}</h2>
                     <p>{{ afiliado.email }}</p>
                 </div>
                 <div class="div_acciones">
@@ -188,6 +192,7 @@
   
     .div_encabezado h1 {
         font-size: 26px;
+        font-family: sans-serif;
     }
   
     .btn_nuevoAfiliado {

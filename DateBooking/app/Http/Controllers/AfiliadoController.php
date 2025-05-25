@@ -7,6 +7,7 @@ use App\Models\EstabXusuario;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AfiliadoController extends Controller
 {
@@ -69,22 +70,38 @@ class AfiliadoController extends Controller
             return response()->json(['error' => 'El usuario ya esta registrado como afiliado del establecimiento.'], 409);
         }
 
-        //Cambia el rol del usuario a "afiliado".
-        $usuario->rol = 'afiliado';
-        $usuario->save();
+        DB::beginTransaction();
 
-        //Crea la relación en la tabla estbXusuario.
-        EstabXusuario::create([
-            'id_usuario' => $usuario->uid,
-            'id_establecimiento' => $id_establecimiento
-        ]);
+        try {
+            // Cambia el rol del usuario a "afiliado".
+            $usuario->rol = 'afiliado';
+            $usuario->save();
 
-        return response()->json(['message' => 'El usuario ha sido afiliado con exito.']);
+            // Crea la relación en la tabla estbXusuario.
+            EstabXusuario::create([
+                'id_usuario' => $usuario->uid,
+                'id_establecimiento' => $id_establecimiento
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'El usuario ha sido afiliado con exito.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al afiliar usuario: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al afiliar el usuario.'], 500);
+        }
     }
 
 
     //Elimina un afiliado
-    public function dropAfiliados($uid, $id_establecimiento){
+    public function dropAfiliados($uid, $id_userEstablecimiento){
+
+        $usuarioEstablecimiento = EstabXusuario::where('id_usuario', $id_userEstablecimiento)
+            ->first();
+        
+        $id_establecimiento = $usuarioEstablecimiento->id_establecimiento;
+
         $afiliadoEliminar = Usuario::where('uid', $uid)
             ->first();
 
@@ -92,19 +109,31 @@ class AfiliadoController extends Controller
             ->where('id_establecimiento', $id_establecimiento)
             ->first();
 
-        if($relacion){
-            $relacion->delete();
+        DB::beginTransaction();
+
+        try {
+            if($relacion){
+                EstabXusuario::where('id_usuario', $uid)
+                ->where('id_establecimiento', $id_establecimiento)
+                ->delete();
+            }
+
+            $afiliadoEliminar->delete();
+
+            DB::commit();
+            return response()->json(['message' => 'Afiliado eliminado con exito.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al eliminar afiliado: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al eliminar afiliado.'], 500);
         }
-
-        $afiliadoEliminar->delete();
-
-        return response()->json(['message' => 'Afiliado eliminado con exito.']);
     }
 
     //Plus, desafilia al afiliado (y lo convierte en cliente).
-    public function dropRelacionAfiliado($uid, $id_establecimiento){
+    public function dropRelacionAfiliado($uid, $id_userEstablecimiento){
 
-        $usuarioEstablecimiento = EstabXusuario::where('id_usuario', $uid)
+        $usuarioEstablecimiento = EstabXusuario::where('id_usuario', $id_userEstablecimiento)
             ->first();
         
         $id_establecimiento = $usuarioEstablecimiento->id_establecimiento;
@@ -116,21 +145,30 @@ class AfiliadoController extends Controller
             ->where('id_establecimiento', $id_establecimiento)
             ->first();
 
-        // Elimina la relación con el establecimiento actual
-        if($relacion){
-            EstabXusuario::where('id_usuario', $uid)
-            ->where('id_establecimiento', $id_establecimiento)
-            ->delete();
-        }
+        DB::beginTransaction();
 
-        $masRelaciones = EstabXusuario::where('id_usuario', $uid)
-            ->first();
+        try {
+            // Elimina la relación con el establecimiento actual
+            if($relacion){
+                EstabXusuario::where('id_usuario', $uid)
+                ->where('id_establecimiento', $id_establecimiento)
+                ->delete();
+            }
 
-        if(!$masRelaciones){
-            $afiliado->rol = 'cliente';
-            $afiliado->save();
+            $masRelaciones = EstabXusuario::where('id_usuario', $uid)
+                ->first();
+
+            if(!$masRelaciones){
+                $afiliado->rol = 'cliente';
+                $afiliado->save();
+            }
+            
+            DB::commit();
+            return response()->json(['message' => 'Afiliado ha sido desasociado con exito.'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al eliminar afiliado: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al eliminar afiliado.'], 500);
         }
-        
-        return response()->json(['message' => 'Afiliado ha sido desasociado con exito.'], 200);
     }
 }
