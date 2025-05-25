@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "vue-router": "^4.5.0"
+  },
+  "dependencies": {
+    "@stripe/stripe-js": "^7.3.0"
   }
 }

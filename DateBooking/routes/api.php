@@ -12,6 +12,7 @@ use App\Http\Controllers\ReservaController;
 use App\Models\Servicio;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\AfiliadoController;
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -95,3 +96,8 @@ Route::prefix('stripe')->group(function () {
     Route::get('/cancel', [StripeController::class, 'cancel']);
 });
 Route::post('/resenas', [ResenaController::class, 'store']); 
+
+
+    Route::get('/afiliados/{uid}', [AfiliadoController::class, 'getAfiliadosByEstablecimiento']);
+    Route::post('/afiliados/agregar', [AfiliadoController::class, 'agregarAfiliado']);
+    Route::delete('/afiliados/desafiliar/{uid}/{id_establecimiento}', [AfiliadoController::class, 'dropRelacionAfiliado']);

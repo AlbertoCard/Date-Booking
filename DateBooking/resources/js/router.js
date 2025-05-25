@@ -21,6 +21,7 @@ import MisReservas from "./Components/Reservas/MisReservas.vue";
 import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 import AgregarResena from './Components/Reservas/AgregarResena.vue';
 import StripePayment from './Components/StripePayment.vue';
+import Afiliados from "./Components/Afiliados/Afiliados.vue";
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -205,6 +206,16 @@ const routes = [
             role: "admin",
             title: 'Validaciones'
         }
+    },
+
+    // Ruta para Afiliados
+    {
+        path: "/afiliados",
+        component: Afiliados,
+        // meta: {
+        //     requiresAuth: true,
+        //     role: "establecimiento"
+        // }
     },
 
     // Ruta 404
