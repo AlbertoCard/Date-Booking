@@ -68,6 +68,7 @@ Route::prefix('reservas')->group(function () {
     Route::post('/restaurante', [ReservaController::class, 'reservarRestaurante']);
     Route::post('/evento', [ReservaController::class, 'reservarEvento']);
     Route::post('/hotel', [ReservaController::class, 'reservarHotel']);
+    Route::post('/validar-reserva', [ReservaController::class, 'validarReserva']);
 });
 
 

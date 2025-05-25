@@ -134,8 +134,33 @@
       onDetect(result) {
         console.log("QR detectado:", result);
         this.mostrarLectorQR = false;
-        // Aquí puedes validar el resultado con this.reservaActual
-        alert(`Código QR leído: ${result}`);
+
+        const id_reserva_qr = parseInt(result); // Asegúrate que el QR solo contenga el ID
+        const estadoNuevo = 'confirmada'; // o 'asistida', según tu lógica
+
+        // Validar que el QR coincide con la reserva seleccionada
+        if (id_reserva_qr !== this.reservaSeleccionada) {
+          alert("El código QR no coincide con la reserva seleccionada.");
+          return;
+        }
+
+        // Llamada al backend
+        axios.post('http://127.0.0.1:8000/api/validar-reserva', {
+          id_reserva: this.reservaSeleccionada,
+          estado: estadoNuevo
+        })
+        .then(response => {
+          if (response.data.success) {
+            alert("Reserva validada correctamente.");
+            this.obtenerReservas(this.$route.params.id); // recargar estado de las reservas
+          } else {
+            alert(response.data.error || "No se pudo validar la reserva.");
+          }
+        })
+        .catch(error => {
+          console.error('Error al validar la reserva:', error);
+          alert("Hubo un error al validar la reserva.");
+        });
       },
       async getCamarasDisponibles() {
         const dispositivos = await navigator.mediaDevices.enumerateDevices();
