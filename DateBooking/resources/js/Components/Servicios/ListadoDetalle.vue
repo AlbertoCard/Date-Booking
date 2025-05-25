@@ -49,23 +49,31 @@
                   Validar QR
                   </button>
                 </div>
-                
               </li>
           </ul>
         </div>
       </div>
     </div>
+    <div v-if="mostrarLectorQR" class="modal_qr">
+                  <div class="modal_qr_contenido">
+                    <h3>Escanea el código QR</h3>
+                    <qrcode-stream @detect="onDetect" class="qr-cam"></qrcode-stream>
+                    <button class="btn_cerrar" @click="mostrarLectorQR = false">Cancelar</button>
+                  </div>
+                </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios';
   import Loader from '../Loader.vue';
+  import { QrcodeStream } from 'vue-qrcode-reader';
 
   export default {
     name: 'ServicioDetalle',
     components: {
-      Loader
+      Loader,
+      QrcodeStream
     },
     data() {
       return {
@@ -75,7 +83,10 @@
           descripcion: ""
         },
         cargando: true,
-        error: null
+        error: null,
+        mostrarLectorQR: false,
+        camaraDroidCamId: null,
+        reservaSeleccionada: null,
       };
     },
     mounted() {
@@ -83,6 +94,7 @@
       console.log("ID del servicio desde la ruta:", id_servicio);
       this.obtenerServicio(id_servicio);
       this.obtenerReservas(id_servicio);
+      this.getCamarasDisponibles();
     },
     methods: {
       obtenerReservas(id_servicio) {
@@ -115,8 +127,21 @@
             this.cargando = false; // Ocultar el loader al finalizar la carga
           });
       },
-      validarQR() {
-        alert('Funcionalidad de validación por QR en desarrollo.');
+      validarQR(id_reserva) {
+        this.reservaSeleccionada = id_reserva;
+        this.mostrarLectorQR = true;
+      },
+      onDetect(result) {
+        console.log("QR detectado:", result);
+        this.mostrarLectorQR = false;
+        // Aquí puedes validar el resultado con this.reservaActual
+        alert(`Código QR leído: ${result}`);
+      },
+      async getCamarasDisponibles() {
+        const dispositivos = await navigator.mediaDevices.enumerateDevices();
+        const camaras = dispositivos.filter(device => device.kind === 'videoinput');
+        console.log("Cámaras disponibles:", camaras);
+        this.camaraDroidCamId = camaras.find(c => c.label.toLowerCase().includes('droidcam'))?.deviceId;
       }
     }
   };
@@ -181,8 +206,13 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
 
+  .tarjeta-reserva p{
+    margin-left: 20px;
+  }
+
   .reserva{
     font-size: 20px;
+    margin-bottom: 20px;
   }
 
   .div_btnValidar{
@@ -213,6 +243,58 @@
   .bold{
     font-weight: bold;
   }
+
+  .modal_qr {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(17, 24, 39, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+
+.modal_qr_contenido {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal_qr_contenido h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.qr-cam {
+  width: 100%;
+  max-height: 300px;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.btn_cerrar {
+  background: linear-gradient(to right, #f87171, #ef4444);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn_cerrar:hover {
+  background: linear-gradient(to right, #dc2626, #b91c1c);
+  transform: scale(1.05);
+}
 
   /* Loader y error */
   .min-h-\[400px\] {
