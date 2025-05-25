@@ -37,7 +37,7 @@
                 <template v-if="userRole === 'cliente'">
                     <li class="sidebar-item">
                         <router-link
-                            :to="`/reservas/${auth.currentUser.uid}`"
+                            :to="auth.currentUser ? `/reservas/${auth.currentUser.uid}` : '/'"
                             @click="handleOptionClick"
                             class="sidebar-link"
                         >

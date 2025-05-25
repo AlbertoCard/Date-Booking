@@ -219,7 +219,7 @@ export default {
 
 .grid-reservas {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 100%));
     gap: 20px;
     padding: 20px;
 }
