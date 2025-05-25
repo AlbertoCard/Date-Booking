@@ -34,6 +34,18 @@
                             </svg>
                         </div>
                     </div>
+                    <!-- Botón de reservación -->
+                    <div class="mt-6">
+                        <button @click="realizarReservacion"
+                            class="w-full bg-gradient-to-r from-teal-500 to-teal-400 hover:from-teal-400 hover:to-teal-300 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Realizar Reservación
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Información del servicio -->
@@ -44,6 +56,12 @@
                             <div>
                                 <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ servicio.nombre }}</h1>
                                 <div class="bg-gray-50 p-3 rounded-lg">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Establecimiento</h3>
+                                    <p class="text-gray-600">{{ servicio.establecimiento?.nombre ||
+                                        'Establecimiento no especificado' }}
+                                    </p>
+                                </div>
+                                <div class="bg-gray-50 p-3 rounded-lg mt-4">
                                     <h3 class="text-lg font-semibold text-gray-900 mb-1">Descripción</h3>
                                     <p class="text-gray-600 whitespace-pre-line">{{ servicio.descripcion }}</p>
                                 </div>
@@ -282,6 +300,19 @@ export default {
             const calificacionNormalizada = Math.min(Math.max(calificacion, 1), 5);
             const cantidad = this.reseñas.filter(r => Math.min(Math.max(r.calificacion, 1), 5) === calificacionNormalizada).length;
             return Math.round((cantidad / this.reseñas.length) * 100);
+        },
+        realizarReservacion() {
+            if (this.servicio.categoria === 'consultorio') {
+                this.$router.push(`/reserva-consultorio/${this.$route.params.id}`);
+            } else if (this.servicio.categoria === 'restaurante') {
+                this.$router.push(`/reserva-restaurante/${this.$route.params.id}`);
+            } else if (this.servicio.categoria === 'evento') {
+                this.$router.push(`/reserva-evento/${this.$route.params.id}`);
+            } else if (this.servicio.categoria === 'hotel') {
+                this.$router.push(`/reserva-hotel/${this.$route.params.id}`);
+            } else {
+                this.$router.push(`/servicio/${this.$route.params.id}`);
+            }
         }
     }
 };

@@ -81,4 +81,26 @@ class DisponibilidadController extends Controller
             'message' => 'Disponibilidades eliminadas correctamente'
         ]);
     }
+
+    public function getByServicio($id_servicio)
+    {
+        try {
+            $disponibilidad = Disponibilidad::where('id_servicio', $id_servicio)
+                ->where('activo', 1)
+                ->first();
+
+            if (!$disponibilidad) {
+                return response()->json([
+                    'message' => 'No hay disponibilidad configurada para este servicio'
+                ], 404);
+            }
+
+            return response()->json($disponibilidad);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener la disponibilidad',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

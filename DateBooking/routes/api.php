@@ -13,6 +13,9 @@ use App\Models\Servicio;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\AfiliadoController;
+use App\Http\Controllers\MedicoController;
+use App\Http\Controllers\LugareController;
+use App\Http\Controllers\HabitacioneController;
 
 // Ruta de prueba
 Route::get('/test', function () {
@@ -68,6 +71,7 @@ Route::prefix('reservas')->group(function () {
 
 
 // Rutas de disponibilidad
+Route::get('/disponibilidad/{id_servicio}', [DisponibilidadController::class, 'getByServicio']);
 Route::post('/disponibilidad', [DisponibilidadController::class, 'store']);
 Route::put('/disponibilidad/{id_servicio}/toggle', [DisponibilidadController::class, 'toggleActivo']);
 Route::delete('/disponibilidad/{id_servicio}', [DisponibilidadController::class, 'destroy']);
@@ -101,3 +105,12 @@ Route::post('/resenas', [ResenaController::class, 'store']);
     Route::get('/afiliados/{uid}', [AfiliadoController::class, 'getAfiliadosByEstablecimiento']);
     Route::post('/afiliados/agregar', [AfiliadoController::class, 'agregarAfiliado']);
     Route::delete('/afiliados/desafiliar/{uid}/{id_establecimiento}', [AfiliadoController::class, 'dropRelacionAfiliado']);
+
+// Rutas para médicos
+Route::get('/medicos/{id_servicio}', [MedicoController::class, 'getByServicio']); 
+
+// Rutas para lugares
+Route::get('/lugares/{id_servicio}', [LugareController::class, 'getByServicio']); 
+
+// Rutas para habitaciones
+Route::get('/habitaciones/{id_servicio}', [HabitacioneController::class, 'getByServicio']); 

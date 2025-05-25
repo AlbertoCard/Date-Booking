@@ -1,14 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Inicio from "./Components/Inicio.vue";
-import Nosotros from "./Components/Nosotros.vue";
 import NotFound from "./Components/NotFound.vue";
 import NuevoServicio from "./Components/Servicios/NuevoServicio.vue";
 import VerServicio from "./Components/Servicios/VerServicios.vue";
 import Login from "./Components/Auth/Login.vue";
 import RestablecerContraseña from "./Components/Auth/RestablecerContraseña.vue";
-import DashboardCliente from "./Components/DashboardCliente.vue";
-import DashboardEstablecimiento from "./Components/DashboardEstablecimiento.vue";
 import Dashboard from "./Components/Dashboard.vue";
 import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
@@ -22,6 +19,14 @@ import NodoServicio from "./Components/Servicios/NodoServicio.vue";
 import AgregarResena from './Components/Reservas/AgregarResena.vue';
 import StripePayment from './Components/StripePayment.vue';
 import Afiliados from "./Components/Afiliados/Afiliados.vue";
+import HotelForm from './Components/Servicios/HotelForm.vue';
+import EventoForm from './Components/Servicios/EventoForm.vue';
+import RestauranteForm from './Components/Servicios/RestauranteForm.vue';
+import ConsultorioForm from './Components/Servicios/ConsultorioForm.vue';
+import ReservaConsultorio from './Components/Reservas/ReservaConsultorio.vue';
+import ReservaRestaurante from './Components/Reservas/ReservaRestaurante.vue';
+import ReservaEvento from './Components/Reservas/ReservaEvento.vue';
+import ReservaHotel from './Components/Reservas/ReservaHotel.vue';
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -35,14 +40,6 @@ const routes = [
         meta: { 
             requiresAuth: false,
             title: 'Inicio'
-        } 
-    },
-    { 
-        path: "/nosotros", 
-        component: Nosotros, 
-        meta: { 
-            requiresAuth: false,
-            title: 'Nosotros'
         } 
     },
     { 
@@ -101,17 +98,40 @@ const routes = [
             title: 'Nodo Servicio'  
         }
     },
-
-    // Rutas para clientes
     {
-        path: "/dashboard-cliente",
-        component: DashboardCliente,
+        path: "/reserva-consultorio/:id",
+        component: ReservaConsultorio,
         meta: { 
-            requiresAuth: true, 
-            role: "cliente",
-            title: 'Dashboard Cliente'
+            requiresAuth: true,
+            title: 'Reserva de Consultorio'
         }
     },
+    {
+        path: "/reserva-restaurante/:id",
+        component: ReservaRestaurante,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Restaurante'
+        }
+    },
+    {
+        path: "/reserva-evento/:id",
+        component: ReservaEvento,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Evento'
+        }
+    },
+    {
+        path: "/reserva-hotel/:id",
+        component: ReservaHotel,
+        meta: { 
+            requiresAuth: true,
+            title: 'Reserva de Hotel'
+        }
+    },
+
+    // Rutas para clientes
     {
         path: "/reservas/:id",
         component: MisReservas,
@@ -143,15 +163,6 @@ const routes = [
 
     // Rutas para establecimientos
     {
-        path: "/dashboard-establecimiento",
-        component: DashboardEstablecimiento,
-        meta: { 
-            requiresAuth: true, 
-            role: "establecimiento",
-            title: 'Dashboard Establecimiento'
-        }
-    },
-    {
         path: "/nuevo-servicio",
         component: NuevoServicio,
         meta: { 
@@ -178,6 +189,43 @@ const routes = [
             title: 'Editar Servicio'
         }
     },
+    {
+        path: "/nuevo-servicio/hotel",
+        component: HotelForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Hotel'
+        }
+    },
+    {
+        path: "/nuevo-servicio/evento",
+        component: EventoForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Evento'
+        }
+    },
+    {
+        path: "/nuevo-servicio/restaurante",
+        component: RestauranteForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Restaurante'
+        }
+    },
+    {
+        path: "/nuevo-servicio/consultorio",
+        component: ConsultorioForm,
+        meta: { 
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Nuevo Servicio de Consultorio'
+        }
+    },
+
 
     // Rutas para administradores
     { 

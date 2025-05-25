@@ -9,8 +9,8 @@ use App\Models\Disponibilidad;
 use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class ReservaController extends Controller
 {
@@ -109,29 +109,7 @@ class ReservaController extends Controller
                 return response()->json([], 200);
             }
 
-            // Generar horas disponibles
-            $horaInicio = Carbon::parse($disponibilidad->hora_inicio);
-            $horaFin = Carbon::parse($disponibilidad->hora_fin);
-            $intervalo = Carbon::parse($disponibilidad->intervalo)->diffInMinutes(Carbon::today());
-
-            $horasDisponibles = [];
-            $horaActual = $horaInicio->copy();
-
-            while ($horaActual <= $horaFin) {
-                // Verificar si ya hay una reserva para esta hora
-                $reservaExistente = Reserva::where('id_servicio', $id_servicio)
-                    ->where('fecha', $fecha->format('Y-m-d') . ' ' . $horaActual->format('H:i:s'))
-                    ->where('estado', '!=', 'cancelada')
-                    ->first();
-
-                if (!$reservaExistente) {
-                    $horasDisponibles[] = $horaActual->format('H:i');
-                }
-
-                $horaActual->addMinutes($intervalo);
-            }
-
-            return response()->json($horasDisponibles);
+            return response()->json($disponibilidad);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Error al obtener disponibilidad',
@@ -190,28 +168,20 @@ class ReservaController extends Controller
         }
 
         $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-            ->where(function ($query) use ($request) {
-                $fecha = Carbon::parse($request->fecha);
-                $query->where('fecha', $fecha->format('Y-m-d'))
-                    ->orWhere('dias', strtolower($fecha->format('l')));
-            })
             ->where('activo', 1)
             ->first();
 
         if (!$disponibilidad) {
             return response()->json([
-                'message' => 'No hay disponibilidad para la fecha seleccionada'
+                'message' => 'El servicio no está disponible actualmente'
             ], 400);
         }
 
-        // Extraer hora de la fecha solicitada
+        // Validar que la hora de la reserva esté dentro del rango permitido
         $horaReserva = Carbon::parse($request->fecha)->format('H:i:s');
-
-        // Extraer hora inicio y fin de la disponibilidad
         $horaInicio = Carbon::parse($disponibilidad->hora_inicio)->format('H:i:s');
         $horaFin = Carbon::parse($disponibilidad->hora_fin)->format('H:i:s');
 
-        // Validar que la hora de la reserva esté dentro del rango permitido
         if ($horaReserva < $horaInicio || $horaReserva > $horaFin) {
             return response()->json([
                 'message' => 'La hora seleccionada está fuera del horario disponible'
@@ -306,19 +276,14 @@ class ReservaController extends Controller
             return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
         }
 
-        // Verificar disponibilidad del servicio
+        //Verificar disponibilidad del servicio
         $disponibilidad = Disponibilidad::where('id_servicio', $request->id_servicio)
-            ->where(function ($query) use ($request) {
-                $fecha = Carbon::parse($request->fecha);
-                $query->where('fecha', $fecha->format('Y-m-d'))
-                    ->orWhere('dias', strtolower($fecha->format('l')));
-            })
             ->where('activo', 1)
             ->first();
 
         if (!$disponibilidad) {
             return response()->json([
-                'message' => 'No hay disponibilidad para la fecha seleccionada'
+                'message' => 'El servicio no está disponible actualmente'
             ], 400);
         }
 
@@ -428,18 +393,24 @@ class ReservaController extends Controller
                 'fecha' => 'required|date_format:Y-m-d H:i:s',
                 'tipo_servicio' => 'required|string|in:evento',
                 'lugares' => 'required|array|min:1',
-                'lugares.*' => 'required|string'
+                'lugares.*.sector' => 'required|string',
+                'lugares.*.asiento' => 'required|string'
             ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Error de validación',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error en la validación de los datos: ' . $e->getMessage()], 422);
         }
-
 
         DB::beginTransaction();
 
         try {
             $ahora = Carbon::now();
-            $lugaresSolicitados = $request->lugares; // array de lugares, ej: ['a1','a2','a3']
+            $lugaresSolicitados = $request->lugares; // array de ['sector' => ..., 'asiento' => ...]
             $lugaresOcupados = [];
 
             // Eliminar reservas "apartado" expiradas antes de continuar
@@ -460,10 +431,25 @@ class ReservaController extends Controller
 
             // Revisar si alguno de los lugares ya está reservado
             foreach ($reservasExistentes as $reservaExistente) {
-                $lugaresReservados = array_map('trim', explode(',', $reservaExistente->detalle_1));
-                foreach ($lugaresSolicitados as $lugar) {
-                    if (in_array($lugar, $lugaresReservados)) {
-                        $lugaresOcupados[] = $lugar;
+                // detalle_1 ahora es un string JSON con los lugares reservados
+                $lugaresReservados = json_decode($reservaExistente->detalle_1, true);
+                if (!is_array($lugaresReservados)) {
+                    // compatibilidad con reservas antiguas (string separado por coma)
+                    $lugaresReservados = [];
+                    $asientos = array_map('trim', explode(',', $reservaExistente->detalle_1));
+                    foreach ($asientos as $asiento) {
+                        $lugaresReservados[] = ['sector' => null, 'asiento' => $asiento];
+                    }
+                }
+                foreach ($lugaresSolicitados as $lugarSolicitado) {
+                    foreach ($lugaresReservados as $lugarReservado) {
+                        if (
+                            isset($lugarReservado['sector'], $lugarReservado['asiento']) &&
+                            $lugarSolicitado['sector'] === $lugarReservado['sector'] &&
+                            $lugarSolicitado['asiento'] === $lugarReservado['asiento']
+                        ) {
+                            $lugaresOcupados[] = $lugarSolicitado;
+                        }
                     }
                 }
             }
@@ -472,18 +458,18 @@ class ReservaController extends Controller
                 DB::rollBack();
                 return response()->json([
                     'message' => 'Algunos lugares ya están reservados para la fecha y hora seleccionadas',
-                    'lugares_ocupados' => array_unique($lugaresOcupados)
+                    'lugares_ocupados' => $lugaresOcupados
                 ], 400);
             }
 
-            // Crear una sola reserva con todos los lugares solicitados como string separado por coma
+            // Guardar los lugares como JSON en detalle_1
             $reserva = new Reserva();
             $reserva->id_usuario = $request->id_usuario;
             $reserva->id_servicio = $request->id_servicio;
             $reserva->estado = "apartado";
             $reserva->fecha = $request->fecha;
             $reserva->tipo_servicio = "evento";
-            $reserva->detalle_1 = implode(',', $lugaresSolicitados);
+            $reserva->detalle_1 = json_encode($lugaresSolicitados);
             $reserva->detalle_2 = "";
             $reserva->disponible_hasta = $ahora->copy()->addMinutes(15);
             $reserva->save();
