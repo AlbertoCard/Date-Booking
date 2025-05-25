@@ -247,9 +247,9 @@ const loginWithGoogle = async () => {
 
       // Redirigir según el rol
       if (userData.rol === 'establecimiento') {
-        router.push('/dashboard-establecimiento');
+        router.push('/servicio-agregados');
       } else {
-        router.push('/dashboard-cliente');
+        router.push('/');
       }
     } catch (apiError) {
       // Si el usuario no existe (404), crearlo
@@ -273,7 +273,7 @@ const loginWithGoogle = async () => {
         localStorage.setItem('userData', JSON.stringify(userData));
 
         // Redirigir al dashboard de cliente
-        router.push('/dashboard-cliente');
+        router.push('/');
       } else {
         console.error('Error en la API:', apiError.response?.data || apiError.message);
         alert('Error al comunicarse con el servidor. Por favor, intenta nuevamente.');
