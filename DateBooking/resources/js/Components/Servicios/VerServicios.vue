@@ -159,10 +159,6 @@
                                         class="editar transform hover:scale-105 transition-all duration-300">
                                         Editar
                                     </button>
-                                    <button @click.stop="cancelarServicio(servicio.id_servicio)"
-                                        class="cancelar transform hover:scale-105 transition-all duration-300">
-                                        Cancelar
-                                    </button>
                                 </div>
 
                                 <!-- Switch ON/OFF -->
@@ -542,6 +538,7 @@ export default {
 }
 
 .editar {
+    width: 100%;
     background: linear-gradient(to right, #e5e7eb, #d1d5db);
     color: #374151;
     margin-right: 1rem;
@@ -957,6 +954,9 @@ export default {
     .nuevo-servicio {
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
+    }
+    .editar{
+        width: 50%;
     }
 }
 </style>
