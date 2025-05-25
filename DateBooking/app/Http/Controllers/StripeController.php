@@ -38,23 +38,31 @@ class StripeController extends Controller
 
             Log::info('Iniciando creación de sesión de Stripe');
 
+            // Obtener el monto de la reserva
+            $monto = $request->monto ?? 5000; // Por defecto $50.00 USD si no se especifica
+            $reservaId = $request->reservaId;
+
             // Crear la sesión de checkout
             $session = Session::create([
                 'payment_method_types' => ['card'],
                 'line_items' => [[
                     'price_data' => [
-                        'currency' => 'usd',
+                        'currency' => 'mxn', // Cambiado a pesos mexicanos
                         'product_data' => [
-                            'name' => 'Reservación de sala',
+                            'name' => 'Reservación de restaurante',
+                            'description' => 'Reserva #' . $reservaId,
                         ],
-                        'unit_amount' => 5000, // $50.00 USD
+                        'unit_amount' => $monto * 100, // Stripe usa centavos
                     ],
                     'quantity' => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => 'http://localhost:5173/success',
-                'cancel_url' => 'http://localhost:5173/cancel',
+                'success_url' => 'http://127.0.0.1:8000/reservas/' . $request->userId . '?success=true',
+                'cancel_url' => 'http://127.0.0.1:8000/reservas/' . $request->userId . '?canceled=true',
                 'client_reference_id' => $request->userId,
+                'metadata' => [
+                    'reserva_id' => $reservaId
+                ]
             ]);
 
             Log::info('Sesión de Stripe creada:', ['session_id' => $session->id]);
