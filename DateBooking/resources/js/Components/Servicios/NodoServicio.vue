@@ -35,8 +35,9 @@
                         </div>
                     </div>
                     <!-- Botón de reservación -->
-                    <div class="mt-6">
+                    <div class="mt-6" v-if="isAuthenticated">
                         <button @click="realizarReservacion"
+                            v-if="userRole === 'cliente'"
                             class="w-full bg-gradient-to-r from-teal-500 to-teal-400 hover:from-teal-400 hover:to-teal-300 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
