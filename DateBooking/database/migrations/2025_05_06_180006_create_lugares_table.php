@@ -15,7 +15,7 @@ return new class extends Migration
 
         Schema::create('lugares', function (Blueprint $table) {
             $table->id('id_lugar');
-            $table->foreignId('id_servicio')->constrained('servicios')->onDelete('cascade');
+            $table->foreignId('id_servicio')->references('id_servicio')->on('servicios');
             $table->string('fila');
             $table->integer('numero');
             $table->string('sector');
