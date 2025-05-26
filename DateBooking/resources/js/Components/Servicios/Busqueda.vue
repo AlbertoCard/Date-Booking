@@ -46,7 +46,8 @@
             No se encontraron servicios relacionados con "{{ searchText }}".
         </div>
         <!-- Lista de servicios -->
-        <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
+        <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio"
+            @click="verDetalle(servicio.id_servicio)">
             <!-- Imagen o ícono -->
             <div class="imagen">
                 <template v-if="servicio.imagen && servicio.imagen.url">
@@ -82,12 +83,13 @@
             <h1>Mas opciones</h1>
         </div>
         <!-- Lista de servicios -->
-        <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio">
+        <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio"
+            @click="verDetalle(recomendacion.id_servicio)">
             <!-- Imagen o ícono -->
             <div class="imagen">
                 <template v-if="recomendacion.imagen && recomendacion.imagen.url">
-                    <img :src="recomendacion.imagen.url" :alt="recomendacion.nombre" class="w-full h-full object-cover rounded-lg"
-                        @error="handleImageError" @load="handleImageLoad">
+                    <img :src="recomendacion.imagen.url" :alt="recomendacion.nombre"
+                        class="w-full h-full object-cover rounded-lg" @error="handleImageError" @load="handleImageLoad">
                 </template>
                 <div v-else
                     class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
@@ -164,6 +166,9 @@ export default {
         },
     },
     methods: {
+        verDetalle(id) {
+            this.$router.push(`/nodo-servicio/${id}`);
+        },
         obtenerServiciosPorCategoria(categoria) {
             this.cargando = true;
             if (categoria === 'todos') {
