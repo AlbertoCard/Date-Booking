@@ -52,10 +52,11 @@
                         <p class="precio">${{ servicio.costo }}</p>
                         <p class="estrellas">
                             <span v-for="i in 5" :key="i">
-                                {{ i <= Math.round(servicio.promedio_reseñas || 0) ? '★' : '☆' }} </span>
-                                    <span class="ml-2 text-xs text-gray-500">
-                                        ({{ servicio.total_reseñas || 0 }})
-                                    </span>
+                                {{ i <= Math.round(servicio.promedio_resenas || 0) ? '★' : '☆' }}
+                            </span>
+                            <span class="ml-2 text-xs text-gray-500">
+                                ({{ servicio.total_resenas || 0 }})
+                            </span>
                         </p>
                     </div>
                 </div>

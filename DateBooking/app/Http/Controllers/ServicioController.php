@@ -36,13 +36,26 @@ class ServicioController extends Controller
     {
         $idEstablecimiento = $request->query('id_establecimiento');
 
-        $query = Servicio::with(['disponibilidad', 'imagen']);
+        $query = Servicio::with(['disponibilidad', 'imagen', 'resenas']);
 
         if ($idEstablecimiento) {
             $query->where('id_establecimiento', $idEstablecimiento);
         }
 
         $servicios = $query->paginate(10);
+
+        // Calcular promedio y total de reseñas para cada servicio
+        $servicios->getCollection()->transform(function ($servicio) {
+            $totalResenas = $servicio->resenas->count();
+            $sumaCalificaciones = $servicio->resenas->sum('calificacion');
+            $promedioResenas = $totalResenas > 0 ? round($sumaCalificaciones / $totalResenas, 1) : 0;
+            
+            $servicio->promedio_resenas = $promedioResenas;
+            $servicio->total_resenas = $totalResenas;
+            
+            return $servicio;
+        });
+
         Log::info('Servicios paginados cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }

@@ -137,7 +137,7 @@ class ReservaController extends Controller
     public function obtenerDetalleReserva($id)
     {
         try {
-            $reserva = Reserva::with(['servicio.establecimiento', 'pago'])
+            $reserva = Reserva::with(['servicio.establecimiento', 'servicio.imagen', 'pago'])
                 ->findOrFail($id);
 
             return response()->json([

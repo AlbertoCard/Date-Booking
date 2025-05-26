@@ -46,4 +46,9 @@ class Servicio extends Model
     {
         return $this->hasOne(Imagen::class, 'id_servicio', 'id_servicio');
     }
+
+    public function resenas()
+    {
+        return $this->hasMany(Reseña::class, 'id_servicio', 'id_servicio');
+    }
 }   
