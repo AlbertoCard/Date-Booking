@@ -249,11 +249,13 @@
 
                         <!-- Botón de reserva -->
                         <div class="mt-8">
-                            <button @click="realizarReserva" :disabled="!puedeReservar" class="w-full bg-black text-white py-4 rounded-lg font-medium 
+                            <button @click="realizarReserva" :disabled="!puedeReservar || procesandoReserva" class="w-full bg-black text-white py-4 rounded-lg font-medium 
                                 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black 
                                 disabled:bg-gray-300 disabled:cursor-not-allowed
                                 transition-all duration-200 transform hover:scale-[1.02]">
-                                {{ puedeReservar ? 'Realizar Reservación!' : 'Completa todos los campos' }}
+                                <span v-if="procesandoReserva">Procesando...</span>
+                                <span v-else>{{ puedeReservar ? 'Realizar Reservación!' : 'Completa todos los campos'
+                                }}</span>
                             </button>
 
                             <!-- Nota informativa -->
@@ -266,6 +268,8 @@
             </div>
         </div>
     </div>
+    <!-- Loader overlay para el proceso de reserva -->
+    <Loader :visible="procesandoReserva" />
 </template>
 
 <script setup>
@@ -284,6 +288,7 @@ const disponibilidad = ref(null);
 const lugares = ref([]);
 const lugaresSeleccionados = ref([]);
 const lugaresOcupados = ref([]);
+const procesandoReserva = ref(false); // Loader para el proceso de reserva
 
 // Computed properties
 const puedeReservar = computed(() => {
@@ -415,6 +420,7 @@ const realizarReserva = async () => {
         return;
     }
 
+    procesandoReserva.value = true; // Activar loader
     try {
         const userData = JSON.parse(localStorage.getItem('userData'));
         if (!userData || !userData.uid) {
@@ -540,6 +546,8 @@ const realizarReserva = async () => {
         }
 
         alert(mensajeError);
+    } finally {
+        procesandoReserva.value = false; // Desactivar loader
     }
 };
 
