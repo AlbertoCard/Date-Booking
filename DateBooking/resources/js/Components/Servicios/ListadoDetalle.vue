@@ -26,21 +26,24 @@
           <h2>Reservaciones</h2>
           <ul class="mt-4 pl-6 space-y-4 text-gray-700">
             <li v-for="reserva in reservas" :key="reserva.id_reserva"
-              class="tarjeta-reserva bg-gray-100 rounded-xl p-4 shadow-sm">
-              <p class="reserva bold">Reserva #{{ reserva.id_reserva }}</p>
-              <p><strong>Usuario:</strong> {{ reserva.id_usuario }}</p>
-              <p><strong>Servicio:</strong> {{ reserva.id_servicio }}</p>
-              <p><strong>Estado:</strong>
-                <span :class="{
-                  'text-green-600 font-semibold': reserva.estado === 'confirmada',
-                  'text-yellow-600 font-semibold': ['apartada', 'apartado'].includes(reserva.estado),
-                  'text-red-600 font-semibold': reserva.estado === 'cancelada'
-                }">
-                  {{ reserva.estado }}
-                </span>
-              </p>
-              <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
-              <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
+              class="tarjeta-reserva bg-gray-100 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+              
+              <div class="flex-1 space-y-1">
+                <p class="reserva font-bold text-gray-800">Reserva #{{ reserva.id_reserva }}</p>
+                <p><strong>Usuario:</strong> {{ reserva.id_usuario }}</p>
+                <p><strong>Servicio:</strong> {{ reserva.id_servicio }}</p>
+                <p><strong>Estado:</strong>
+                  <span :class="{
+                    'text-green-600 font-semibold': reserva.estado === 'confirmada',
+                    'text-yellow-600 font-semibold': ['apartada', 'apartado'].includes(reserva.estado),
+                    'text-red-600 font-semibold': reserva.estado === 'cancelada'
+                  }">
+                    {{ reserva.estado }}
+                  </span>
+                </p>
+                <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
+                <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
+              </div>
             </li>
           </ul>
         </div>
