@@ -54,14 +54,23 @@
       </div>
     </div>
 
-    <transition name="fade">
-      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <div class="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center">
-          <h2 class="text-xl font-semibold text-green-600 mb-2">¡Reserva confirmada!</h2>
-          <p class="text-gray-700"><strong>Reserva:</strong> {{ reservaValidada }}</p>
+    <transition name="fade-smooth">
+      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
+          <h2 class="text-lg font-medium mb-2 text-gray-700">Reserva confirmada</h2>
+          <p class="text-gray-600"><strong>Reserva:</strong> {{ reservaValidada }}</p>
         </div>
       </div>
-    </transition> 
+    </transition>
+
+    <transition name="fade-smooth">
+      <div v-if="mostrarModalError" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
+          <h2 class="text-lg font-medium mb-2 text-gray-700">Error al validar la reserva</h2>
+          <p class="text-gray-600"><strong>Mensaje:</strong> {{ mensajeError }}</p>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -88,7 +97,9 @@ export default {
       mostrarLectorQR: false,
       camaraDroidCamId: null,
       reservaValidada: null,
-      mostrarModal: false
+      mostrarModal: false,
+      mostrarModalError: false,
+      mensajeError: '',
     };
   },
   mounted() {
@@ -170,7 +181,7 @@ export default {
           setTimeout(() => {
             this.mostrarModal = false;
             this.reservaValidada = null;
-          }, 6000);
+          }, 4000);
 
           if (response.data.success) {
             alert("Reserva validada correctamente.");
@@ -187,7 +198,13 @@ export default {
           console.error('Error al validar la reserva:', error);
 
           if (error.response && error.response.data) {
+            this.mensajeError = error.response?.data?.message || 'Ocurrió un error inesperado.';
+            this.mostrarModalError = true;
             const data = error.response.data;
+            setTimeout(() => {
+              this.mostrarModalError = false;
+              this.mensajeError = '';
+            }, 4000);
             alert(data.message || data.error || "Hubo un error al validar la reserva.");
           } else {
             alert("Hubo un error al validar la reserva.");
@@ -358,11 +375,12 @@ ul li {
   transform: scale(1.05);
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s ease;
+.fade-smooth-enter-active, .fade-smooth-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-smooth-enter-from, .fade-smooth-leave-to {
   opacity: 0;
+  transform: scale(0.98);
 }
 
 /* Loader y error */
