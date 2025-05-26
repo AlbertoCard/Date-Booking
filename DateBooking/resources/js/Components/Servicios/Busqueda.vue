@@ -48,7 +48,20 @@
         <!-- Lista de servicios -->
         <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
-            <div class="imagen"></div>
+            <div class="imagen">
+                <template v-if="servicio.imagen && servicio.imagen.url">
+                    <img :src="servicio.imagen.url" :alt="servicio.nombre" class="w-full h-full object-cover rounded-lg"
+                        @error="handleImageError" @load="handleImageLoad">
+                </template>
+                <div v-else
+                    class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </div>
 
             <!-- Contenido -->
             <div class="info-servicio">
@@ -71,7 +84,20 @@
         <!-- Lista de servicios -->
         <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio">
             <!-- Imagen o ícono -->
-            <div class="imagen"></div>
+            <div class="imagen">
+                <template v-if="recomendacion.imagen && recomendacion.imagen.url">
+                    <img :src="recomendacion.imagen.url" :alt="recomendacion.nombre" class="w-full h-full object-cover rounded-lg"
+                        @error="handleImageError" @load="handleImageLoad">
+                </template>
+                <div v-else
+                    class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </div>
 
             <!-- Contenido -->
             <div class="info-servicio">
@@ -191,15 +217,7 @@ export default {
 
 .encabezado h1 {
     font-size: 24px;
-}
-
-.nuevo-servicio {
-    padding: 8px 16px;
-    background: black;
-    color: white;
-    border: none;
-    border-radius: 24px;
-    cursor: pointer;
+    font-weight: bold;
 }
 
 .tarjeta-servicio {
@@ -210,13 +228,36 @@ export default {
     padding: 40px;
     margin-bottom: 16px;
     gap: 16px;
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.tarjeta-servicio:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .imagen {
     width: 100px;
     height: 100px;
-    background: #ccc;
+    background: #f3f4f6;
     border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.imagen:hover img {
+    transform: scale(1.05);
 }
 
 .info-servicio {
@@ -225,13 +266,16 @@ export default {
 
 .info-servicio h2 {
     margin: 0;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
+    color: #1f2937;
+    margin-bottom: 8px;
 }
 
 .descripcion {
     font-size: 14px;
-    color: #555;
+    color: #6b7280;
+    line-height: 1.5;
 }
 
 .acciones {
@@ -249,19 +293,22 @@ export default {
 }
 
 
-
 .precio-estrellas {
     text-align: right;
+    min-width: 150px;
 }
 
 .precio {
     font-size: 26px;
     font-weight: bold;
+    color: #2563eb;
+    margin-bottom: 8px;
 }
 
 .estrellas {
-    color: #f5a623;
+    color: #fbbf24;
     font-size: 18px;
+    margin-bottom: 12px;
 }
 
 .estado button {
@@ -287,8 +334,7 @@ export default {
     display: inline-block;
     padding: 10px 20px;
     cursor: pointer;
-    border: 1px solid #2b426d;
-    background-color: #385c7e;
+    background-color: #2563eb;
     color: white;
     border-radius: 15px;
     transition: all ease 0.2s;
@@ -305,8 +351,9 @@ export default {
 
 .button-group input[type="radio"]:checked+label {
     background-color: white;
-    color: #02375a;
-    border: 1px solid #2b426d;
+    color: #2563eb;
+    border: 2px dashed #2563eb;
+
 }
 
 fieldset {
@@ -322,9 +369,9 @@ fieldset {
 }
 
 .sin-resultados {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background: #dbeafe;
+    color: #3b82f6;
+    border: 1px solid #93c5fd;
     border-radius: 10px;
     padding: 30px 20px;
     margin: 30px 0;
@@ -375,9 +422,13 @@ fieldset {
         margin-top: 8px;
     }
 
-    
+    .imagen {
+        margin-bottom: 16px;
+    }
 
-
+    .info-servicio {
+        margin-bottom: 16px;
+    }
 
 }
 </style>
