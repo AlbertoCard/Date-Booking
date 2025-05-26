@@ -294,7 +294,7 @@ ul li {
 .btn_validar {
   margin-top: 2rem;
   display: inline-block;
-  background: linear-gradient(to right, #3b82f6, #6366f1);
+  background: linear-gradient(to right, #0B57D0, #0B57D0);
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -306,7 +306,7 @@ ul li {
 }
 
 .btn_validar:hover {
-  background: linear-gradient(to right, #2563eb, #4f46e5);
+  background: linear-gradient(to right, #0848b1, #0848b1);
   transform: scale(1.03);
   box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
 }
@@ -353,7 +353,7 @@ ul li {
 }
 
 .btn_cerrar {
-  background: linear-gradient(to right, #f87171, #ef4444);
+  background: linear-gradient(to right, #0B57D0, #0B57D0);
   color: white;
   padding: 0.5rem 1.25rem;
   border-radius: 0.5rem;
@@ -363,7 +363,7 @@ ul li {
 }
 
 .btn_cerrar:hover {
-  background: linear-gradient(to right, #dc2626, #b91c1c);
+  background: linear-gradient(to right, #0848b1, #0848b1);
   transform: scale(1.05);
 }
 
@@ -402,7 +402,7 @@ ul li {
 }
 
 .modal button {
-  background-color: #4f46e5;
+  background-color: #0B57D0;
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -413,16 +413,16 @@ ul li {
 }
 
 .modal button:hover {
-  background-color: #4338ca;
+  background-color: #0848b1;
 }
 
-.modal.success {
+/* .modal.success {
   border-left: 6px solid #10b981;
 }
 
 .modal.error {
   border-left: 6px solid #ef4444;
-}
+} */
 
 @keyframes fadeIn {
   from { opacity: 0; }
