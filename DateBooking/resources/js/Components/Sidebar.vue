@@ -8,8 +8,6 @@
                     </svg>
                 </button>
             </li>
-
-            <!-- Opción de Inicio para todos -->
             <li class="sidebar-item">
                 <router-link
                     to="/"
@@ -180,43 +178,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue'])
+
 const sidebarRef = ref(null)
-const userRole = ref(null)
-const isAuthenticated = ref(false)
 let ignoreClick = false
-
-// Función para limpiar el estado del usuario
-const limpiarEstadoUsuario = () => {
-    userRole.value = null
-    isAuthenticated.value = false
-    localStorage.removeItem('userData')
-}
-
-// Función para obtener el rol del usuario
-const obtenerRolUsuario = async () => {
-    try {
-        const userData = localStorage.getItem('userData')
-        if (userData) {
-            const parsedData = JSON.parse(userData)
-            userRole.value = parsedData.rol
-            isAuthenticated.value = true
-        } else {
-            limpiarEstadoUsuario()
-        }
-    } catch (error) {
-        console.error('Error al obtener el rol del usuario:', error)
-        limpiarEstadoUsuario()
-    }
-}
-
-// Escuchar cambios en la autenticación
-const unsubscribe = auth.onAuthStateChanged((user) => {
-    if (user) {
-        obtenerRolUsuario()
-    } else {
-        limpiarEstadoUsuario()
-    }
-})
 
 function isMobile() {
     return window.innerWidth < 768
@@ -240,12 +204,9 @@ function closeSidebar() {
 
 onMounted(() => {
     document.addEventListener('mousedown', handleClickOutside)
-    obtenerRolUsuario()
 })
-
 onBeforeUnmount(() => {
     document.removeEventListener('mousedown', handleClickOutside)
-    unsubscribe() // Limpiar el listener de autenticación
 })
 
 function handleOptionClick() {
@@ -312,6 +273,7 @@ function handleOptionClick() {
 .close {
     display: none;
 }
+
 
 @media(max-width: 768px) {
     .sidebar {

@@ -1,3 +1,4 @@
+
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
         <Loader :visible="loading" />

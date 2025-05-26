@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Establecimiento;
 use App\Models\Usuario;
+use App\Models\EstabXusuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use App\Models\EstabXusuario;
+use Illuminate\Support\Facades\Validator;
 
 class EstablecimientoController extends Controller
 {
-    /**
-     * Obtener todos los establecimientos
-     */
-    public function index()
+    //
+
+    function index()
     {
         try {
             $establecimientos = Establecimiento::all();

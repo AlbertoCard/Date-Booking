@@ -309,19 +309,11 @@ const routes = [
     
 ];
 
+const history = createWebHistory();
+
 const router = createRouter({
-    history: createWebHistory(),
-    routes,
-});
-
-// Aplicar middlewares
-router.beforeEach(auth); // Primero verificamos autenticación
-router.beforeEach(role); // Luego verificamos roles
-
-// Actualizar el título de la página
-router.beforeEach((to, from, next) => {
-    document.title = to.meta.title ? `${to.meta.title} - Date Booking` : 'Date Booking';
-    next();
+  history,
+  routes,
 });
 
 export default router;

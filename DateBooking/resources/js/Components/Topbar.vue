@@ -31,7 +31,7 @@
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
         </svg>
-        <span class="userName">{{ userName }}</span>
+        <span class="userName">UserName</span>
       </button>
       <div v-if="showUserDropdown" class="user-dropdown">
         <template v-if="!isAuthenticated">
@@ -47,10 +47,6 @@
 </template>
 
 <script>
-import axios from 'axios';
-import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
-
 export default {
   props: {
     toggleSidebar: {
@@ -62,23 +58,13 @@ export default {
     return {
       searchText: '',
       showUserDropdown: false,
-      isAuthenticated: false,
-      userData: null
     };
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
-    // Verificar si hay datos de usuario en localStorage
-    const userDataStr = localStorage.getItem('userData');
-    if (userDataStr) {
-      this.userData = JSON.parse(userDataStr);
-      this.isAuthenticated = true;
-    }
   },
-  computed: {
-    userName() {
-      return this.userData ? this.userData.nombre : 'Invitado';
-    }
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
   },
   methods: {
     redirectToSearch() {
@@ -104,8 +90,8 @@ export default {
       }
     },
     login() {
-      this.$router.push('/login');
-      this.closeDropdown();
+      // Implement login logic here
+      alert('Login clicked');
     },
     async logout() {
       try {

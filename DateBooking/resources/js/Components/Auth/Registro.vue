@@ -92,13 +92,15 @@ const registrar = async () => {
 
     // Guardar datos en nuestra base de datos
     try {
-      console.log('Enviando datos al servidor:', {
+      const response = await axios.post('/api/usuarios', {
         uid: user.uid,
         nombre: nombre.value,
         email: correo.value,
         telefono: telefono.value,
         foto_url: fotoUrl.value,
-        rol: activeTab.value
+        rol: activeTab.value, // 'cliente' o 'establecimiento'
+        direccion: direccion.value,
+        categoria: categoria.value
       })
 
       const usuarioResponse = await axios.post('/api/usuarios', {
@@ -221,10 +223,18 @@ const validarTelefono = () => {
 
     <div class="container">
       <div class="tab-container">
-        <button class="tab" :class="{ active: activeTab === 'cliente' }" @click="activeTab = 'cliente'">
+        <button
+          class="tab"
+          :class="{ active: activeTab === 'cliente' }"
+          @click="activeTab = 'cliente'"
+        >
           Cliente
         </button>
-        <button class="tab" :class="{ active: activeTab === 'establecimiento' }" @click="activeTab = 'establecimiento'">
+        <button
+          class="tab"
+          :class="{ active: activeTab === 'establecimiento' }"
+          @click="activeTab = 'establecimiento'"
+        >
           Establecimiento
         </button>
       </div>
@@ -234,18 +244,20 @@ const validarTelefono = () => {
           <!-- Lado Imagen -->
           <div class="image-side">
             <div class="image-container">
-              <img :src="activeTab === 'cliente' ?
-                'https://img.freepik.com/free-vector/appointment-booking-with-calendar_23-2148553008.jpg' :
-                'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_23-2148547718.jpg'"
+              <img 
+                :src="activeTab === 'cliente' ? 
+                  'https://img.freepik.com/free-vector/appointment-booking-with-calendar_23-2148553008.jpg' : 
+                  'https://img.freepik.com/free-vector/shop-with-sign-we-are-open_23-2148547718.jpg'"
                 :alt="activeTab === 'cliente' ? 'Cliente Registro' : 'Establecimiento Registro'"
-                class="featured-image" />
+                class="featured-image"
+              />
             </div>
             <h3 class="image-title">
               {{ activeTab === 'cliente' ? 'Reserva tus citas fácilmente' : 'Gestiona tu negocio' }}
             </h3>
             <p class="image-description">
-              {{ activeTab === 'cliente' ?
-                'Encuentra y agenda citas con tus establecimientos favoritos' :
+              {{ activeTab === 'cliente' ? 
+                'Encuentra y agenda citas con tus establecimientos favoritos' : 
                 'Administra tus reservas y horarios de manera eficiente' }}
             </p>
           </div>
@@ -297,6 +309,32 @@ const validarTelefono = () => {
                 />
               </div>
 
+              <!-- Campos adicionales para establecimiento -->
+              <template v-if="activeTab === 'establecimiento'">
+                <div class="form-group">
+                  <label for="direccion">Dirección del establecimiento</label>
+                  <input 
+                    v-model="direccion" 
+                    type="text" 
+                    id="direccion" 
+                    placeholder="Dirección completa" 
+                    required 
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="categoria">Categoría del negocio</label>
+                  <select v-model="categoria" id="categoria" required>
+                    <option value="">Selecciona una categoría</option>
+                    <option value="belleza">Belleza</option>
+                    <option value="salud">Salud</option>
+                    <option value="deportes">Deportes</option>
+                    <option value="restaurante">Restaurante</option>
+                    <option value="otros">Otros</option>
+                  </select>
+                </div>
+              </template>
+
               <div class="form-group">
                 <label for="contrasena">Contraseña</label>
                 <input 
@@ -308,7 +346,7 @@ const validarTelefono = () => {
                   required 
                 />
               </div>
-
+              
               <div v-if="error" class="error-message">
                 {{ error }}
               </div>
@@ -320,7 +358,11 @@ const validarTelefono = () => {
                 </label>
               </div>
 
-              <button type="submit" class="submit-button" :disabled="loading">
+              <button 
+                type="submit" 
+                class="submit-button"
+                :disabled="loading"
+              >
                 {{ loading ? 'Procesando...' : 'Crear cuenta' }}
               </button>
             </form>
@@ -537,10 +579,12 @@ const validarTelefono = () => {
   left: 0;
   width: 200%;
   height: 100%;
-  background: linear-gradient(120deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent);
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transform: translateX(-100%);
 }
 
@@ -562,7 +606,7 @@ const validarTelefono = () => {
   .content-wrapper {
     flex-direction: column;
   }
-
+  
   .content-wrapper.reverse {
     flex-direction: column;
   }
@@ -674,10 +718,12 @@ const validarTelefono = () => {
   left: 0;
   width: 200%;
   height: 100%;
-  background: linear-gradient(120deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent);
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
   transform: translateX(-100%);
 }
 

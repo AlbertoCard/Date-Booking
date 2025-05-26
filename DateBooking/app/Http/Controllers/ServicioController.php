@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Servicio;
-use App\Models\Imagen;
 use App\Models\Reseña;
+use App\Models\Imagen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -12,10 +12,7 @@ use \Illuminate\Validation\ValidationException;
 
 class ServicioController extends Controller
 {
-    protected $disponibilidadController;
-    protected $medicoController;
-
-
+    // lista de servicios
     public function index(Request $request)
     {
         $idEstablecimiento = $request->query('id_establecimiento');
@@ -90,52 +87,21 @@ class ServicioController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'required|string',
             'costo' => 'required|numeric|min:0',
-            'categoria' => 'required|string|max:255',
-            'id_ciudad' => 'required|exists:ciudades,id_ciudad',
-            'id_establecimiento' => 'required|exists:establecimientos,id_establecimiento',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'categoria' => 'required|string|max:255'
         ]);
 
         $servicio = Servicio::create([
-            'id_establecimiento' => $request->id_establecimiento,
+            'id_establecimiento' => 1, // Por ahora fijo
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
             'costo' => $request->costo,
             'categoria' => $request->categoria,
-            'id_ciudad' => $request->id_ciudad
+            'id_ciudad' => 1
         ]);
 
-        // Guardar la imagen si se proporciona
-        if ($request->hasFile('imagen')) {
-            try {
-                $imagen = $request->file('imagen');
-                // Limpiar el nombre del archivo
-                $extension = $imagen->getClientOriginalExtension();
-                $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
-                $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
-
-                // Guardar en public/images
-                $imagen->move(public_path('images'), $nombreImagen);
-
-                // Crear registro en la tabla imagenes
-                $imagenModel = Imagen::create([
-                    'id_servicio' => $servicio->id_servicio,
-                    'url' => '/images/' . $nombreImagen
-                ]);
-
-                Log::info('Imagen guardada:', [
-                    'nombre_original' => $imagen->getClientOriginalName(),
-                    'nombre_limpio' => $nombreImagen,
-                    'url' => '/images/' . $nombreImagen
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error al guardar la imagen: ' . $e->getMessage());
-            }
-        }
-
-        return response()->json($servicio->load('imagen'), 201);
+        return response()->json($servicio, 201);
     }
-    // buscar servicio
+  
     public function search($search)
     {
         $servicios = Servicio::with('imagen')
@@ -256,7 +222,7 @@ class ServicioController extends Controller
                     $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
                     $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
                     $imagen->move(public_path('images'), $nombreImagen);
-                    \App\Models\Imagen::create([
+                    Imagen::create([
                         'id_servicio' => $id_servicio,
                         'url' => '/images/' . $nombreImagen
                     ]);
@@ -364,7 +330,7 @@ class ServicioController extends Controller
                     $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
                     $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
                     $imagen->move(public_path('images'), $nombreImagen);
-                    \App\Models\Imagen::create([
+                    Imagen::create([
                         'id_servicio' => $id_servicio,
                         'url' => '/images/' . $nombreImagen
                     ]);
@@ -493,7 +459,7 @@ class ServicioController extends Controller
                     $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
                     $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
                     $imagen->move(public_path('images'), $nombreImagen);
-                    \App\Models\Imagen::create([
+                    Imagen::create([
                         'id_servicio' => $id_servicio,
                         'url' => '/images/' . $nombreImagen
                     ]);
@@ -606,7 +572,7 @@ class ServicioController extends Controller
                     $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
                     $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
                     $imagen->move(public_path('images'), $nombreImagen);
-                    \App\Models\Imagen::create([
+                    Imagen::create([
                         'id_servicio' => $id_servicio,
                         'url' => '/images/' . $nombreImagen
                     ]);
@@ -623,3 +589,4 @@ class ServicioController extends Controller
         }
     }
 }
+

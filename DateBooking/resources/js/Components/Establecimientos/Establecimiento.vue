@@ -89,7 +89,7 @@ export default {
         toggleEstado() {
             this.cargando = true;
             const id = this.establecimiento.id_establecimiento;
-            axios.put(`/api/establecimientos/estado/${id}`)
+            axios.put(`/api/establecimientos/${id}`)
                 .then(response => {
                     this.establecimiento = response.data;
                 })
