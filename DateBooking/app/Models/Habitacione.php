@@ -17,7 +17,5 @@ class Habitacione extends Model
         'tipo',
         'numero',
         'capacidad',
-        'fecha_inicio',
-        'fecha_fin',
     ];
 }

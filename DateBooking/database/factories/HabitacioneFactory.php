@@ -21,8 +21,6 @@ class HabitacioneFactory extends Factory
             'tipo' => $this->faker->randomElement(['simple', 'doble', 'suite']),
             'numero' => $this->faker->numberBetween(1, 100),
             'capacidad' => $this->faker->numberBetween(1, 4),
-            'fecha_inicio' => $this->faker->dateTimeBetween('-1 week', '+1 week'),
-            'fecha_fin' => $this->faker->dateTimeBetween('+1 week', '+2 weeks'),
         ];
     }
 }

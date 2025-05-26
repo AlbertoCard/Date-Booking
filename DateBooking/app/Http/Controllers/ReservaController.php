@@ -124,6 +124,7 @@ class ReservaController extends Controller
         try {
             $reservas = Reserva::with(['servicio:id_servicio,nombre'])
                 ->where('id_usuario', $id)
+                ->where('estado', '!=', 'apartado')
                 ->get();
 
             return response()->json(['reservas' => $reservas], 200);

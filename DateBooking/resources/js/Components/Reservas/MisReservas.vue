@@ -164,7 +164,7 @@ export default {
 
 <style scoped>
 .contenedor {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 15px auto;
     padding: 15px;
 }
@@ -219,7 +219,7 @@ export default {
 
 .grid-reservas {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(380px, 100%));
     gap: 20px;
     padding: 20px;
 }
