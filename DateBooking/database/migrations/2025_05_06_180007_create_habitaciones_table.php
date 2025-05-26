@@ -20,8 +20,7 @@ return new class extends Migration
             $table->string('tipo', 100);
             $table->unsignedInteger('numero');
             $table->unsignedTinyInteger('capacidad');
-            $table->date('fecha_inicio');
-            $table->date('fecha_fin');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

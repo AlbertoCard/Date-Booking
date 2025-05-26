@@ -19,7 +19,11 @@ return new class extends Migration
             $table->foreign('id_establecimiento')->references('id_establecimiento')->on('establecimientos');
             $table->string('nombre');
             $table->text('descripcion');
-            $table->decimal('Costo', 10, 2);
+            $table->decimal('costo', 10, 2);
+            $table->string('categoria');
+            $table->unsignedInteger('id_ciudad');
+            $table->foreign('id_ciudad')->references('id_ciudad')->on('ciudades');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

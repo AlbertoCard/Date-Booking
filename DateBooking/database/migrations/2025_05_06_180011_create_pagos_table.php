@@ -17,6 +17,8 @@ return new class extends Migration
             $table->bigIncrements('id_pago')->primary();
             $table->string('id_usuario', 128);
             $table->foreign('id_usuario')->references('uid')->on('usuarios');
+            $table->unsignedBigInteger('id_reserva');
+            $table->foreign('id_reserva')->references('id_reserva')->on('reservas');
             $table->string('stripe_payment_intent_id')->default('');
             $table->string('stripe_customer_id')->default('');
             $table->decimal('monto', 10, 2);
@@ -24,6 +26,7 @@ return new class extends Migration
             $table->string('metodo_pago', 100);
             $table->string('estado_pago', 50);
             $table->dateTime('fecha_pago')->default(now());
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();

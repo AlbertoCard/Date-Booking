@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('id_usuario')->references('uid')->on('usuarios');
             $table->unsignedBigInteger('id_establecimiento');
             $table->foreign('id_establecimiento')->references('id_establecimiento')->on('establecimientos');
+            $table->timestamps();
         });
 
         Schema::enableForeignKeyConstraints();
