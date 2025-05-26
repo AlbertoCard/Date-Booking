@@ -27,23 +27,23 @@ const closeModal = () => {
   modalMessage.value = '';
 };
 
-// Función para validar y formatear el teléfono en tiempo real
+
 const validarTelefonoInput = (event) => {
   const valor = event.target.value.replace(/\D/g, '')
   telefono.value = valor.slice(0, 10)
 }
 
-// Función para limitar el nombre
+
 const validarNombreInput = (event) => {
   nombre.value = event.target.value.slice(0, 50)
 }
 
-// Función para limitar el correo
+
 const validarCorreoInput = (event) => {
   correo.value = event.target.value.slice(0, 100)
 }
 
-// Función para limitar la contraseña
+
 const validarContrasenaInput = (event) => {
   contrasena.value = event.target.value.slice(0, 20)
 }
@@ -80,17 +80,17 @@ const registrar = async () => {
       return;
     }
 
-    // 1. Crear usuario en Firebase
+    // Crear usuario en Firebase
     const userCredential = await createUserWithEmailAndPassword(auth, correo.value, contrasena.value)
     const user = userCredential.user
 
-    // 2. Actualizar el perfil del usuario en Firebase con el nombre
+    
     await updateProfile(user, {
       displayName: nombre.value,
       photoURL: fotoUrl.value
     })
 
-    // 3. Guardar datos adicionales en nuestra base de datos
+    // Guardar datos en nuestra base de datos
     try {
       console.log('Enviando datos al servidor:', {
         uid: user.uid,

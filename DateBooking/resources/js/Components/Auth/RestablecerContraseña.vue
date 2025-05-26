@@ -2,7 +2,7 @@
   <div class="flex min-h-screen bg-gradient-to-br from-gray-100 to-white items-center justify-center p-6">
     <div class="card">
       <div class="card-inner">
-        <!-- Lado izquierdo con imagen decorativa -->
+        
         <div class="card-left">
           <img 
             src="https://img.freepik.com/free-vector/forgot-password-concept-illustration_114360-1123.jpg"
@@ -11,7 +11,7 @@
           />
         </div>
         
-        <!-- Lado derecho con el formulario -->
+        <!-- formulario -->
         <div class="card-right">
           <div class="content">
             <div class="header-section">
