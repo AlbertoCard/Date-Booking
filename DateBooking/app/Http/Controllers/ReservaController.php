@@ -10,6 +10,7 @@ use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class ReservaController extends Controller
@@ -569,6 +570,55 @@ class ReservaController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error al hacer la reserva: ' . $e->getMessage()], 422);
+        }
+    }
+
+    public function getReservasByServicio($id_servicio){
+
+        // Obtenemos las reservas de un servicio
+        $reservas = Reserva::where('id_servicio', $id_servicio)
+            ->get();
+
+            return response()->json(['reservas' => $reservas], 200);
+
+    }
+
+    public function validarReserva(Request $request){
+        
+        Log::info('id_reserva recibido: ' . $request->input('id_reserva'));
+        Log::info('estado recibido: ' . $request->input('estado'));
+
+        $validatedData = $request->validate([
+            'id_reserva' => 'required|integer',
+            'estado' => 'required|string',
+        ]);
+
+        $id_reserva = $validatedData['id_reserva'];
+        $estado = $validatedData['estado'];
+
+        $reserva = Reserva::find($id_reserva);
+
+        if (!$reserva) {
+            return response()->json(['error' => 'No se encontró la reserva.'], 404);
+        }
+
+        if ($reserva->estado === $estado) {
+            return response()->json(['message' => 'La reserva ya tiene este estado.'], 200);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $reserva->estado = $estado;
+            $reserva->save();
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Reserva actualizada.']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al actualizar reserva: ' . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al actualizar la reserva.'], 500);
         }
     }
 }
