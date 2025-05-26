@@ -22,6 +22,7 @@ class PagoController extends Controller
             // Verificar si el usuario existe
             $usuario = Usuario::where('uid', $request->id_usuario)->first();
             if (!$usuario) {
+                Log::warning('Usuario no encontrado en PagoController', ['id_usuario' => $request->id_usuario]);
                 return response()->json([
                     'message' => 'El usuario no existe en la base de datos',
                     'error' => 'Usuario no encontrado'
@@ -37,6 +38,9 @@ class PagoController extends Controller
             ]);
 
             if ($validator->fails()) {
+                Log::warning('Error de validación en PagoController', [
+                    'errors' => $validator->errors()->toArray()
+                ]);
                 return response()->json([
                     'message' => 'Error de validación',
                     'errors' => $validator->errors()
@@ -59,21 +63,30 @@ class PagoController extends Controller
             Log::info('Datos a crear en la tabla pagos:', $pagoData);
 
             $pago = Pago::create($pagoData);
-            
+
+            if (!$pago) {
+                Log::error('Fallo la creación del pago en la base de datos', $pagoData);
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'No se pudo crear el pago',
+                ], 500);
+            }
+
             DB::commit();
-            
+
+            Log::info('Pago creado exitosamente', ['id_pago' => $pago->id_pago]);
+
             return response()->json([
                 'message' => 'Pago creado exitosamente',
                 'id_pago' => $pago->id_pago
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error al crear pago:', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return response()->json([
                 'message' => 'Error al crear el pago',
                 'error' => $e->getMessage()
@@ -87,10 +100,11 @@ class PagoController extends Controller
             $pago = Pago::findOrFail($id);
             return response()->json($pago);
         } catch (\Exception $e) {
+            Log::warning('Pago no encontrado en show', ['id_pago' => $id, 'error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Pago no encontrado',
                 'error' => $e->getMessage()
             ], 404);
         }
     }
-} 
+}

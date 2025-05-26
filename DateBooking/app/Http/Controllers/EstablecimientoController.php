@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Establecimiento;
-use App\Models\estbXusuario;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -22,6 +21,7 @@ class EstablecimientoController extends Controller
             $establecimientos = Establecimiento::all();
             return response()->json(['establecimientos' => $establecimientos]);
         } catch (\Exception $e) {
+            Log::error('Error al obtener establecimientos', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Error al obtener establecimientos',
                 'error' => $e->getMessage()
@@ -57,6 +57,7 @@ class EstablecimientoController extends Controller
             $usuario = Usuario::where('uid', $request->id_usuario)->first();
 
             if (!$usuario) {
+                Log::error('Usuario no encontrado al crear establecimiento', ['id_usuario' => $request->id_usuario]);
                 return response()->json([
                     'message' => 'Error al crear el establecimiento',
                     'error' => 'El usuario especificado no existe en la base de datos'
@@ -95,7 +96,6 @@ class EstablecimientoController extends Controller
                 'message' => 'Establecimiento creado exitosamente',
                 'establecimiento' => $establecimiento
             ], 201);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -127,6 +127,7 @@ class EstablecimientoController extends Controller
 
             return response()->json(['establecimientos' => $establecimientos]);
         } catch (\Exception $e) {
+            Log::error('Error al obtener establecimientos del usuario', ['uid' => $uid, 'error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Error al obtener establecimientos del usuario',
                 'error' => $e->getMessage()
@@ -152,6 +153,7 @@ class EstablecimientoController extends Controller
         ]);
 
         if ($validator->fails()) {
+            Log::error('Error de validación al actualizar establecimiento', ['id' => $id, 'errores' => $validator->errors()]);
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
@@ -164,6 +166,7 @@ class EstablecimientoController extends Controller
                 'establecimiento' => $establecimiento
             ]);
         } catch (\Exception $e) {
+            Log::error('Error al actualizar establecimiento', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Error al actualizar el establecimiento',
                 'error' => $e->getMessage()
@@ -171,60 +174,84 @@ class EstablecimientoController extends Controller
         }
     }
 
-
-
     function show($id)
     {
-        $establecimiento = Establecimiento::where('id_establecimiento', $id)->get();
-        if ($establecimiento) {
-            return response()->json($establecimiento);
-        } else {
-            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        try {
+            $establecimiento = Establecimiento::where('id_establecimiento', $id)->get();
+            if ($establecimiento) {
+                return response()->json($establecimiento);
+            } else {
+                Log::warning('Establecimiento no encontrado en show', ['id' => $id]);
+                return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error en show establecimiento', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error al obtener establecimiento', 'error' => $e->getMessage()], 500);
         }
     }
 
     function porNombre($name)
     {
-        $establecimiento = Establecimiento::where('nombre', $name)->first();
-        if (!$establecimiento) {
-            return response()->json(['message' => 'No se encontró un establecimiento con ese nombre'], 404);
+        try {
+            $establecimiento = Establecimiento::where('nombre', $name)->first();
+            if (!$establecimiento) {
+                Log::warning('No se encontró un establecimiento con ese nombre', ['nombre' => $name]);
+                return response()->json(['message' => 'No se encontró un establecimiento con ese nombre'], 404);
+            }
+            return response()->json($establecimiento);
+        } catch (\Exception $e) {
+            Log::error('Error en porNombre', ['nombre' => $name, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error al buscar por nombre', 'error' => $e->getMessage()], 500);
         }
-        return response()->json($establecimiento);
     }
 
     function porEstado($opcion)
     {
-        $establecimientos = Establecimiento::where('estado', $opcion)->get();
-        return response()->json($establecimientos);
+        try {
+            $establecimientos = Establecimiento::where('estado', $opcion)->get();
+            return response()->json($establecimientos);
+        } catch (\Exception $e) {
+            Log::error('Error en porEstado', ['estado' => $opcion, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error al buscar por estado', 'error' => $e->getMessage()], 500);
+        }
     }
+
     function actualizarEstado($id)
     {
-        $establecimiento = Establecimiento::where('id_establecimiento', $id)->first();
-        if (!$establecimiento) {
-            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        try {
+            $establecimiento = Establecimiento::where('id_establecimiento', $id)->first();
+            if (!$establecimiento) {
+                Log::warning('Establecimiento no encontrado en actualizarEstado', ['id' => $id]);
+                return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+            }
+
+            // Cambia el estado actual: si es 'activo' pasa a 'inactivo', si es 'inactivo' pasa a 'activo'
+            $establecimiento->estado = ($establecimiento->estado === 'activo') ? 'inactivo' : 'activo';
+            $establecimiento->save();
+
+            return response()->json($establecimiento);
+        } catch (\Exception $e) {
+            Log::error('Error en actualizarEstado', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error al actualizar estado', 'error' => $e->getMessage()], 500);
         }
-
-        // Cambia el estado actual: si es 'activo' pasa a 'inactivo', si es 'inactivo' pasa a 'activo'
-        $establecimiento->estado = ($establecimiento->estado === 'activo') ? 'inactivo' : 'activo';
-        $establecimiento->save();
-
-        return response()->json($establecimiento);
     }
 
     function rechazarEstablecimiento($id)
     {
-        $establecimiento = Establecimiento::where('id_establecimiento', $id)->first();
-        if (!$establecimiento) {
-            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        try {
+            $establecimiento = Establecimiento::where('id_establecimiento', $id)->first();
+            if (!$establecimiento) {
+                Log::warning('Establecimiento no encontrado en rechazarEstablecimiento', ['id' => $id]);
+                return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+            }
+
+            $establecimiento->estado = 'rechazado';
+            $establecimiento->save();
+
+            return response()->json($establecimiento);
+        } catch (\Exception $e) {
+            Log::error('Error en rechazarEstablecimiento', ['id' => $id, 'error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error al rechazar establecimiento', 'error' => $e->getMessage()], 500);
         }
-
-        $establecimiento->estado = 'rechazado';
-        $establecimiento->save();
-
-        return response()->json($establecimiento);
     }
 }
-
-//
-
-

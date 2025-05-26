@@ -6,12 +6,8 @@ use App\Models\Servicio;
 use App\Models\Imagen;
 use App\Models\Reseña;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\DisponibilidadController;
-use App\Http\Controllers\MedicoController;
-use App\Models\Disponibilidad;
 use \Illuminate\Validation\ValidationException;
 
 class ServicioController extends Controller
