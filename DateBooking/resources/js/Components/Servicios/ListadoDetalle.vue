@@ -166,7 +166,7 @@ export default {
           return;
         }
 
-        const estadoNuevo = 'confirmada';
+        const estadoNuevo = 'completada';
 
         axios.post('http://127.0.0.1:8000/api/reservas/validar-reserva', {
           id_reserva: id_reserva_qr,
