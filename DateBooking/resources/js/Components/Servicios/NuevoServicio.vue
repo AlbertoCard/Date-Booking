@@ -120,7 +120,7 @@
                                 <input type="time" v-model="disponibilidad.hora_fin" required step="1"
                                     class="transition-all duration-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent">
                                 <p v-if="formErrors.hora_fin" class="text-red-500 text-sm mt-1">{{ formErrors.hora_fin
-                                }}</p>
+                                    }}</p>
                             </div>
 
                             <!-- Días -->
@@ -406,14 +406,12 @@ export default {
 
                 // Obtener el establecimiento del usuario
                 const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
-                console.log('Respuesta del establecimiento:', estabResponse.data);
 
                 if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
                     throw new Error('No se encontró el establecimiento');
                 }
 
                 const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
-                console.log('ID del establecimiento:', idEstablecimiento);
 
                 const formData = new FormData();
                 formData.append('nombre', servicio.nombre);

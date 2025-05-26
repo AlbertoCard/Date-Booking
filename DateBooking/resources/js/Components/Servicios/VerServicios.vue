@@ -297,11 +297,9 @@ export default {
                 }
 
                 const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
-                console.log('ID del establecimiento:', idEstablecimiento);
 
                 // Obtener los servicios del establecimiento
                 const response = await axios.get(`/api/servicios?id_establecimiento=${idEstablecimiento}`);
-                console.log('Respuesta del servidor:', response.data);
 
                 this.servicios = response.data.map(servicio => {
                     console.log('Procesando servicio:', {
@@ -955,7 +953,8 @@ export default {
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
     }
-    .editar{
+
+    .editar {
         width: 50%;
     }
 }

@@ -243,10 +243,6 @@ export default {
             try {
                 const idServicio = this.$route.params.id;
                 const response = await axios.get(`/api/servicios/${idServicio}`);
-                console.log('Respuesta completa del servidor:', response.data);
-                console.log('Datos de la imagen:', response.data.imagen);
-                console.log('URL de la imagen:', response.data.imagen?.url);
-
                 this.servicio = {
                     ...response.data,
                     estrellas: Math.floor(Math.random() * 5) + 1
@@ -274,13 +270,6 @@ export default {
             });
             e.target.style.display = 'none';
             e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-blue-600');
-        },
-        handleImageLoad(e) {
-            console.log('Imagen cargada exitosamente:', {
-                src: e.target.src,
-                servicio: this.servicio,
-                imagen: this.servicio.imagen
-            });
         },
         calcularPorcentajeCalificacion(calificacion) {
             if (this.reseñas.length === 0) return 0;

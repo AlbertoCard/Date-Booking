@@ -11,7 +11,7 @@
     <div v-else>
       <div class="div_encabezado">
         <h1>{{ servicio.nombre }}</h1>
-        
+
         <div class="div_btnValidar">
           <button class="btn_validar mt-3" @click="abrirLectorQR()">
             Validar QR
@@ -27,7 +27,7 @@
           <ul class="mt-4 pl-6 space-y-4 text-gray-700">
             <li v-for="reserva in reservas" :key="reserva.id_reserva"
               class="tarjeta-reserva bg-gray-100 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
-              
+
               <div class="flex-1 space-y-1">
                 <p class="reserva font-bold text-gray-800">Reserva #{{ reserva.id_reserva }}</p>
                 <p><strong>Usuario:</strong> {{ reserva.id_usuario }}</p>
@@ -106,7 +106,6 @@ export default {
   },
   mounted() {
     const id_servicio = this.$route.params.id;
-    console.log("ID del servicio desde la ruta:", id_servicio);
     this.obtenerServicio(id_servicio);
     this.obtenerReservas(id_servicio);
     this.getCamarasDisponibles();
@@ -117,7 +116,6 @@ export default {
         .then(response => {
           this.cargando = true;
           this.reservas = response.data.reservas;
-          console.log("Mostrando las reservas del servicio: " + this.reservas.length);
         })
         .catch(error => {
           console.error('Error al obtener reservas:', error);
@@ -146,7 +144,6 @@ export default {
       this.mostrarLectorQR = true;
     },
     onDetect(result) {
-      console.log("QR detectado:", result, typeof result);
       this.mostrarLectorQR = false;
 
       try {
@@ -175,36 +172,36 @@ export default {
           id_reserva: id_reserva_qr,
           estado: estadoNuevo
         })
-        .then(response => {
-          this.cargando = true;
-          this.reservaValidada = id_reserva_qr;
-          this.mostrarModal = true;
+          .then(response => {
+            this.cargando = true;
+            this.reservaValidada = id_reserva_qr;
+            this.mostrarModal = true;
 
-          if (response.data.success) {
-            alert("Reserva validada correctamente.");
-            this.obtenerReservas(this.$route.params.id);
-          } else if (response.data.message) {
-            alert(`${response.data.message}`);
-          } else if (response.data.error) {
-            alert(`${response.data.error}`);
-          } else {
-            alert("No se pudo validar la reserva.");
-          }
+            if (response.data.success) {
+              alert("Reserva validada correctamente.");
+              this.obtenerReservas(this.$route.params.id);
+            } else if (response.data.message) {
+              alert(`${response.data.message}`);
+            } else if (response.data.error) {
+              alert(`${response.data.error}`);
+            } else {
+              alert("No se pudo validar la reserva.");
+            }
 
-          this.mostrarModal = true;
-        })
-        .catch(error => {
-          console.error('Error al validar la reserva:', error);
+            this.mostrarModal = true;
+          })
+          .catch(error => {
+            console.error('Error al validar la reserva:', error);
 
-          if (error.response && error.response.data) {
-            this.mensajeError = error.response?.data?.message || 'Ocurrió un error inesperado.';
-            this.mostrarModalError = true;
-            const data = error.response.data;
-            alert(data.message || data.error || "Hubo un error al validar la reserva.");
-          } else {
-            alert("Hubo un error al validar la reserva.");
-          }
-        });
+            if (error.response && error.response.data) {
+              this.mensajeError = error.response?.data?.message || 'Ocurrió un error inesperado.';
+              this.mostrarModalError = true;
+              const data = error.response.data;
+              alert(data.message || data.error || "Hubo un error al validar la reserva.");
+            } else {
+              alert("Hubo un error al validar la reserva.");
+            }
+          });
 
       } catch (error) {
         console.error('Error al procesar el código QR:', error);
@@ -214,7 +211,6 @@ export default {
     async getCamarasDisponibles() {
       const dispositivos = await navigator.mediaDevices.enumerateDevices();
       const camaras = dispositivos.filter(device => device.kind === 'videoinput');
-      console.log("Cámaras disponibles:", camaras);
       this.camaraDroidCamId = camaras.find(c => c.label.toLowerCase().includes('droidcam'))?.deviceId;
     }
   }
@@ -428,13 +424,25 @@ ul li {
 } */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideIn {
-  from { transform: translateY(-10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Loader y error */
