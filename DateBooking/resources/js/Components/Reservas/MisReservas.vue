@@ -25,11 +25,8 @@
                         <p>No tienes reservas en curso</p>
                     </div>
                     <div v-else class="grid-reservas">
-                        <div v-for="reserva in reservas" 
-                            :key="reserva.id_reserva" 
-                            class="tarjeta-reserva"
-                            @click="verDetalleReserva(reserva.id_reserva)"
-                        >
+                        <div v-for="reserva in reservas" :key="reserva.id_reserva" class="tarjeta-reserva"
+                            @click="verDetalleReserva(reserva.id_reserva)">
                             <div class="info-principal">
                                 <div class="imagen">
                                     <span>{{ reserva.servicio.nombre[0] }}</span>
@@ -69,11 +66,8 @@
                         <p>No tienes reservas completadas</p>
                     </div>
                     <div v-else class="grid-reservas">
-                        <div v-for="reserva in reservasPasadas" 
-                            :key="reserva.id_reserva" 
-                            class="tarjeta-reserva"
-                            @click="verDetalleReserva(reserva.id_reserva)"
-                        >
+                        <div v-for="reserva in reservasPasadas" :key="reserva.id_reserva" class="tarjeta-reserva"
+                            @click="verDetalleReserva(reserva.id_reserva)">
                             <div class="info-principal">
                                 <div class="imagen">
                                     <span>{{ reserva.servicio.nombre[0] }}</span>
@@ -131,22 +125,20 @@ export default {
             try {
                 const userId = this.$route.params.id;
                 const response = await axios.get(`/api/reservas/${userId}`);
-                
+
                 if (response.data.reservas) {
                     // Filtrar reservas pendientes y confirmadas
-                    this.reservas = response.data.reservas.filter(reserva => 
-                        reserva.estado.toUpperCase() === 'PENDIENTE' || 
+                    this.reservas = response.data.reservas.filter(reserva =>
+                        reserva.estado.toUpperCase() === 'PENDIENTE' ||
                         reserva.estado.toUpperCase() === 'CONFIRMADA'
                     );
-                    
+
                     // Filtrar reservas completadas y canceladas
-                    this.reservasPasadas = response.data.reservas.filter(reserva => 
-                        reserva.estado.toUpperCase() === 'COMPLETADA' || 
+                    this.reservasPasadas = response.data.reservas.filter(reserva =>
+                        reserva.estado.toUpperCase() === 'COMPLETADA' ||
                         reserva.estado.toUpperCase() === 'CANCELADA'
                     );
 
-                    console.log('Reservas en curso:', this.reservas);
-                    console.log('Reservas pasadas:', this.reservasPasadas);
                 }
             } catch (error) {
                 console.error('Error al obtener las reservas:', error);
@@ -288,7 +280,8 @@ export default {
     gap: 6px;
 }
 
-.fecha, .hora {
+.fecha,
+.hora {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -296,7 +289,8 @@ export default {
     color: #4b5563;
 }
 
-.fecha i, .hora i {
+.fecha i,
+.hora i {
     color: #3b82f6;
     font-size: 16px;
 }

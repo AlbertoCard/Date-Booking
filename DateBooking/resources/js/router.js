@@ -11,7 +11,6 @@ import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
 import Registro from "./Components/Auth/Registro.vue";
 import EditarServicio from "./Components/Servicios/EditarServicio.vue";
-import DetalleServicio from "./Components/Servicios/DetalleServicio.vue";
 import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 import MisReservas from "./Components/Reservas/MisReservas.vue";
@@ -73,14 +72,6 @@ const routes = [
         meta: { 
             requiresAuth: false,
             title: 'Restablecer Contraseña'
-        }
-    },
-    {
-        path: "/servicio/:id",
-        component: DetalleServicio,
-        meta: { 
-            requiresAuth: false,
-            title: 'Detalle del Servicio'
         }
     },
     {

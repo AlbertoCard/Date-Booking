@@ -254,8 +254,6 @@ export default {
                         dias: dia,
                         tipo: this.disponibilidad.tipo
                     };
-
-                    console.log('Enviando datos:', datosAEnviar);
                     return axios.post('/api/disponibilidad', datosAEnviar);
                 });
 

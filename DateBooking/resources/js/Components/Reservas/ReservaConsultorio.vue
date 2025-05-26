@@ -49,7 +49,7 @@
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Categoría</span>
                                         <p class="font-medium text-gray-900">{{ servicio?.categoria || 'No especificada'
-                                            }}</p>
+                                        }}</p>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Establecimiento</span>
@@ -152,7 +152,7 @@
                        transition-all duration-200 transform hover:scale-[1.02]">
                                 <span v-if="procesandoReserva">Procesando...</span>
                                 <span v-else>{{ puedeReservar ? 'Realizar Reservación!' : 'Selecciona un médico'
-                                    }}</span>
+                                }}</span>
                             </button>
 
                             <!-- Nota informativa -->
@@ -325,12 +325,10 @@ const realizarReserva = async () => {
                 }
             } catch (stripeError) {
                 console.error('Error al procesar el pago:', stripeError);
-                alert('Error al procesar el pago. Por favor, intenta nuevamente.');
             }
         }
     } catch (err) {
         console.error('Error al realizar la reserva:', err);
-        alert(err.response?.data?.message || 'Error al realizar la reserva. Por favor, intenta nuevamente.');
     } finally {
         procesandoReserva.value = false;
     }

@@ -50,7 +50,7 @@
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Categoría</span>
                                         <p class="font-medium text-gray-900">{{ servicio?.categoria || 'No especificada'
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Establecimiento</span>
@@ -238,7 +238,7 @@
                                     </div>
                                     <div class="mt-4 text-right">
                                         <span class="font-semibold">Total seleccionados: {{ lugaresSeleccionados.length
-                                        }}</span>
+                                            }}</span>
                                     </div>
                                 </div>
                                 <p v-else class="text-gray-500 text-sm text-center py-2">
@@ -255,7 +255,7 @@
                                 transition-all duration-200 transform hover:scale-[1.02]">
                                 <span v-if="procesandoReserva">Procesando...</span>
                                 <span v-else>{{ puedeReservar ? 'Realizar Reservación!' : 'Completa todos los campos'
-                                }}</span>
+                                    }}</span>
                             </button>
 
                             <!-- Nota informativa -->
@@ -324,7 +324,6 @@ const volver = () => {
 const cargarLugares = async () => {
     try {
         const response = await axios.get(`/api/lugares/${route.params.id}`);
-        console.log('Lugares cargados:', response.data);
 
         // Verificar que los lugares tengan la estructura correcta
         if (!Array.isArray(response.data)) {
@@ -378,8 +377,6 @@ const toggleLugar = (lugar) => {
     } else {
         lugaresSeleccionados.value.splice(index, 1);
     }
-
-    console.log('Lugares seleccionados actualizados:', lugaresSeleccionados.value);
 };
 
 const quitarLugar = (lugarId) => {
@@ -439,9 +436,6 @@ const realizarReserva = async () => {
         // Construir la fecha y hora en el formato correcto
         const fechaHora = `${fecha} ${horaFormateada}:00`;
 
-        console.log('Fecha formateada:', fechaHora);
-        console.log('Lugares seleccionados:', lugaresSeleccionados.value);
-
         const reservaData = {
             id_usuario: userData.uid,
             id_servicio: parseInt(route.params.id),
@@ -450,8 +444,6 @@ const realizarReserva = async () => {
             tipo_servicio: 'evento',
             lugares: lugaresSeleccionados.value
         };
-
-        console.log('Datos de la reserva:', reservaData);
 
         // Validación adicional antes de enviar
         if (!reservaData.id_usuario || !reservaData.id_servicio || !reservaData.fecha || !reservaData.lugares.length) {
@@ -466,7 +458,6 @@ const realizarReserva = async () => {
         }
 
         const response = await axios.post('/api/reservas/evento', reservaData);
-        console.log('Respuesta del servidor:', response.data);
 
         if (!response.data || !response.data.id_reserva) {
             throw new Error('No se recibió una respuesta válida del servidor');
@@ -474,7 +465,6 @@ const realizarReserva = async () => {
 
         // Iniciamos el proceso de pago con Stripe
         try {
-            console.log('Iniciando proceso de pago con Stripe...');
             console.log('Datos para el pago:', {
                 userId: userData.uid,
                 reservaId: response.data.id_reserva,
@@ -487,22 +477,18 @@ const realizarReserva = async () => {
                 monto: servicio.value.costo * lugaresSeleccionados.value.length
             });
 
-            console.log('Respuesta de Stripe:', stripeResponse.data);
-
             if (!stripeResponse.data || !stripeResponse.data.id) {
                 console.error('Respuesta inválida de Stripe:', stripeResponse.data);
                 throw new Error('No se recibió una respuesta válida de Stripe');
             }
 
             // Cargamos Stripe y redirigimos al checkout
-            console.log('Cargando Stripe con key:', import.meta.env.VITE_STRIPE_PUBLIC_KEY);
             const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
             if (!stripe) {
                 throw new Error('No se pudo cargar Stripe. Verifica que la clave pública esté configurada correctamente.');
             }
 
-            console.log('Redirigiendo a checkout con sessionId:', stripeResponse.data.id);
             const result = await stripe.redirectToCheckout({
                 sessionId: stripeResponse.data.id
             });
@@ -526,8 +512,6 @@ const realizarReserva = async () => {
             } else {
                 mensajeError += 'Por favor, intenta nuevamente.';
             }
-
-            alert(mensajeError);
         }
     } catch (err) {
         console.error('Error detallado:', err);
@@ -544,8 +528,6 @@ const realizarReserva = async () => {
         } else {
             mensajeError += 'Por favor, intenta nuevamente.';
         }
-
-        alert(mensajeError);
     } finally {
         procesandoReserva.value = false; // Desactivar loader
     }

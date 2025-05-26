@@ -33,12 +33,10 @@
                         <!-- Columna izquierda: Imagen e información -->
                         <div class="space-y-8">
                             <!-- Imagen del servicio -->
-                            <div class="w-48 h-48 mx-auto bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
-                                <img 
-                                    :src="reserva.servicio.imagen || '/images/default-service.jpg'" 
-                                    :alt="reserva.servicio.nombre"
-                                    class="w-full h-full object-cover"
-                                />
+                            <div
+                                class="w-48 h-48 mx-auto bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
+                                <img :src="reserva.servicio.imagen || '/images/default-service.jpg'"
+                                    :alt="reserva.servicio.nombre" class="w-full h-full object-cover" />
                             </div>
 
                             <!-- Información del servicio -->
@@ -79,15 +77,18 @@
                                         <div class="space-y-4">
                                             <div class="flex items-center gap-3">
                                                 <i class="fas fa-store text-gray-500 text-lg"></i>
-                                                <span class="text-gray-700">{{ reserva.servicio.establecimiento.nombre }}</span>
+                                                <span class="text-gray-700">{{ reserva.servicio.establecimiento.nombre
+                                                    }}</span>
                                             </div>
                                             <div class="flex items-center gap-3">
                                                 <i class="fas fa-map-marker-alt text-gray-500 text-lg"></i>
-                                                <span class="text-gray-700">{{ reserva.servicio.establecimiento.direccion }}</span>
+                                                <span class="text-gray-700">{{
+                                                    reserva.servicio.establecimiento.direccion }}</span>
                                             </div>
                                             <div class="flex items-center gap-3">
                                                 <i class="fas fa-phone text-gray-500 text-lg"></i>
-                                                <span class="text-gray-700">{{ reserva.servicio.establecimiento.telefono }}</span>
+                                                <span class="text-gray-700">{{ reserva.servicio.establecimiento.telefono
+                                                    }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -98,8 +99,10 @@
                                             <div class="flex flex-col items-center">
                                                 <QrPersonalizado ref="qrPersonalizado" :value="qrValue" />
                                                 <div class="mt-4 text-center">
-                                                    <p class="text-sm text-gray-600 mb-3">Muestra este código al establecimiento</p>
-                                                    <button @click="descargarQR" class="px-5 py-2 bg-white text-gray-800 rounded-full hover:bg-gray-50 transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md border border-gray-200">
+                                                    <p class="text-sm text-gray-600 mb-3">Muestra este código al
+                                                        establecimiento</p>
+                                                    <button @click="descargarQR"
+                                                        class="px-5 py-2 bg-white text-gray-800 rounded-full hover:bg-gray-50 transition-all duration-300 text-sm font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md border border-gray-200">
                                                         <i class="fas fa-download"></i>
                                                         Descargar QR
                                                     </button>
@@ -107,12 +110,18 @@
                                             </div>
                                             <!-- Plantilla oculta para descarga personalizada -->
                                             <div ref="plantillaDescarga" style="display:none;">
-                                                <div style="width:350px; background:#fff; border-radius:18px; box-shadow:0 2px 10px #0001; padding:24px; text-align:center;">
-                                                    <h2 style="color:#4f46e5; margin-bottom:8px;">Reserva #{{ reserva.id_reserva }}</h2>
-                                                    <div style="font-size:16px; color:#222; margin-bottom:8px;">{{ reserva.servicio.nombre }}</div>
-                                                    <div style="font-size:14px; color:#555; margin-bottom:8px;">{{ reserva.fecha }}</div>
-                                                    <div style="font-size:14px; color:#555; margin-bottom:8px;">{{ reserva.servicio.establecimiento.nombre }}</div>
-                                                    <div style="font-size:14px; color:#555; margin-bottom:16px;">Estado: {{ reserva.estado }}</div>
+                                                <div
+                                                    style="width:350px; background:#fff; border-radius:18px; box-shadow:0 2px 10px #0001; padding:24px; text-align:center;">
+                                                    <h2 style="color:#4f46e5; margin-bottom:8px;">Reserva #{{
+                                                        reserva.id_reserva }}</h2>
+                                                    <div style="font-size:16px; color:#222; margin-bottom:8px;">{{
+                                                        reserva.servicio.nombre }}</div>
+                                                    <div style="font-size:14px; color:#555; margin-bottom:8px;">{{
+                                                        reserva.fecha }}</div>
+                                                    <div style="font-size:14px; color:#555; margin-bottom:8px;">{{
+                                                        reserva.servicio.establecimiento.nombre }}</div>
+                                                    <div style="font-size:14px; color:#555; margin-bottom:16px;">Estado:
+                                                        {{ reserva.estado }}</div>
                                                     <div style="display:flex; justify-content:center; margin-top:16px;">
                                                         <QrPersonalizado :value="qrValue" :size="200" />
                                                     </div>
@@ -122,7 +131,8 @@
                                         <template v-else-if="reserva.estado.toUpperCase() === 'COMPLETADA'">
                                             <div class="text-center">
                                                 <i class="fas fa-star text-4xl text-yellow-400 mb-4"></i>
-                                                <button @click="agregarResena" class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-lg font-medium flex items-center gap-2">
+                                                <button @click="agregarResena"
+                                                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-lg font-medium flex items-center gap-2">
                                                     <i class="fas fa-pen"></i>
                                                     Añadir Reseña
                                                 </button>
@@ -143,13 +153,6 @@
                                     <span class="text-sm text-gray-500 block mb-1">Precio Total</span>
                                     <p class="text-3xl font-bold text-purple-600">${{ reserva.servicio.costo }}</p>
                                 </div>
-                            </div>
-
-                            <!-- Botón de cancelar -->
-                            <div v-if="reserva.estado === 'PENDIENTE'" class="w-full">
-                                <button @click="cancelarReserva" class="w-full px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors text-lg font-medium">
-                                    Cancelar Reserva
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -202,7 +205,6 @@ export default {
                 });
 
                 this.reserva = response.data.reserva;
-                console.log('Estado de la reserva:', this.reserva.estado);
                 this.qrValue = JSON.stringify({
                     id: this.reserva.id_reserva,
                     servicio: this.reserva.servicio.nombre,
@@ -216,37 +218,6 @@ export default {
                 } else {
                     this.error = 'Error al cargar los detalles de la reserva';
                 }
-            } finally {
-                this.cargando = false;
-            }
-        },
-        async cancelarReserva() {
-            if (!confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
-                return;
-            }
-
-            try {
-                this.cargando = true;
-                this.error = null;
-                const auth = getAuth();
-                const user = auth.currentUser;
-
-                if (!user) {
-                    this.error = 'Debes iniciar sesión para cancelar la reserva';
-                    return;
-                }
-
-                await axios.post(`/api/reservas/${this.reserva.id_reserva}/cancelar`, {}, {
-                    headers: {
-                        'Authorization': `Bearer ${await user.getIdToken()}`
-                    }
-                });
-
-                this.reserva.estado = 'cancelada';
-                alert('Reserva cancelada exitosamente');
-            } catch (error) {
-                console.error('Error al cancelar la reserva:', error);
-                this.error = 'Error al cancelar la reserva';
             } finally {
                 this.cargando = false;
             }
@@ -266,7 +237,6 @@ export default {
                 plantilla.style.display = 'none'; // Ocultar de nuevo
             } catch (error) {
                 console.error('Error al descargar la plantilla:', error);
-                alert('Error al descargar la plantilla. Por favor, intente nuevamente.');
             }
         },
         agregarResena() {
@@ -514,11 +484,11 @@ export default {
     .p-6 {
         padding: 1rem;
     }
-    
+
     .text-3xl {
         font-size: 1.5rem;
     }
-    
+
     .text-2xl {
         font-size: 1.25rem;
     }
@@ -617,4 +587,4 @@ export default {
         height: 120px;
     }
 }
-</style> 
+</style>
