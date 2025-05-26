@@ -112,7 +112,7 @@ export default {
   },
   methods: {
     obtenerReservas(id_servicio) {
-      axios.get('http://127.0.0.1:8000/api/reservas/servicios/' + id_servicio)
+      axios.get('/api/reservas/servicios/' + id_servicio)
         .then(response => {
           this.cargando = true;
           this.reservas = response.data.reservas;
@@ -125,7 +125,7 @@ export default {
         });
     },
     obtenerServicio(id_servicio) {
-      axios.get('http://127.0.0.1:8000/api/servicios/' + id_servicio)
+      axios.get('/api/servicios/' + id_servicio)
         .then(response => {
           this.cargando = true;
           this.servicio = {
@@ -168,7 +168,7 @@ export default {
 
         const estadoNuevo = 'completada';
 
-        axios.post('http://127.0.0.1:8000/api/reservas/validar-reserva', {
+        axios.post('/api/reservas/validar-reserva', {
           id_reserva: id_reserva_qr,
           estado: estadoNuevo
         })
