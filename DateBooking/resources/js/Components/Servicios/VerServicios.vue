@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
+        <Loader :visible="loading" />
         <!-- Modal de confirmación -->
         <Transition name="fade">
             <div v-if="showModal" class="modal-backdrop" @click="showModal = false">
@@ -92,7 +93,7 @@
                 <Transition name="slide-fade" mode="out-in">
                     <div :key="activeTab">
                         <!-- Lista de servicios -->
-                        <div v-for="(servicio, index) in serviciosFiltrados" :key="servicio.id_servicio"
+                        <div v-for="servicio in serviciosFiltrados" :key="servicio.id_servicio"
                             class="tarjeta-servicio group">
                             <!-- Contenido clickeable -->
                             <div class="contenido-clickeable" @click="verDetalleServicio(servicio.id_servicio)">
@@ -158,10 +159,6 @@
                                         class="editar transform hover:scale-105 transition-all duration-300">
                                         Editar
                                     </button>
-                                    <button @click.stop="cancelarServicio(servicio.id_servicio)"
-                                        class="cancelar transform hover:scale-105 transition-all duration-300">
-                                        Cancelar
-                                    </button>
                                 </div>
 
                                 <!-- Switch ON/OFF -->
@@ -199,8 +196,12 @@
 
 <script>
 import axios from 'axios';
+import Loader from '../Loader.vue';
 
 export default {
+    components: {
+        Loader,
+    },
     name: 'VerServicios',
     data() {
         return {
@@ -265,6 +266,7 @@ export default {
         }
     },
     mounted() {
+        this.loading = true;
         this.obtenerServicios();
         // Agregar event listener para cerrar el dropdown al hacer clic fuera
         document.addEventListener('click', this.handleClickOutside);
@@ -317,6 +319,9 @@ export default {
             } catch (error) {
                 console.error('Error al obtener servicios:', error);
                 this.error = 'Error al cargar los servicios';
+            }
+            finally {
+                this.loading = false;
             }
         },
         handleImageError(e) {
@@ -533,6 +538,7 @@ export default {
 }
 
 .editar {
+    width: 100%;
     background: linear-gradient(to right, #e5e7eb, #d1d5db);
     color: #374151;
     margin-right: 1rem;
@@ -948,6 +954,9 @@ export default {
     .nuevo-servicio {
         padding: 0.5rem 1rem;
         font-size: 0.875rem;
+    }
+    .editar{
+        width: 50%;
     }
 }
 </style>

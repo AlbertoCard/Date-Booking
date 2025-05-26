@@ -36,7 +36,7 @@
                     </div>
                     <!-- Botón de reservación -->
                     <div class="mt-6">
-                        <button @click="realizarReservacion"
+                        <button @click="realizarReservacion" v-if="userRole === 'cliente'"
                             class="w-full bg-gradient-to-r from-teal-500 to-teal-400 hover:from-teal-400 hover:to-teal-300 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -229,6 +229,7 @@
 
 <script>
 import axios from 'axios';
+import { ref } from 'vue';
 
 export default {
     name: 'NodoServicio',
@@ -236,7 +237,9 @@ export default {
         return {
             servicio: null,
             loading: true,
-            reseñas: []
+            reseñas: [],
+            userRole: ref(null),
+            isAuthenticated: ref(false)
         };
     },
     computed: {
@@ -249,6 +252,7 @@ export default {
     mounted() {
         this.obtenerServicio();
         this.obtenerReseñas();
+        this.obtenerRolUsuario();
     },
     methods: {
         async obtenerServicio() {
@@ -312,6 +316,23 @@ export default {
                 this.$router.push(`/reserva-hotel/${this.$route.params.id}`);
             } else {
                 this.$router.push(`/servicio/${this.$route.params.id}`);
+            }
+        },
+        obtenerRolUsuario() {
+            try {
+                const userData = localStorage.getItem('userData');
+                if (userData) {
+                    const parsedData = JSON.parse(userData);
+                    this.userRole = parsedData.rol;
+                    this.isAuthenticated = true;
+                } else {
+                    this.userRole = null;
+                    this.isAuthenticated = false;
+                }
+            } catch (error) {
+                console.error('Error al obtener el rol del usuario:', error);
+                this.userRole = null;
+                this.isAuthenticated = false;
             }
         }
     }
