@@ -78,6 +78,7 @@ Route::delete('/disponibilidad/{id_servicio}', [DisponibilidadController::class,
 // Rutas de servicios
 Route::prefix('servicios')->group(function () {
     Route::get('/', [ServicioController::class, 'index']);
+    Route::get('/paginado', [ServicioController::class, 'indexPaginado']);
     Route::get('/{id}', [ServicioController::class, 'show']);
     Route::get('/search/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);

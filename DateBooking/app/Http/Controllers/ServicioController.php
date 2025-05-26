@@ -34,6 +34,24 @@ class ServicioController extends Controller
         Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }
+
+    // obtener servicio con un paginado de 12 
+    public function indexPaginado(Request $request)
+    {
+        $idEstablecimiento = $request->query('id_establecimiento');
+        
+        $query = Servicio::with(['disponibilidad', 'imagen']);
+        
+        if ($idEstablecimiento) {
+            $query->where('id_establecimiento', $idEstablecimiento);
+        }
+        
+        $servicios = $query->paginate(10);
+        Log::info('Servicios paginados cargados:', ['servicios' => $servicios->toArray()]);
+        return response()->json($servicios);
+    }
+
+
     
     public function show($id)
     {
