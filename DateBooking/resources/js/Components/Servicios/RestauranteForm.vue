@@ -325,62 +325,49 @@ const handleImageUpload = (event) => {
 }
 
 const handleSubmit = async () => {
-    loading.value = true
-    // Forzar renderizado del loader antes de operaciones pesadas
+    loading.value = true;
     try {
-        // Obtener datos del usuario del localStorage
         const userData = JSON.parse(localStorage.getItem('userData'));
-
         if (!userData || userData.rol !== 'establecimiento') {
             alert('Error: Debes ser un establecimiento para crear servicios');
             loading.value = false
             return;
         }
-
-        // Obtener el establecimiento del usuario
         const estabResponse = await axios.get(`/api/establecimientos/usuario/${userData.uid}`);
-
         if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
             alert('Error: No se encontró el establecimiento');
             loading.value = false
             return;
         }
-
         const idEstablecimiento = estabResponse.data.establecimientos[0].id_establecimiento;
 
-        // Preparar los datos para enviar
-        const datosRestaurante = {
-            id_establecimiento: idEstablecimiento,
-            nombre: formData.value.nombre,
-            descripcion: formData.value.descripcion,
-            costo: formData.value.costo,
-            categoria: formData.value.categoria,
-            id_ciudad: formData.value.id_ciudad,
-            disponibilidad: formData.value.disponibilidad.map(disp => ({
-                dias: disp.dias,
-                hora_inicio: disp.hora_inicio + ':00',
-                hora_fin: disp.hora_fin + ':00',
-                intervalo: disp.intervalo,
-                tipo: disp.tipo,
-                activo: disp.activo
-            })),
-            mesas: formData.value.mesas
-        };
+        // Crear FormData
+        const formDataToSend = new FormData();
+        formDataToSend.append('id_establecimiento', idEstablecimiento);
+        formDataToSend.append('nombre', formData.value.nombre);
+        formDataToSend.append('descripcion', formData.value.descripcion);
+        formDataToSend.append('costo', formData.value.costo);
+        formDataToSend.append('categoria', formData.value.categoria);
+        formDataToSend.append('id_ciudad', formData.value.id_ciudad);
+        if (formData.value.imagen) {
+            formDataToSend.append('imagen', formData.value.imagen);
+        }
+        formDataToSend.append('disponibilidad', JSON.stringify(formData.value.disponibilidad));
+        formDataToSend.append('mesas', JSON.stringify(formData.value.mesas));
 
-        // Enviar los datos al endpoint
-        const response = await axios.post('/api/servicios/nuevo-restaurante', datosRestaurante);
+        const response = await axios.post('/api/servicios/nuevo-restaurante', formDataToSend, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
 
         if (response.status === 201) {
             emit('submit', response.data);
-            // Redirigir a la página de servicios agregados
             router.push('/servicio-agregados');
         }
     } catch (error) {
         console.error('Error al crear el restaurante:', error);
         alert('Error al crear el restaurante: ' + (error.response?.data?.error || error.message));
-    }
-    finally {
-        loading.value = false
+    } finally {
+        loading.value = false;
     }
 }
 </script>
