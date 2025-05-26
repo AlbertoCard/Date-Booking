@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Reserva;
 
-use App\Models\Servicio;
 use App\Models\Disponibilidad;
-use App\Models\Pago;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -447,7 +445,7 @@ class ReservaController extends Controller
             foreach ($reservasExistentes as $reservaExistente) {
                 $lugaresReservados = json_decode($reservaExistente->detalle_1, true);
                 Log::info('Lugares reservados en reserva existente:', ['lugares' => $lugaresReservados]);
-                
+
                 if (!is_array($lugaresReservados)) {
                     $lugaresReservados = [];
                     $asientos = array_map('trim', explode(',', $reservaExistente->detalle_1));
@@ -545,7 +543,7 @@ class ReservaController extends Controller
                     ->where('detalle_1', (string)$id_habitacion)
                     ->where(function ($query) use ($fechaInicio, $fechaFin) {
                         $query->whereRaw("STR_TO_DATE(SUBSTRING_INDEX(detalle_2, ',', 1), '%Y-%m-%d') <= ?", [$fechaFin])
-                              ->whereRaw("STR_TO_DATE(SUBSTRING_INDEX(detalle_2, ',', -1), '%Y-%m-%d') >= ?", [$fechaInicio]);
+                            ->whereRaw("STR_TO_DATE(SUBSTRING_INDEX(detalle_2, ',', -1), '%Y-%m-%d') >= ?", [$fechaInicio]);
                     })
                     ->where('estado', '!=', 'cancelada')
                     ->lockForUpdate()
@@ -570,7 +568,7 @@ class ReservaController extends Controller
             $reserva->id_usuario = $request->id_usuario;
             $reserva->id_servicio = $request->id_servicio;
             $reserva->estado = "apartada";
-            $reserva->fecha = $fechaInicio; 
+            $reserva->fecha = $fechaInicio;
             $reserva->tipo_servicio = "hotel";
             $reserva->detalle_1 = (string)$habitacionAsignada;
             $reserva->detalle_2 = $fechaInicio . ',' . $fechaFin;
@@ -589,18 +587,19 @@ class ReservaController extends Controller
         }
     }
 
-    public function getReservasByServicio($id_servicio){
+    public function getReservasByServicio($id_servicio)
+    {
 
         // Obtenemos las reservas de un servicio
         $reservas = Reserva::where('id_servicio', $id_servicio)
             ->get();
 
-            return response()->json(['reservas' => $reservas], 200);
-
+        return response()->json(['reservas' => $reservas], 200);
     }
 
-    public function validarReserva(Request $request){
-        
+    public function validarReserva(Request $request)
+    {
+
         Log::info('id_reserva recibido: ' . $request->input('id_reserva'));
         Log::info('estado recibido: ' . $request->input('estado'));
 
@@ -619,10 +618,10 @@ class ReservaController extends Controller
         }
 
         if ($reserva->fecha < now()) {
-        return response()->json(['error' => 'La reserva ya expiró.'], 400);
+            return response()->json(['error' => 'La reserva ya expiró.'], 400);
         }
 
-        if ($reserva->estado !== 'pendiente'){
+        if ($reserva->estado !== 'pendiente') {
             return response()->json(['message' => 'La reserva no puede ser validada.'], 400);
         }
 
@@ -662,7 +661,7 @@ class ReservaController extends Controller
             foreach ($reservas as $reserva) {
                 // Decodificar el JSON de detalle_1 que contiene los lugares
                 $lugares = json_decode($reserva->detalle_1, true);
-                
+
                 if (is_array($lugares)) {
                     $lugaresOcupados = array_merge($lugaresOcupados, $lugares);
                 }

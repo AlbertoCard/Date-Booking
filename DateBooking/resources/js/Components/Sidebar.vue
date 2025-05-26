@@ -169,7 +169,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { defineProps, defineEmits, ref, onMounted, onBeforeUnmount } from 'vue'
 import { auth } from '../firebase'
 
 const props = defineProps({

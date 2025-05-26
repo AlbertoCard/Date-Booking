@@ -80,7 +80,7 @@
             <p class="text-gray-600">Nos alegra verte otra vez</p>
           </div>
 
-          <!-- Google Button -->
+          <!-- Boton de google -->
           <button @click="loginWithGoogle"
             class="google-button w-full bg-white hover:bg-gray-50 text-gray-800 font-medium py-3 px-4 border border-gray-300 rounded-lg shadow-sm transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden group">
             <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
@@ -179,17 +179,17 @@ onMounted(() => {
       resetEmail.value = route.query.resetEmail;
       showNotification.value = true;
 
-      // Guardar en localStorage que ya se mostró la notificación
+      // Guardar en localStorage
       localStorage.setItem('resetEmailNotificationShown', 'true');
 
-      // Ocultar la notificación después de 5 segundos
+      // Ocultar la notificación 
       setTimeout(() => {
         showNotification.value = false;
-        // Limpiar los parámetros de la URL
+        
         router.replace({ query: {} });
       }, 5000);
     } else {
-      // Si ya se mostró, solo limpiar los parámetros de la URL
+      
       router.replace({ query: {} });
     }
   }
@@ -197,7 +197,7 @@ onMounted(() => {
 
 const closeNotification = () => {
   showNotification.value = false;
-  // Limpiar los parámetros de la URL al cerrar manualmente
+  
   router.replace({ query: {} });
 };
 

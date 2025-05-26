@@ -44,7 +44,14 @@ class StripeController extends Controller
             }
 
             // Configurar la clave secreta de Stripe
-            Stripe::setApiKey($stripeKey);
+            try {
+                Stripe::setApiKey($stripeKey);
+            } catch (\Exception $e) {
+                Log::error('Error al configurar la clave de Stripe:', [
+                    'message' => $e->getMessage()
+                ]);
+                return response()->json(['error' => 'Error de configuración de Stripe'], 500);
+            }
 
             // Obtener el monto de la reserva y validar
             $monto = floatval($request->monto);
@@ -59,7 +66,16 @@ class StripeController extends Controller
             $reservaId = $request->reservaId;
 
             // Obtener el tipo de servicio de la reserva
-            $reserva = \App\Models\Reserva::find($reservaId);
+            try {
+                $reserva = \App\Models\Reserva::find($reservaId);
+            } catch (\Exception $e) {
+                Log::error('Error al buscar la reserva:', [
+                    'reservaId' => $reservaId,
+                    'message' => $e->getMessage()
+                ]);
+                return response()->json(['error' => 'Error al buscar la reserva'], 500);
+            }
+
             if (!$reserva) {
                 Log::error('Reserva no encontrada:', ['reservaId' => $reservaId]);
                 return response()->json(['error' => 'Reserva no encontrada'], 404);
@@ -105,8 +121,15 @@ class StripeController extends Controller
                     'error' => 'Error al procesar el pago con Stripe',
                     'message' => $e->getMessage()
                 ], 500);
+            } catch (\Exception $e) {
+                Log::error('Error general al crear la sesión de Stripe:', [
+                    'message' => $e->getMessage()
+                ]);
+                return response()->json([
+                    'error' => 'Error inesperado al crear la sesión de Stripe',
+                    'message' => $e->getMessage()
+                ], 500);
             }
-
         } catch (\Exception $e) {
             Log::error('Error en Stripe checkout:', [
                 'message' => $e->getMessage(),
@@ -131,7 +154,14 @@ class StripeController extends Controller
                 Log::error('La clave secreta de Stripe no está configurada en success');
                 return redirect('http://127.0.0.1:8000/reservas?error=configuracion');
             }
-            Stripe::setApiKey($stripeKey);
+            try {
+                Stripe::setApiKey($stripeKey);
+            } catch (\Exception $e) {
+                Log::error('Error al configurar la clave de Stripe en success:', [
+                    'message' => $e->getMessage()
+                ]);
+                return redirect('http://127.0.0.1:8000/reservas?error=configuracion_stripe');
+            }
 
             // Verificar que tenemos el session_id
             if (!isset($_GET['session_id'])) {
@@ -149,8 +179,13 @@ class StripeController extends Controller
                     'type' => $e->getStripeCode()
                 ]);
                 return redirect('http://127.0.0.1:8000/reservas?error=stripe_session');
+            } catch (\Exception $e) {
+                Log::error('Error general al recuperar la sesión de Stripe:', [
+                    'message' => $e->getMessage()
+                ]);
+                return redirect('http://127.0.0.1:8000/reservas?error=stripe_session_general');
             }
-            
+
             // Obtener los IDs de los metadatos
             if (!isset($session->metadata->reserva_id)) {
                 Log::error('Metadatos incompletos en la sesión:', [
@@ -199,19 +234,29 @@ class StripeController extends Controller
             }
 
             // Actualizar el estado de la reserva
-            $reserva = \App\Models\Reserva::find($reservaId);
+            try {
+                $reserva = \App\Models\Reserva::find($reservaId);
+            } catch (\Exception $e) {
+                Log::error('Error al buscar la reserva en success:', [
+                    'reserva_id' => $reservaId,
+                    'message' => $e->getMessage()
+                ]);
+                return redirect('http://127.0.0.1:8000/reservas?error=buscar_reserva');
+            }
+
             if (!$reserva) {
                 Log::error('No se encontró la reserva:', ['reserva_id' => $reservaId]);
                 return redirect('http://127.0.0.1:8000/reservas?error=reserva_no_encontrada');
             }
 
             try {
+                $estadoAnterior = $reserva->estado;
                 $reserva->estado = 'pendiente';
                 $reserva->save();
 
                 Log::info('Reserva actualizada exitosamente:', [
                     'reserva_id' => $reservaId,
-                    'estado_anterior' => $reserva->getOriginal('estado'),
+                    'estado_anterior' => $estadoAnterior,
                     'estado_nuevo' => 'pendiente'
                 ]);
             } catch (\Exception $e) {
@@ -224,7 +269,6 @@ class StripeController extends Controller
 
             // Redirigir al usuario a sus reservas
             return redirect("http://127.0.0.1:8000/reservas/{$userId}?success=true");
-
         } catch (\Exception $e) {
             Log::error('Error en success:', [
                 'message' => $e->getMessage(),
@@ -238,6 +282,7 @@ class StripeController extends Controller
 
     public function cancel()
     {
+        Log::info('Pago cancelado por el usuario');
         return response()->json(['message' => 'Pago cancelado']);
     }
 }

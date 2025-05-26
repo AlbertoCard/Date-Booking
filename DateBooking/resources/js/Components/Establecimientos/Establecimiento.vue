@@ -138,11 +138,6 @@ export default {
     justify-content: space-between;
 }
 
-/* .header-flex {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-} */
 
 .volver {
     margin-left: -1rem;
@@ -219,7 +214,6 @@ export default {
 
 
 
-/*  */
 .info-list {
     margin-top: 1rem;
     display: grid;
@@ -229,7 +223,6 @@ export default {
     padding: 1.5rem 2rem;
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-    /* Add horizontal scroll for overflow on small screens */
     overflow-x: auto;
 }
 
