@@ -84,7 +84,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import Loader from '../Loader.vue';
+import Loader from 'Loader.vue';
 
 const router = useRouter();
 const servicios = ref([]);
