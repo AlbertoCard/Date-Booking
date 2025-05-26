@@ -6,18 +6,37 @@ use Illuminate\Http\Request;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class StripeController extends Controller
 {
     public function checkout(Request $request)
     {
         try {
+            Log::info('Iniciando checkout de Stripe:', $request->all());
+
+            // Validar los datos de entrada
+            $validator = Validator::make($request->all(), [
+                'userId' => 'required|string',
+                'reservaId' => 'required|integer',
+                'monto' => 'required|numeric|min:1'
+            ]);
+
+            if ($validator->fails()) {
+                Log::error('Error de validación en checkout:', $validator->errors()->toArray());
+                return response()->json([
+                    'error' => 'Datos de entrada inválidos',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
             // Verificar si la clave de Stripe está configurada
             $stripeKey = config('services.stripe.secret');
             Log::info('Verificando configuración de Stripe:', [
                 'key_exists' => !empty($stripeKey),
                 'key_length' => strlen($stripeKey),
-                'key_prefix' => substr($stripeKey, 0, 7)
+                'key_prefix' => substr($stripeKey, 0, 7),
+                'app_url' => config('app.url')
             ]);
             
             if (empty($stripeKey)) {
@@ -33,52 +52,105 @@ class StripeController extends Controller
 
             Log::info('Usuario autenticado:', ['userId' => $request->userId]);
 
-            // Configurar la clave secreta de Stripe
-            Stripe::setApiKey($stripeKey);
+            try {
+                // Configurar la clave secreta de Stripe
+                Stripe::setApiKey($stripeKey);
+                Log::info('Clave de Stripe configurada correctamente');
+            } catch (\Exception $e) {
+                Log::error('Error al configurar la clave de Stripe:', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json(['error' => 'Error al configurar Stripe'], 500);
+            }
 
-            Log::info('Iniciando creación de sesión de Stripe');
+            // Obtener el monto de la reserva y validar
+            $monto = floatval($request->monto);
+            if ($monto <= 0) {
+                Log::error('Monto inválido:', ['monto' => $monto]);
+                return response()->json(['error' => 'El monto debe ser mayor a 0'], 422);
+            }
 
-            // Obtener el monto de la reserva
-            $monto = $request->monto ?? 5000; // Por defecto $50.00 USD si no se especifica
+            // Convertir el monto a centavos para Stripe
+            $montoEnCentavos = (int)($monto * 100);
+            Log::info('Monto procesado:', [
+                'monto_original' => $monto,
+                'monto_en_centavos' => $montoEnCentavos
+            ]);
+
             $reservaId = $request->reservaId;
 
             // Obtener el tipo de servicio de la reserva
             $reserva = \App\Models\Reserva::find($reservaId);
-            $tipoServicio = $reserva ? $reserva->tipo_servicio : 'servicio';
+            if (!$reserva) {
+                Log::error('Reserva no encontrada:', ['reservaId' => $reservaId]);
+                return response()->json(['error' => 'Reserva no encontrada'], 404);
+            }
 
-            // Crear la sesión de checkout
-            $session = Session::create([
-                'payment_method_types' => ['card'],
-                'line_items' => [[
-                    'price_data' => [
-                        'currency' => 'mxn', // Cambiado a pesos mexicanos
-                        'product_data' => [
-                            'name' => 'Reservación de ' . ucfirst($tipoServicio),
-                            'description' => 'Reserva #' . $reservaId,
-                        ],
-                        'unit_amount' => $monto * 100, // Stripe usa centavos
-                    ],
-                    'quantity' => 1,
-                ]],
-                'mode' => 'payment',
-                'success_url' => 'http://127.0.0.1:8000/api/stripe/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => 'http://127.0.0.1:8000/reservas/' . $request->userId . '?canceled=true',
-                'client_reference_id' => $request->userId,
-                'metadata' => [
-                    'reserva_id' => $reservaId
-                ]
+            $tipoServicio = $reserva->tipo_servicio;
+            Log::info('Datos de la reserva:', [
+                'reserva_id' => $reservaId,
+                'tipo_servicio' => $tipoServicio,
+                'monto' => $monto,
+                'monto_en_centavos' => $montoEnCentavos
             ]);
 
-            Log::info('Sesión de Stripe creada:', ['session_id' => $session->id]);
-            return response()->json(['id' => $session->id]);
+            try {
+                // Crear la sesión de checkout
+                $session = Session::create([
+                    'payment_method_types' => ['card'],
+                    'line_items' => [[
+                        'price_data' => [
+                            'currency' => 'mxn',
+                            'product_data' => [
+                                'name' => 'Reservación de ' . ucfirst($tipoServicio),
+                                'description' => 'Reserva #' . $reservaId,
+                            ],
+                            'unit_amount' => $montoEnCentavos,
+                        ],
+                        'quantity' => 1,
+                    ]],
+                    'mode' => 'payment',
+                    'success_url' => config('app.url') . '/api/stripe/success?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url' => config('app.url') . '/reservas/' . $request->userId . '?canceled=true',
+                    'client_reference_id' => $request->userId,
+                    'metadata' => [
+                        'reserva_id' => $reservaId,
+                        'monto_total' => $monto
+                    ]
+                ]);
+
+                Log::info('Sesión de Stripe creada exitosamente:', [
+                    'session_id' => $session->id,
+                    'monto_total' => $monto,
+                    'monto_en_centavos' => $montoEnCentavos
+                ]);
+
+                return response()->json(['id' => $session->id]);
+            } catch (\Stripe\Exception\ApiErrorException $e) {
+                Log::error('Error de API de Stripe:', [
+                    'error' => $e->getMessage(),
+                    'type' => $e->getStripeCode(),
+                    'http_status' => $e->getHttpStatus(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json([
+                    'error' => 'Error al procesar el pago con Stripe',
+                    'message' => $e->getMessage()
+                ], 500);
+            }
 
         } catch (\Exception $e) {
-            Log::error('Error en Stripe checkout: ' . $e->getMessage(), [
+            Log::error('Error en Stripe checkout:', [
+                'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Error al procesar el pago',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -144,4 +216,3 @@ class StripeController extends Controller
         return response()->json(['message' => 'Pago cancelado']);
     }
 }
-
