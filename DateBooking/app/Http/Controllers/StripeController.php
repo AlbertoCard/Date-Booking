@@ -153,7 +153,7 @@ class StripeController extends Controller
             $stripeKey = config('services.stripe.secret');
             if (empty($stripeKey)) {
                 Log::error('La clave secreta de Stripe no está configurada en success');
-                return redirect('/reservas?error=configuracion');
+                return redirect(url('/reservas?error=configuracion'));
             }
             try {
                 Stripe::setApiKey($stripeKey);
@@ -161,13 +161,13 @@ class StripeController extends Controller
                 Log::error('Error al configurar la clave de Stripe en success:', [
                     'message' => $e->getMessage()
                 ]);
-                return redirect('/reservas?error=configuracion_stripe');
+                return redirect(url('/reservas?error=configuracion_stripe'));
             }
 
             // Verificar que tenemos el session_id
             if (!isset($_GET['session_id'])) {
                 Log::error('No se recibió session_id en success');
-                return redirect('/reservas?error=sesion');
+                return redirect(url('/reservas?error=sesion'));
             }
 
             try {
@@ -179,12 +179,12 @@ class StripeController extends Controller
                     'error' => $e->getMessage(),
                     'type' => $e->getStripeCode()
                 ]);
-                return redirect('/reservas?error=stripe_session');
+                return redirect(url('/reservas?error=stripe_session'));
             } catch (\Exception $e) {
                 Log::error('Error general al recuperar la sesión de Stripe:', [
                     'message' => $e->getMessage()
                 ]);
-                return redirect('/reservas?error=stripe_session_general');
+                return redirect(url('/reservas?error=stripe_session_general'));
             }
 
             // Obtener los IDs de los metadatos
@@ -193,7 +193,7 @@ class StripeController extends Controller
                     'reserva_id_exists' => isset($session->metadata->reserva_id),
                     'metadata' => $session->metadata
                 ]);
-                return redirect('/reservas?error=metadatos');
+                return redirect(url('/reservas?error=metadatos'));
             }
 
             $reservaId = $session->metadata->reserva_id;
@@ -231,7 +231,7 @@ class StripeController extends Controller
                     'file' => $e->getFile(),
                     'trace' => $e->getTraceAsString()
                 ]);
-                return redirect('/reservas?error=creacion_pago');
+                return redirect(url('/reservas?error=creacion_pago'));
             }
 
             // Actualizar el estado de la reserva
@@ -242,12 +242,12 @@ class StripeController extends Controller
                     'reserva_id' => $reservaId,
                     'message' => $e->getMessage()
                 ]);
-                return redirect('/reservas?error=buscar_reserva');
+                return redirect(url('/reservas?error=buscar_reserva'));
             }
 
             if (!$reserva) {
                 Log::error('No se encontró la reserva:', ['reserva_id' => $reservaId]);
-                return redirect('/reservas?error=reserva_no_encontrada');
+                return redirect(url('/reservas?error=reserva_no_encontrada'));
             }
 
             try {
@@ -265,11 +265,11 @@ class StripeController extends Controller
                     'error' => $e->getMessage(),
                     'reserva_id' => $reservaId
                 ]);
-                return redirect('/reservas?error=actualizacion_reserva');
+                return redirect(url('/reservas?error=actualizacion_reserva'));
             }
 
             // Redirigir al usuario a sus reservas
-            return redirect("/reservas/{$userId}?success=true");
+            return redirect(url("/reservas/{$userId}?success=true"));
         } catch (\Exception $e) {
             Log::error('Error en success:', [
                 'message' => $e->getMessage(),
@@ -277,7 +277,7 @@ class StripeController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return redirect('/reservas?error=proceso');
+            return redirect(url('/reservas?error=proceso'));
         }
     }
 
