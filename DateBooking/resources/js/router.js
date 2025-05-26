@@ -1,14 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Inicio from "./Components/Inicio.vue";
-import Nosotros from "./Components/Nosotros.vue";
 import NotFound from "./Components/NotFound.vue";
 import NuevoServicio from "./Components/Servicios/NuevoServicio.vue";
 import VerServicio from "./Components/Servicios/VerServicios.vue";
 import Login from "./Components/Auth/Login.vue";
 import RestablecerContraseña from "./Components/Auth/RestablecerContraseña.vue";
-import DashboardCliente from "./Components/DashboardCliente.vue";
-import DashboardEstablecimiento from "./Components/DashboardEstablecimiento.vue";
 import Dashboard from "./Components/Dashboard.vue";
 import Servicios from "./Components/Admin/Servicios.vue";
 import Validaciones from "./Components/Admin/Validaciones.vue";
@@ -32,6 +29,13 @@ import ReservaRestaurante from './Components/Reservas/ReservaRestaurante.vue';
 import ReservaEvento from './Components/Reservas/ReservaEvento.vue';
 import ReservaHotel from './Components/Reservas/ReservaHotel.vue';
 
+import LectorQr from './Components/Reservas/LectorQr.vue';
+import ServicioListado from './Components/Servicios/ServicioListado.vue';
+import ListadoDetalle from "./Components/Servicios/ListadoDetalle.vue";
+import Afiliados from "./Components/Afiliados/Afiliados.vue";
+
+
+
 
 // Importar middlewares
 import auth from "./middleware/auth";
@@ -45,14 +49,6 @@ const routes = [
         meta: { 
             requiresAuth: false,
             title: 'Inicio'
-        } 
-    },
-    { 
-        path: "/nosotros", 
-        component: Nosotros, 
-        meta: { 
-            requiresAuth: false,
-            title: 'Nosotros'
         } 
     },
     { 
@@ -146,15 +142,6 @@ const routes = [
 
     // Rutas para clientes
     {
-        path: "/dashboard-cliente",
-        component: DashboardCliente,
-        meta: { 
-            requiresAuth: true, 
-            role: "cliente",
-            title: 'Dashboard Cliente'
-        }
-    },
-    {
         path: "/reservas/:id",
         component: MisReservas,
         meta: { 
@@ -182,17 +169,17 @@ const routes = [
             title: 'Añadir Reseña'
         }
     },
-
-    // Rutas para establecimientos
     {
-        path: "/dashboard-establecimiento",
-        component: DashboardEstablecimiento,
+        path: '/lector-qr',
+        name: 'lector-qr',
+        component: LectorQr,
         meta: { 
-            requiresAuth: true, 
-            role: "establecimiento",
-            title: 'Dashboard Establecimiento'
-        }
+            requiresAuth: true,
+            role: "cliente",
+            title: 'Lector QR'
+        },
     },
+    // Rutas para establecimientos
     {
         path: "/nuevo-servicio",
         component: NuevoServicio,
@@ -256,7 +243,15 @@ const routes = [
             title: 'Nuevo Servicio de Consultorio'
         }
     },
-
+     {
+        path: "/afiliados",
+        component: Afiliados,
+        meta: {
+            requiresAuth: true,
+            role: "establecimiento",
+            title: 'Gestion de Afiliados'
+        }
+    },
 
     // Rutas para administradores
     { 
@@ -287,6 +282,25 @@ const routes = [
         }
     },
 
+    // Ruta para Afiliados
+    {
+        path: "/servicios-listado",
+        component: ServicioListado,
+        meta: {
+            requiresAuth: true,
+            role: 'afiliado',
+            title: 'Listado de Servicios'
+        }
+    },
+    {
+        path: "/detalle-listado/:id",
+        component: ListadoDetalle,
+        meta: {
+            requiresAuth: true,
+            role: 'afiliado',
+            title: 'Validacion de Reservas'
+        }
+    },
     // Ruta 404
     {
         path: "/:pathMatch(.*)*",

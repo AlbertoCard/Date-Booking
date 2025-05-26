@@ -489,9 +489,7 @@ class ServicioController extends Controller
                     'id_servicio' => $id_servicio,
                     'tipo' => $hab['tipo'],
                     'numero' => $hab['numero'],
-                    'capacidad' => $hab['capacidad'],
-                    'fecha_inicio' => now(), 
-                    'fecha_fin' => now()->addDays(5)
+                    'capacidad' => $hab['capacidad']
                 ]);
             }
 

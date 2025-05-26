@@ -1,4 +1,5 @@
 <template>
+  <Loader :visible="loading" />
   <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white flex items-center justify-center p-6">
     <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-6xl mx-auto">
       <div class="flex flex-col md:flex-row">
@@ -136,6 +137,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 import axios from 'axios';
+import Loader from '../Loader.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -143,6 +145,8 @@ const email = ref('');
 const password = ref('');
 const showNotification = ref(false);
 const resetEmail = ref('');
+
+const loading = ref(false);
 
 onMounted(() => {
   // Verificar si hay parámetros de consulta y si el mensaje no se ha mostrado antes
@@ -177,6 +181,7 @@ const closeNotification = () => {
 
 const login = async () => {
   try {
+    loading.value = true; // Mostrar el loader
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
     console.log('Usuario autenticado en Firebase:', userCredential.user.uid);
 
@@ -196,9 +201,9 @@ const login = async () => {
 
       // Redirigir según el rol
       if (userData.rol === 'establecimiento') {
-        router.push('/dashboard-establecimiento');
+        router.push('/servicio-agregados');
       } else {
-        router.push('/dashboard-cliente');
+        router.push('/');
       }
     } catch (apiError) {
       console.error('Error en la API:', apiError.response?.data || apiError.message);
@@ -206,15 +211,14 @@ const login = async () => {
     }
   } catch (error) {
     console.error('Error de login:', error);
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-      alert('Credenciales incorrectas. Por favor, verifica tu correo y contraseña.');
-    } else {
-      alert('Error al iniciar sesión: ' + error.message);
-    }
+    alert('No se pudo iniciar sesión');
+  } finally {
+    loading.value = false; // Ocultar el loader siempre
   }
 };
 
 const loginWithGoogle = async () => {
+  loading.value = true; // Mostrar el loader
   try {
     const result = await signInWithPopup(auth, googleProvider);
     console.log('Usuario autenticado con Google:', result.user.uid);
@@ -243,9 +247,9 @@ const loginWithGoogle = async () => {
 
       // Redirigir según el rol
       if (userData.rol === 'establecimiento') {
-        router.push('/dashboard-establecimiento');
+        router.push('/servicio-agregados');
       } else {
-        router.push('/dashboard-cliente');
+        router.push('/');
       }
     } catch (apiError) {
       // Si el usuario no existe (404), crearlo
@@ -269,7 +273,7 @@ const loginWithGoogle = async () => {
         localStorage.setItem('userData', JSON.stringify(userData));
 
         // Redirigir al dashboard de cliente
-        router.push('/dashboard-cliente');
+        router.push('/');
       } else {
         console.error('Error en la API:', apiError.response?.data || apiError.message);
         alert('Error al comunicarse con el servidor. Por favor, intenta nuevamente.');
@@ -278,6 +282,8 @@ const loginWithGoogle = async () => {
   } catch (error) {
     console.error('Error de Google Sign-In:', error);
     alert('Error con Google Sign-In: ' + error.message);
+  } finally {
+    loading.value = false; // Ocultar el loader siempre
   }
 };
 

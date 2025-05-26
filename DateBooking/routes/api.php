@@ -12,6 +12,7 @@ use App\Http\Controllers\ReservaController;
 use App\Models\Servicio;
 use App\Http\Controllers\ResenaController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\AfiliadoController;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\LugareController;
 use App\Http\Controllers\HabitacioneController;
@@ -59,6 +60,7 @@ Route::prefix('pagos')->group(function () {
 
 // Rutas para Reservas (públicas)
 Route::prefix('reservas')->group(function () {
+    Route::get('/servicios/{id_servicio}', [ReservaController::class, 'getReservasByServicio']);
     Route::get('/{id}', [ReservaController::class, 'obtenerReservas']);
     Route::get('/detalle/{id}', [ReservaController::class, 'obtenerDetalleReserva']);
     Route::post('/', [ReservaController::class, 'store']);
@@ -66,6 +68,7 @@ Route::prefix('reservas')->group(function () {
     Route::post('/restaurante', [ReservaController::class, 'reservarRestaurante']);
     Route::post('/evento', [ReservaController::class, 'reservarEvento']);
     Route::post('/hotel', [ReservaController::class, 'reservarHotel']);
+    Route::post('/validar-reserva', [ReservaController::class, 'validarReserva']);
 });
 
 
@@ -99,6 +102,11 @@ Route::prefix('stripe')->group(function () {
     Route::get('/cancel', [StripeController::class, 'cancel']);
 });
 Route::post('/resenas', [ResenaController::class, 'store']); 
+
+// Rutas para afiliados
+Route::get('/afiliados/{uid}', [AfiliadoController::class, 'getAfiliadosByEstablecimiento']);
+Route::post('/afiliados/agregar', [AfiliadoController::class, 'agregarAfiliado']);
+Route::delete('/afiliados/desafiliar/{uid}/{id_establecimiento}', [AfiliadoController::class, 'dropRelacionAfiliado']);
 
 // Rutas para médicos
 Route::get('/medicos/{id_servicio}', [MedicoController::class, 'getByServicio']); 
