@@ -26,21 +26,24 @@
           <h2>Reservaciones</h2>
           <ul class="mt-4 pl-6 space-y-4 text-gray-700">
             <li v-for="reserva in reservas" :key="reserva.id_reserva"
-              class="tarjeta-reserva bg-gray-100 rounded-xl p-4 shadow-sm">
-              <p class="reserva bold">Reserva #{{ reserva.id_reserva }}</p>
-              <p><strong>Usuario:</strong> {{ reserva.id_usuario }}</p>
-              <p><strong>Servicio:</strong> {{ reserva.id_servicio }}</p>
-              <p><strong>Estado:</strong>
-                <span :class="{
-                  'text-green-600 font-semibold': reserva.estado === 'confirmada',
-                  'text-yellow-600 font-semibold': ['apartada', 'apartado'].includes(reserva.estado),
-                  'text-red-600 font-semibold': reserva.estado === 'cancelada'
-                }">
-                  {{ reserva.estado }}
-                </span>
-              </p>
-              <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
-              <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
+              class="tarjeta-reserva bg-gray-100 rounded-xl p-4 shadow-sm flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4">
+              
+              <div class="flex-1 space-y-1">
+                <p class="reserva font-bold text-gray-800">Reserva #{{ reserva.id_reserva }}</p>
+                <p><strong>Usuario:</strong> {{ reserva.id_usuario }}</p>
+                <p><strong>Servicio:</strong> {{ reserva.id_servicio }}</p>
+                <p><strong>Estado:</strong>
+                  <span :class="{
+                    'text-green-600 font-semibold': reserva.estado === 'confirmada',
+                    'text-yellow-600 font-semibold': ['apartada', 'apartado'].includes(reserva.estado),
+                    'text-red-600 font-semibold': reserva.estado === 'cancelada'
+                  }">
+                    {{ reserva.estado }}
+                  </span>
+                </p>
+                <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
+                <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
+              </div>
             </li>
           </ul>
         </div>
@@ -53,24 +56,23 @@
         <button class="btn_cerrar" @click="mostrarLectorQR = false">Cancelar</button>
       </div>
     </div>
-
-    <transition name="fade-smooth">
-      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
-        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
-          <h2 class="text-lg font-medium mb-2 text-gray-700">Reserva confirmada</h2>
-          <p class="text-gray-600"><strong>Reserva:</strong> {{ reservaValidada }}</p>
-        </div>
+    <!-- Modal de éxito -->
+    <div v-if="mostrarModal" class="modal-container">
+      <div class="modal success">
+        <h2>Reserva validada</h2>
+        <p>La reserva con ID <strong>{{ reservaValidada }}</strong> fue confirmada correctamente.</p>
+        <button @click="mostrarModal = false">Aceptar</button>
       </div>
-    </transition>
+    </div>
 
-    <transition name="fade-smooth">
-      <div v-if="mostrarModalError" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
-        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
-          <h2 class="text-lg font-medium mb-2 text-gray-700">Error al validar la reserva</h2>
-          <p class="text-gray-600"><strong>Mensaje:</strong> {{ mensajeError }}</p>
-        </div>
+    <!-- Modal de error -->
+    <div v-if="mostrarModalError" class="modal-container">
+      <div class="modal error">
+        <h2>Error</h2>
+        <p>{{ mensajeError }}</p>
+        <button @click="mostrarModalError = false">Cerrar</button>
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
@@ -178,11 +180,6 @@ export default {
           this.reservaValidada = id_reserva_qr;
           this.mostrarModal = true;
 
-          setTimeout(() => {
-            this.mostrarModal = false;
-            this.reservaValidada = null;
-          }, 4000);
-
           if (response.data.success) {
             alert("Reserva validada correctamente.");
             this.obtenerReservas(this.$route.params.id);
@@ -193,6 +190,8 @@ export default {
           } else {
             alert("No se pudo validar la reserva.");
           }
+
+          this.mostrarModal = true;
         })
         .catch(error => {
           console.error('Error al validar la reserva:', error);
@@ -201,10 +200,6 @@ export default {
             this.mensajeError = error.response?.data?.message || 'Ocurrió un error inesperado.';
             this.mostrarModalError = true;
             const data = error.response.data;
-            setTimeout(() => {
-              this.mostrarModalError = false;
-              this.mensajeError = '';
-            }, 4000);
             alert(data.message || data.error || "Hubo un error al validar la reserva.");
           } else {
             alert("Hubo un error al validar la reserva.");
@@ -302,7 +297,7 @@ ul li {
 .btn_validar {
   margin-top: 2rem;
   display: inline-block;
-  background: linear-gradient(to right, #3b82f6, #6366f1);
+  background: linear-gradient(to right, #0B57D0, #0B57D0);
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
@@ -314,7 +309,7 @@ ul li {
 }
 
 .btn_validar:hover {
-  background: linear-gradient(to right, #2563eb, #4f46e5);
+  background: linear-gradient(to right, #0848b1, #0848b1);
   transform: scale(1.03);
   box-shadow: 0 6px 18px rgba(79, 70, 229, 0.4);
 }
@@ -361,7 +356,7 @@ ul li {
 }
 
 .btn_cerrar {
-  background: linear-gradient(to right, #f87171, #ef4444);
+  background: linear-gradient(to right, #0B57D0, #0B57D0);
   color: white;
   padding: 0.5rem 1.25rem;
   border-radius: 0.5rem;
@@ -371,16 +366,75 @@ ul li {
 }
 
 .btn_cerrar:hover {
-  background: linear-gradient(to right, #dc2626, #b91c1c);
+  background: linear-gradient(to right, #0848b1, #0848b1);
   transform: scale(1.05);
 }
 
-.fade-smooth-enter-active, .fade-smooth-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+.modal-container {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
 }
-.fade-smooth-enter-from, .fade-smooth-leave-to {
-  opacity: 0;
-  transform: scale(0.98);
+
+.modal {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+.modal h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #444;
+}
+
+.modal button {
+  background-color: #0B57D0;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.modal button:hover {
+  background-color: #0848b1;
+}
+
+/* .modal.success {
+  border-left: 6px solid #10b981;
+}
+
+.modal.error {
+  border-left: 6px solid #ef4444;
+} */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Loader y error */
