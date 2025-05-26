@@ -128,8 +128,7 @@
                                         class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors appearance-none bg-white"
                                         v-model="numeroPersonas">
                                         <option disabled value="">Selecciona el número de personas</option>
-                                        <option v-for="n in 10" :key="n" :value="n">{{ n }} {{ n === 1 ? 'persona' :
-                                            'personas' }}</option>
+                                        <option v-for="n in [2, 4, 6]" :key="n" :value="n">{{ n }} personas</option>
                                     </select>
                                 </div>
 

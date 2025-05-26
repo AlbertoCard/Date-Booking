@@ -59,6 +59,15 @@
                         </p>
                     </div>
                 </div>
+                <div v-if="totalPaginas > 1" class="flex justify-center mt-6 gap-2">
+                    <button class="btn-reservar" :disabled="pagina === 1" @click="cambiarPagina(pagina - 1)">
+                        Anterior
+                    </button>
+                    <span class="px-3 py-2">{{ pagina }} / {{ totalPaginas }}</span>
+                    <button class="btn-reservar" :disabled="pagina === totalPaginas" @click="cambiarPagina(pagina + 1)">
+                        Siguiente
+                    </button>
+                </div>
             </div>
 
             <!-- Estado vacío -->
@@ -81,6 +90,8 @@ const router = useRouter();
 const servicios = ref([]);
 const cargando = ref(true);
 const error = ref(null);
+const pagina = ref(1);
+const totalPaginas = ref(1);
 
 const serviciosDisponibles = computed(() => {
     return servicios.value.filter(servicio =>
@@ -91,17 +102,27 @@ const serviciosDisponibles = computed(() => {
 });
 
 const cargarServicios = async () => {
+    cargando.value = true;
     try {
-        const response = await axios.get('/api/servicios');
-        console.log('Respuesta de servicios:', response.data);
-        servicios.value = response.data;
+        const response = await axios.get('/api/servicios/paginado', {
+            params: { page: pagina.value, per_page: 10 }
+        });
+        servicios.value = response.data.data;
+        totalPaginas.value = response.data.last_page;
     } catch (err) {
-        console.error('Error al cargar servicios:', err);
         error.value = 'Error al cargar los servicios. Por favor, intenta más tarde.';
     } finally {
         cargando.value = false;
     }
 };
+
+const cambiarPagina = (nuevaPagina) => {
+    if (nuevaPagina >= 1 && nuevaPagina <= totalPaginas.value) {
+        pagina.value = nuevaPagina;
+        cargarServicios();
+    }
+};
+
 
 const handleImageError = (e) => {
     console.error('Error al cargar la imagen:', {
