@@ -2,7 +2,7 @@
     <div class="contenedor">
         <Loader :visible="cargando" />
 
-        <div class="encabezado">
+        <div class="encabezado" id="encabezado-principal">
             <h1>"{{ searchText }}"</h1>
             <div class="filtros">
                 <fieldset>
@@ -76,7 +76,7 @@
             </button>
         </div>
         <div v-if="servicios.length < 10">
-            <div class="encabezado">
+            <div class="encabezado" id="encabezado-recomendaciones">
                 <h1>Mas opciones</h1>
             </div>
             <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio">
@@ -172,6 +172,12 @@ export default {
                 })
                 .finally(() => {
                     this.cargando = false;
+                    this.$nextTick(() => {
+                        const encabezado = document.getElementById('encabezado-principal');
+                        if (encabezado) {
+                            encabezado.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    });
                 });
         },
         cargarRecomendaciones() {
@@ -184,6 +190,14 @@ export default {
                     .catch(() => {
                         this.recomendaciones = [];
                         this.totalPaginasRecomendaciones = 1;
+                    })
+                    .finally(() => {
+                        this.$nextTick(() => {
+                            const encabezado = document.getElementById('encabezado-recomendaciones');
+                            if (encabezado) {
+                                encabezado.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        });
                     });
             } else {
                 this.recomendaciones = [];
