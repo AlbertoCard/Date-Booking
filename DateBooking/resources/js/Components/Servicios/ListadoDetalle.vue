@@ -53,24 +53,23 @@
         <button class="btn_cerrar" @click="mostrarLectorQR = false">Cancelar</button>
       </div>
     </div>
-
-    <transition name="fade-smooth">
-      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
-        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
-          <h2 class="text-lg font-medium mb-2 text-gray-700">Reserva confirmada</h2>
-          <p class="text-gray-600"><strong>Reserva:</strong> {{ reservaValidada }}</p>
-        </div>
+    <!-- Modal de éxito -->
+    <div v-if="mostrarModal" class="modal-container">
+      <div class="modal success">
+        <h2>Reserva validada</h2>
+        <p>La reserva con ID <strong>{{ reservaValidada }}</strong> fue confirmada correctamente.</p>
+        <button @click="mostrarModal = false">Aceptar</button>
       </div>
-    </transition>
+    </div>
 
-    <transition name="fade-smooth">
-      <div v-if="mostrarModalError" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
-        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
-          <h2 class="text-lg font-medium mb-2 text-gray-700">Error al validar la reserva</h2>
-          <p class="text-gray-600"><strong>Mensaje:</strong> {{ mensajeError }}</p>
-        </div>
+    <!-- Modal de error -->
+    <div v-if="mostrarModalError" class="modal-container">
+      <div class="modal error">
+        <h2>Error</h2>
+        <p>{{ mensajeError }}</p>
+        <button @click="mostrarModalError = false">Cerrar</button>
       </div>
-    </transition>
+    </div>
   </div>
 </template>
 
@@ -178,11 +177,6 @@ export default {
           this.reservaValidada = id_reserva_qr;
           this.mostrarModal = true;
 
-          setTimeout(() => {
-            this.mostrarModal = false;
-            this.reservaValidada = null;
-          }, 4000);
-
           if (response.data.success) {
             alert("Reserva validada correctamente.");
             this.obtenerReservas(this.$route.params.id);
@@ -193,6 +187,8 @@ export default {
           } else {
             alert("No se pudo validar la reserva.");
           }
+
+          this.mostrarModal = true;
         })
         .catch(error => {
           console.error('Error al validar la reserva:', error);
@@ -201,10 +197,6 @@ export default {
             this.mensajeError = error.response?.data?.message || 'Ocurrió un error inesperado.';
             this.mostrarModalError = true;
             const data = error.response.data;
-            setTimeout(() => {
-              this.mostrarModalError = false;
-              this.mensajeError = '';
-            }, 4000);
             alert(data.message || data.error || "Hubo un error al validar la reserva.");
           } else {
             alert("Hubo un error al validar la reserva.");
@@ -375,12 +367,71 @@ ul li {
   transform: scale(1.05);
 }
 
-.fade-smooth-enter-active, .fade-smooth-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+.modal-container {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
 }
-.fade-smooth-enter-from, .fade-smooth-leave-to {
-  opacity: 0;
-  transform: scale(0.98);
+
+.modal {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease;
+}
+
+.modal h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.modal p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #444;
+}
+
+.modal button {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.modal button:hover {
+  background-color: #4338ca;
+}
+
+.modal.success {
+  border-left: 6px solid #10b981;
+}
+
+.modal.error {
+  border-left: 6px solid #ef4444;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Loader y error */
