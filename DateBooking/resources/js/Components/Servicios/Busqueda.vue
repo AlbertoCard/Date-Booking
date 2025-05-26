@@ -37,7 +37,8 @@
         <div v-if="!cargando && servicios.length === 0" class="sin-resultados">
             No se encontraron servicios relacionados con "{{ searchText }}".
         </div>
-        <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio">
+        <div v-for="servicio in servicios" :key="servicio.id_servicio" class="tarjeta-servicio"
+            @click="verDetalle(servicio.id_servicio)">
             <div class="imagen">
                 <template v-if="servicio.imagen && servicio.imagen.url">
                     <img :src="servicio.imagen.url" :alt="servicio.nombre" class="w-full h-full object-cover rounded-lg"
@@ -79,7 +80,8 @@
             <div class="encabezado" id="encabezado-recomendaciones">
                 <h1>Mas opciones</h1>
             </div>
-            <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio">
+            <div v-for="recomendacion in recomendaciones" :key="recomendacion.id_servicio" class="tarjeta-servicio"
+                @click="verDetalle(recomendacion.id_servicio)">
                 <div class="imagen">
                     <template v-if="recomendacion.imagen && recomendacion.imagen.url">
                         <img :src="recomendacion.imagen.url" :alt="recomendacion.nombre"
@@ -155,6 +157,9 @@ export default {
         }
     },
     methods: {
+        verDetalle(id) {
+            this.$router.push(`/nodo-servicio/${id}`);
+        },
         cargarServicios() {
             this.cargando = true;
             let url = `/api/servicios/search/${this.searchText}?page=${this.paginaServicios}`;

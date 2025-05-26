@@ -11,6 +11,12 @@
     <div v-else>
       <div class="div_encabezado">
         <h1>{{ servicio.nombre }}</h1>
+        
+        <div class="div_btnValidar">
+          <button class="btn_validar mt-3" @click="abrirLectorQR()">
+            Validar QR
+          </button>
+        </div>
       </div>
 
       <p class="descripcion mb-6">{{ servicio.descripcion }}</p>
@@ -27,7 +33,7 @@
               <p><strong>Estado:</strong>
                 <span :class="{
                   'text-green-600 font-semibold': reserva.estado === 'confirmada',
-                  'text-yellow-600 font-semibold': reserva.estado === 'apartada' || 'apartado',
+                  'text-yellow-600 font-semibold': ['apartada', 'apartado'].includes(reserva.estado),
                   'text-red-600 font-semibold': reserva.estado === 'cancelada'
                 }">
                   {{ reserva.estado }}
@@ -35,12 +41,6 @@
               </p>
               <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
               <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
-
-              <div class="div_btnValidar">
-                <button class="btn_validar mt-3" @click="validarQR(reserva.id_reserva)">
-                  Validar QR
-                </button>
-              </div>
             </li>
           </ul>
         </div>
@@ -53,6 +53,24 @@
         <button class="btn_cerrar" @click="mostrarLectorQR = false">Cancelar</button>
       </div>
     </div>
+
+    <transition name="fade-smooth">
+      <div v-if="mostrarModal" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
+          <h2 class="text-lg font-medium mb-2 text-gray-700">Reserva confirmada</h2>
+          <p class="text-gray-600"><strong>Reserva:</strong> {{ reservaValidada }}</p>
+        </div>
+      </div>
+    </transition>
+
+    <transition name="fade-smooth">
+      <div v-if="mostrarModalError" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-40 backdrop-blur-sm z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-sm w-full text-center border border-gray-200">
+          <h2 class="text-lg font-medium mb-2 text-gray-700">Error al validar la reserva</h2>
+          <p class="text-gray-600"><strong>Mensaje:</strong> {{ mensajeError }}</p>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -78,7 +96,10 @@ export default {
       error: null,
       mostrarLectorQR: false,
       camaraDroidCamId: null,
-      reservaSeleccionada: null,
+      reservaValidada: null,
+      mostrarModal: false,
+      mostrarModalError: false,
+      mensajeError: '',
     };
   },
   mounted() {
@@ -119,8 +140,7 @@ export default {
           this.cargando = false; // Ocultar el loader al finalizar la carga
         });
     },
-    validarQR(id_reserva) {
-      this.reservaSeleccionada = id_reserva;
+    abrirLectorQR() {
       this.mostrarLectorQR = true;
     },
     onDetect(result) {
@@ -129,6 +149,7 @@ export default {
 
       try {
         let id_reserva_qr;
+
         if (Array.isArray(result) && result.length > 0 && result[0].rawValue) {
           const qrData = JSON.parse(result[0].rawValue);
           id_reserva_qr = qrData.id;
@@ -140,33 +161,59 @@ export default {
         } else {
           id_reserva_qr = parseInt(result);
         }
-        const estadoNuevo = 'confirmada';
 
-        if (id_reserva_qr !== this.reservaSeleccionada) {
-          alert(`El código QR (${id_reserva_qr}) no coincide con la reserva seleccionada (${this.reservaSeleccionada}). Por favor, escanee el código QR correcto.`);
+        if (!id_reserva_qr || isNaN(id_reserva_qr)) {
+          alert("El código QR escaneado no es válido.");
           return;
         }
 
-        // Llamada al backend
+        const estadoNuevo = 'confirmada';
+
         axios.post('http://127.0.0.1:8000/api/reservas/validar-reserva', {
-          id_reserva: this.reservaSeleccionada,
+          id_reserva: id_reserva_qr,
           estado: estadoNuevo
         })
-          .then(response => {
-            if (response.data.success) {
-              alert("Reserva validada correctamente.");
-              this.obtenerReservas(this.$route.params.id);
-            } else {
-              alert(response.data.error || "No se pudo validar la reserva.");
-            }
-          })
-          .catch(error => {
-            console.error('Error al validar la reserva:', error);
+        .then(response => {
+          this.cargando = true;
+          this.reservaValidada = id_reserva_qr;
+          this.mostrarModal = true;
+
+          setTimeout(() => {
+            this.mostrarModal = false;
+            this.reservaValidada = null;
+          }, 4000);
+
+          if (response.data.success) {
+            alert("Reserva validada correctamente.");
+            this.obtenerReservas(this.$route.params.id);
+          } else if (response.data.message) {
+            alert(`${response.data.message}`);
+          } else if (response.data.error) {
+            alert(`${response.data.error}`);
+          } else {
+            alert("No se pudo validar la reserva.");
+          }
+        })
+        .catch(error => {
+          console.error('Error al validar la reserva:', error);
+
+          if (error.response && error.response.data) {
+            this.mensajeError = error.response?.data?.message || 'Ocurrió un error inesperado.';
+            this.mostrarModalError = true;
+            const data = error.response.data;
+            setTimeout(() => {
+              this.mostrarModalError = false;
+              this.mensajeError = '';
+            }, 4000);
+            alert(data.message || data.error || "Hubo un error al validar la reserva.");
+          } else {
             alert("Hubo un error al validar la reserva.");
-          });
+          }
+        });
+
       } catch (error) {
         console.error('Error al procesar el código QR:', error);
-        alert("El código QR escaneado no es válido. Por favor, asegúrese de escanear el código correcto.");
+        alert("El código QR escaneado no es válido. Asegúrese de escanear un QR correcto.");
       }
     },
     async getCamarasDisponibles() {
@@ -326,6 +373,14 @@ ul li {
 .btn_cerrar:hover {
   background: linear-gradient(to right, #dc2626, #b91c1c);
   transform: scale(1.05);
+}
+
+.fade-smooth-enter-active, .fade-smooth-leave-active {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.fade-smooth-enter-from, .fade-smooth-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
 }
 
 /* Loader y error */
