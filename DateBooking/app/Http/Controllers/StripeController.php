@@ -97,8 +97,9 @@ class StripeController extends Controller
                         'quantity' => 1,
                     ]],
                     'mode' => 'payment',
-                    'success_url' => '/api/stripe/success?session_id={CHECKOUT_SESSION_ID}',
-                    'cancel_url' => '/reservas/' . $request->userId . '?canceled=true',
+                    'success_url' => url('/api/stripe/success?session_id={CHECKOUT_SESSION_ID}'),
+                    'cancel_url' => url('/reservas/' . $request->userId . '?canceled=true'),
+
                     'client_reference_id' => $request->userId,
                     'metadata' => [
                         'reserva_id' => $reservaId,
