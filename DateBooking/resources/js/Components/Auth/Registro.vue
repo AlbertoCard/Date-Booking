@@ -106,13 +106,7 @@ const registrar = async () => {
       }
 
       // 4. Redireccionar al dashboard correspondiente
-      if (activeTab.value === 'establecimiento') {
-        //router.push('/dashboard-establecimiento')
-        router.push('/inicio')
-      } else {
-        //router.push('/dashboard-cliente')
-        router.push('/inicio')
-      }
+      router.push('/')
     } catch (apiError) {
       console.error('Error al guardar en la base de datos:', apiError)
       if (apiError.response) {
@@ -265,9 +259,9 @@ const validarTelefono = () => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 1200px;
+  height: 100%;
   margin: 10px;
   margin-top: -20px;
-  overflow: hidden;
 }
 
 .tab-container {
@@ -611,5 +605,28 @@ const validarTelefono = () => {
 .submit-button:hover::after {
   transition: transform 0.7s ease;
   transform: translateX(100%);
+}
+
+
+@media (max-width: 768px) {
+  .image-side {
+    height: 60vh;
+    max-height: 100vh;
+    flex: none;
+    max-width: 100vw;
+    overflow-y: auto;
+  }
+  .form-side{
+    height: 80vh;
+    max-height: 100vh;
+    flex: none;
+    max-width: 100vw;
+    overflow-y: auto;
+  }
+  .content-wrapper {
+    flex-direction: column !important;
+    min-height: 100vh;
+    height: 100vh;
+  }
 }
 </style>

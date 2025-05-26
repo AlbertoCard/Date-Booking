@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
+        <Loader :visible="loading" />
         <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
             <div class="formulario transform-gpu">
                 <h1 class="titulo text-3xl font-bold text-gray-900 relative">
@@ -246,7 +247,7 @@
                     <div class="flex justify-end space-x-4 mt-8">
                         <button 
                             type="button"
-                            @click="$emit('cancel')"
+                            @click="router.back()"
                             class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-300"
                         >
                             Cancelar
@@ -268,7 +269,9 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import Loader from '../Loader.vue'
 
+const loading = ref(false)
 const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
 const ciudades = ref([])
@@ -372,12 +375,15 @@ const handleImageUpload = (event) => {
 }
 
 const handleSubmit = async () => {
+    loading.value = true
+    // Forzar renderizado del loader antes de operaciones pesadas
     try {
         // Obtener datos del usuario del localStorage
         const userData = JSON.parse(localStorage.getItem('userData'));
         
         if (!userData || userData.rol !== 'establecimiento') {
             alert('Error: Debes ser un establecimiento para crear servicios');
+            loading.value = false
             return;
         }
 
@@ -386,6 +392,7 @@ const handleSubmit = async () => {
         
         if (!estabResponse.data.establecimientos || estabResponse.data.establecimientos.length === 0) {
             alert('Error: No se encontró el establecimiento');
+            loading.value = false
             return;
         }
 
@@ -414,7 +421,6 @@ const handleSubmit = async () => {
         const response = await axios.post('/api/servicios/nuevo-restaurante', datosRestaurante);
         
         if (response.status === 201) {
-            alert('Restaurante creado exitosamente');
             emit('submit', response.data);
             // Redirigir a la página de servicios agregados
             router.push('/servicio-agregados');
@@ -422,6 +428,9 @@ const handleSubmit = async () => {
     } catch (error) {
         console.error('Error al crear el restaurante:', error);
         alert('Error al crear el restaurante: ' + (error.response?.data?.error || error.message));
+    }
+    finally {
+        loading.value = false
     }
 }
 </script>
