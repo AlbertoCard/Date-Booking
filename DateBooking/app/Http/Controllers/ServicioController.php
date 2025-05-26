@@ -23,18 +23,36 @@ class ServicioController extends Controller
     public function index(Request $request)
     {
         $idEstablecimiento = $request->query('id_establecimiento');
-        
+
         $query = Servicio::with(['disponibilidad', 'imagen']);
-        
+
         if ($idEstablecimiento) {
             $query->where('id_establecimiento', $idEstablecimiento);
         }
-        
+
         $servicios = $query->get();
         Log::info('Servicios cargados:', ['servicios' => $servicios->toArray()]);
         return response()->json($servicios);
     }
-    
+
+    // obtener servicio con un paginado de 12 
+    public function indexPaginado(Request $request)
+    {
+        $idEstablecimiento = $request->query('id_establecimiento');
+
+        $query = Servicio::with(['disponibilidad', 'imagen']);
+
+        if ($idEstablecimiento) {
+            $query->where('id_establecimiento', $idEstablecimiento);
+        }
+
+        $servicios = $query->paginate(10);
+        Log::info('Servicios paginados cargados:', ['servicios' => $servicios->toArray()]);
+        return response()->json($servicios);
+    }
+
+
+
     public function show($id)
     {
         $servicio = Servicio::with(['disponibilidad', 'ciudad', 'imagen', 'establecimiento'])->find($id);
@@ -124,17 +142,25 @@ class ServicioController extends Controller
     // buscar servicio
     public function search($search)
     {
-        return Servicio::where('nombre', 'like', '%' . $search . '%')
-            ->with('imagen')
-            ->get();
+        $servicios = Servicio::with('imagen')
+            ->where('nombre', 'like', "%$search%")
+            ->orWhere('descripcion', 'like', "%$search%")
+            ->paginate(10); // <-- Esto es clave
+
+        return response()->json($servicios);
     }
 
     public function categoria($search, $categoria)
     {
-        return Servicio::where('nombre', 'like', '%' . $search . '%')
-            ->where('categoria', 'like', '%' . $categoria . '%')
-            ->with('imagen')
-            ->get();
+        $servicios = Servicio::with('imagen')
+            ->where(function ($query) use ($search) {
+                $query->where('nombre', 'like', "%$search%")
+                    ->orWhere('descripcion', 'like', "%$search%");
+            })
+            ->where('categoria', $categoria)
+            ->paginate(10);
+
+        return response()->json($servicios);
     }
 
 

@@ -69,6 +69,7 @@ Route::prefix('reservas')->group(function () {
     Route::post('/evento', [ReservaController::class, 'reservarEvento']);
     Route::post('/hotel', [ReservaController::class, 'reservarHotel']);
     Route::post('/validar-reserva', [ReservaController::class, 'validarReserva']);
+    Route::get('/evento/{id_servicio}/ocupados', [ReservaController::class, 'getLugaresOcupadosEvento']);
 });
 
 
@@ -81,6 +82,7 @@ Route::delete('/disponibilidad/{id_servicio}', [DisponibilidadController::class,
 // Rutas de servicios
 Route::prefix('servicios')->group(function () {
     Route::get('/', [ServicioController::class, 'index']);
+    Route::get('/paginado', [ServicioController::class, 'indexPaginado']);
     Route::get('/{id}', [ServicioController::class, 'show']);
     Route::get('/search/{search}', [ServicioController::class, 'search']);
     Route::get('/categoria/{search}/{categoria}', [ServicioController::class, 'categoria']);

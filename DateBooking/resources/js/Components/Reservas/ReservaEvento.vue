@@ -30,7 +30,8 @@
 
                 <!-- Contenedor del contenido principal -->
                 <div class="bg-white rounded-xl shadow-sm p-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Sección superior: Información del servicio y detalles de reserva -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
                         <!-- Columna izquierda: Información del servicio -->
                         <div class="space-y-8">
                             <!-- Información del servicio -->
@@ -49,12 +50,12 @@
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Categoría</span>
                                         <p class="font-medium text-gray-900">{{ servicio?.categoria || 'No especificada'
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">ID Establecimiento</span>
                                         <p class="font-medium text-gray-900">#{{ servicio?.id_establecimiento || '000'
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                 </div>
 
@@ -75,7 +76,7 @@
                             </div>
                         </div>
 
-                        <!-- Columna derecha: Formulario de reserva -->
+                        <!-- Columna derecha: Detalles de reserva -->
                         <div class="bg-gray-50 rounded-xl p-6 space-y-8">
                             <!-- Precio -->
                             <div class="text-center">
@@ -85,7 +86,7 @@
                                 </div>
                             </div>
 
-                            <!-- Formulario -->
+                            <!-- Fecha y hora -->
                             <div class="space-y-6">
                                 <!-- Fecha del evento -->
                                 <div v-if="disponibilidad" class="space-y-2">
@@ -109,69 +110,145 @@
                                         <p class="text-gray-900 font-medium">{{ disponibilidad.hora_inicio }}</p>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Selección de lugares -->
-                                <div class="mt-8">
-                                    <h3 class="text-lg font-semibold mb-4">Selecciona tus lugares</h3>
+                            <!-- Información adicional -->
+                            <div class="bg-white p-4 rounded-lg border border-gray-200">
+                                <h3 class="font-medium text-gray-900 mb-2">Información Importante</h3>
+                                <div class="space-y-2 text-sm text-gray-600">
+                                    <p>• La reserva se mantendrá por 15 minutos</p>
+                                    <p>• Se requiere confirmación de pago</p>
+                                    <p>• Cancelaciones con 24 horas de anticipación</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                    <!-- Escenario -->
-                                    <div
-                                        class="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-4 rounded-t-lg shadow-lg mb-4">
-                                        <h4 class="text-xl font-bold">ESCENARIO</h4>
+                    <!-- Sección inferior: Selección de lugares -->
+                    <div class="mt-12">
+                        <h3 class="text-xl font-semibold mb-6">Selecciona tus lugares</h3>
+
+                        <!-- Escenario -->
+                        <div
+                            class="bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-4 rounded-t-lg shadow-lg mb-4">
+                            <h4 class="text-xl font-bold">ESCENARIO</h4>
+                        </div>
+
+                        <!-- Lugares disponibles -->
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <!-- Grid de 3 columnas para los sectores -->
+                            <div class="grid grid-cols-3 gap-8">
+                                <!-- Columna Este -->
+                                <div v-if="lugaresAgrupados.este" class="space-y-4">
+                                    <h5 class="text-lg font-semibold text-gray-800">Este</h5>
+                                    <div class="flex flex-wrap gap-2 justify-center">
+                                        <div v-for="lugar in lugaresAgrupados.este" :key="lugar.id_lugar"
+                                            class="relative">
+                                            <button @click="toggleLugar(lugar)"
+                                                class="w-12 h-12 rounded-lg text-center font-medium transition-all duration-200 text-sm flex items-center justify-center"
+                                                :class="{
+                                                    'bg-red-500 text-white cursor-not-allowed': lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                    'bg-blue-600 text-white': lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                    'bg-gray-100 hover:bg-gray-200 text-gray-700': !lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`) && !lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)
+                                                }"
+                                                :disabled="lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)">
+                                                {{ lugar.fila }}{{ lugar.numero }}
+                                            </button>
+                                        </div>
                                     </div>
+                                </div>
 
-                                    <!-- Lugares disponibles -->
-                                    <div class="bg-white rounded-lg shadow p-4">
-                                        <div class="grid grid-cols-4 gap-4">
-                                            <div v-for="lugar in lugares" :key="lugar.id" class="relative">
+                                <!-- Columna Central (Norte y Sur) -->
+                                <div class="space-y-8">
+                                    <!-- Norte -->
+                                    <div v-if="lugaresAgrupados.norte" class="space-y-4">
+                                        <h5 class="text-lg font-semibold text-gray-800">Norte</h5>
+                                        <div class="flex flex-wrap gap-2 justify-center">
+                                            <div v-for="lugar in lugaresAgrupados.norte" :key="lugar.id_lugar"
+                                                class="relative">
                                                 <button @click="toggleLugar(lugar)"
-                                                    class="w-full p-3 rounded-lg text-center font-medium transition-all duration-200"
-                                                    :class="lugaresSeleccionados.includes(`${lugar.fila}${lugar.numero}`)
-                                                        ? 'bg-blue-600 text-white'
-                                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700'">
+                                                    class="w-12 h-12 rounded-lg text-center font-medium transition-all duration-200 text-sm flex items-center justify-center"
+                                                    :class="{
+                                                        'bg-red-500 text-white cursor-not-allowed': lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                        'bg-blue-600 text-white': lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                        'bg-gray-100 hover:bg-gray-200 text-gray-700': !lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`) && !lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)
+                                                    }"
+                                                    :disabled="lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)">
                                                     {{ lugar.fila }}{{ lugar.numero }}
                                                 </button>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <!-- Resumen de selección -->
-                                        <div class="mt-6 border-t pt-4">
-                                            <h4 class="font-semibold mb-3">Lugares seleccionados</h4>
-                                            <div v-if="lugaresSeleccionados.length > 0" class="space-y-2">
-                                                <div class="flex flex-wrap gap-2">
-                                                    <div v-for="lugar in lugaresSeleccionados" :key="lugar"
-                                                        class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
-                                                        {{ lugar }}
-                                                        <button @click="quitarLugar(lugar)"
-                                                            class="text-blue-500 hover:text-blue-700">
-                                                            ×
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-4 text-right">
-                                                    <span class="font-semibold">Total seleccionados: {{
-                                                        lugaresSeleccionados.length }}</span>
-                                                </div>
+                                    <!-- Sur -->
+                                    <div v-if="lugaresAgrupados.sur" class="space-y-4">
+                                        <h5 class="text-lg font-semibold text-gray-800">Sur</h5>
+                                        <div class="flex flex-wrap gap-2 justify-center">
+                                            <div v-for="lugar in lugaresAgrupados.sur" :key="lugar.id_lugar"
+                                                class="relative">
+                                                <button @click="toggleLugar(lugar)"
+                                                    class="w-12 h-12 rounded-lg text-center font-medium transition-all duration-200 text-sm flex items-center justify-center"
+                                                    :class="{
+                                                        'bg-red-500 text-white cursor-not-allowed': lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                        'bg-blue-600 text-white': lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                        'bg-gray-100 hover:bg-gray-200 text-gray-700': !lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`) && !lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)
+                                                    }"
+                                                    :disabled="lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)">
+                                                    {{ lugar.fila }}{{ lugar.numero }}
+                                                </button>
                                             </div>
-                                            <p v-else class="text-gray-500 text-sm text-center py-2">
-                                                No hay lugares seleccionados
-                                            </p>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Información adicional -->
-                                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                                    <h3 class="font-medium text-gray-900 mb-2">Información Importante</h3>
-                                    <div class="space-y-2 text-sm text-gray-600">
-                                        <p>• La reserva se mantendrá por 15 minutos</p>
-                                        <p>• Se requiere confirmación de pago</p>
-                                        <p>• Cancelaciones con 24 horas de anticipación</p>
+                                <!-- Columna Oeste -->
+                                <div v-if="lugaresAgrupados.oeste" class="space-y-4">
+                                    <h5 class="text-lg font-semibold text-gray-800">Oeste</h5>
+                                    <div class="flex flex-wrap gap-2 justify-center">
+                                        <div v-for="lugar in lugaresAgrupados.oeste" :key="lugar.id_lugar"
+                                            class="relative">
+                                            <button @click="toggleLugar(lugar)"
+                                                class="w-12 h-12 rounded-lg text-center font-medium transition-all duration-200 text-sm flex items-center justify-center"
+                                                :class="{
+                                                    'bg-red-500 text-white cursor-not-allowed': lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                    'bg-blue-600 text-white': lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`),
+                                                    'bg-gray-100 hover:bg-gray-200 text-gray-700': !lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`) && !lugaresSeleccionados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)
+                                                }"
+                                                :disabled="lugaresOcupados.includes(`${lugar.sector}${lugar.fila}${lugar.numero}`)">
+                                                {{ lugar.fila }}{{ lugar.numero }}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Botón de reserva -->
+                            <!-- Resumen de selección -->
+                            <div class="mt-8 border-t pt-4">
+                                <h4 class="font-semibold mb-3">Lugares seleccionados</h4>
+                                <div v-if="lugaresSeleccionados.length > 0" class="space-y-2">
+                                    <div class="flex flex-wrap gap-2">
+                                        <div v-for="lugar in lugaresSeleccionados" :key="lugar"
+                                            class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                                            {{ lugar }}
+                                            <button @click="quitarLugar(lugar)"
+                                                class="text-blue-500 hover:text-blue-700">
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-right">
+                                        <span class="font-semibold">Total seleccionados: {{ lugaresSeleccionados.length
+                                            }}</span>
+                                    </div>
+                                </div>
+                                <p v-else class="text-gray-500 text-sm text-center py-2">
+                                    No hay lugares seleccionados
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Botón de reserva -->
+                        <div class="mt-8">
                             <button @click="realizarReserva" :disabled="!puedeReservar" class="w-full bg-black text-white py-4 rounded-lg font-medium 
                                 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black 
                                 disabled:bg-gray-300 disabled:cursor-not-allowed
@@ -180,7 +257,7 @@
                             </button>
 
                             <!-- Nota informativa -->
-                            <p class="text-center text-sm text-gray-500">
+                            <p class="text-center text-sm text-gray-500 mt-4">
                                 Al realizar la reserva, aceptas nuestros términos y condiciones de servicio
                             </p>
                         </div>
@@ -196,6 +273,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import Loader from '../Loader.vue';
+import { loadStripe } from '@stripe/stripe-js';
 
 const router = useRouter();
 const route = useRoute();
@@ -205,6 +283,7 @@ const error = ref(null);
 const disponibilidad = ref(null);
 const lugares = ref([]);
 const lugaresSeleccionados = ref([]);
+const lugaresOcupados = ref([]);
 
 // Computed properties
 const puedeReservar = computed(() => {
@@ -219,6 +298,17 @@ const puedeReservar = computed(() => {
     });
 
     return tieneDisponibilidad && tieneLugaresSeleccionados && tieneServicio;
+});
+
+const lugaresAgrupados = computed(() => {
+    const agrupados = {};
+    lugares.value.forEach(lugar => {
+        if (!agrupados[lugar.sector]) {
+            agrupados[lugar.sector] = [];
+        }
+        agrupados[lugar.sector].push(lugar);
+    });
+    return agrupados;
 });
 
 // Métodos
@@ -254,29 +344,30 @@ const cargarLugares = async () => {
     }
 };
 
+const cargarLugaresOcupados = async () => {
+    try {
+        const response = await axios.get(`/api/reservas/evento/${route.params.id}/ocupados`);
+        lugaresOcupados.value = response.data;
+        console.log('Lugares ocupados:', lugaresOcupados.value);
+    } catch (err) {
+        console.error('Error al cargar lugares ocupados:', err);
+    }
+};
+
 const toggleLugar = (lugar) => {
-    if (!lugar || !lugar.fila || !lugar.numero) {
+    if (!lugar || !lugar.fila || !lugar.numero || !lugar.sector) {
         console.error('Lugar inválido:', lugar);
         return;
     }
 
-    // Asegurarse de que fila sea una letra y número sea un número
-    const fila = lugar.fila.toString().toLowerCase().trim();
-    const numero = lugar.numero.toString().trim();
+    const lugarId = `${lugar.sector}${lugar.fila}${lugar.numero}`;
 
-    if (!/^[a-z]$/.test(fila)) {
-        console.error('Fila inválida:', fila);
-        return;
+    // Verificar si el lugar está ocupado
+    if (lugaresOcupados.value.includes(lugarId)) {
+        return; // No permitir seleccionar lugares ocupados
     }
 
-    if (!/^\d+$/.test(numero)) {
-        console.error('Número inválido:', numero);
-        return;
-    }
-
-    const lugarId = `${fila}${numero}`;
     const index = lugaresSeleccionados.value.indexOf(lugarId);
-
     if (index === -1) {
         lugaresSeleccionados.value.push(lugarId);
     } else {
@@ -343,11 +434,7 @@ const realizarReserva = async () => {
         const fechaHora = `${fecha} ${horaFormateada}:00`;
 
         console.log('Fecha formateada:', fechaHora);
-
-        // Asegurarse de que los lugares estén en el formato correcto (array de strings)
-        const lugaresFormateados = lugaresSeleccionados.value.map(lugar => {
-            return lugar.toLowerCase().trim();
-        });
+        console.log('Lugares seleccionados:', lugaresSeleccionados.value);
 
         const reservaData = {
             id_usuario: userData.uid,
@@ -355,8 +442,10 @@ const realizarReserva = async () => {
             estado: 'apartada',
             fecha: fechaHora,
             tipo_servicio: 'evento',
-            lugares: lugaresFormateados
+            lugares: lugaresSeleccionados.value
         };
+
+        console.log('Datos de la reserva:', reservaData);
 
         // Validación adicional antes de enviar
         if (!reservaData.id_usuario || !reservaData.id_servicio || !reservaData.fecha || !reservaData.lugares.length) {
@@ -370,23 +459,69 @@ const realizarReserva = async () => {
             throw new Error(`Formato de fecha inválido. Se esperaba YYYY-MM-DD HH:mm:ss, se recibió: ${reservaData.fecha}`);
         }
 
-        // Validar formato de lugares
-        const lugarRegex = /^[a-z]\d+$/;
-        const lugaresInvalidos = lugaresFormateados.filter(lugar => !lugarRegex.test(lugar));
-        if (lugaresInvalidos.length > 0) {
-            throw new Error(`Formato inválido para los lugares: ${lugaresInvalidos.join(', ')}`);
-        }
-
-        console.log('Intentando realizar reserva con datos:', reservaData);
-
         const response = await axios.post('/api/reservas/evento', reservaData);
         console.log('Respuesta del servidor:', response.data);
 
-        if (response.data.id_reserva) {
-            alert('¡Reserva realizada con éxito! Tienes 15 minutos para completar el pago.');
-            router.push(`/pago/${response.data.id_reserva}`);
-        } else {
-            throw new Error('No se recibió ID de reserva en la respuesta');
+        if (!response.data || !response.data.id_reserva) {
+            throw new Error('No se recibió una respuesta válida del servidor');
+        }
+
+        // Iniciamos el proceso de pago con Stripe
+        try {
+            console.log('Iniciando proceso de pago con Stripe...');
+            console.log('Datos para el pago:', {
+                userId: userData.uid,
+                reservaId: response.data.id_reserva,
+                monto: servicio.value.costo * lugaresSeleccionados.value.length
+            });
+
+            const stripeResponse = await axios.post('/api/stripe/checkout', {
+                userId: userData.uid,
+                reservaId: response.data.id_reserva,
+                monto: servicio.value.costo * lugaresSeleccionados.value.length
+            });
+
+            console.log('Respuesta de Stripe:', stripeResponse.data);
+
+            if (!stripeResponse.data || !stripeResponse.data.id) {
+                console.error('Respuesta inválida de Stripe:', stripeResponse.data);
+                throw new Error('No se recibió una respuesta válida de Stripe');
+            }
+
+            // Cargamos Stripe y redirigimos al checkout
+            console.log('Cargando Stripe con key:', import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+            const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+            if (!stripe) {
+                throw new Error('No se pudo cargar Stripe. Verifica que la clave pública esté configurada correctamente.');
+            }
+
+            console.log('Redirigiendo a checkout con sessionId:', stripeResponse.data.id);
+            const result = await stripe.redirectToCheckout({
+                sessionId: stripeResponse.data.id
+            });
+
+            if (result.error) {
+                console.error('Error en redirectToCheckout:', result.error);
+                throw new Error(`Error al redirigir a Stripe: ${result.error.message}`);
+            }
+        } catch (stripeError) {
+            console.error('Error detallado en el proceso de pago:', {
+                error: stripeError,
+                response: stripeError.response?.data,
+                message: stripeError.message
+            });
+
+            let mensajeError = 'Error al procesar el pago. ';
+            if (stripeError.response?.data?.message) {
+                mensajeError += stripeError.response.data.message;
+            } else if (stripeError.message) {
+                mensajeError += stripeError.message;
+            } else {
+                mensajeError += 'Por favor, intenta nuevamente.';
+            }
+
+            alert(mensajeError);
         }
     } catch (err) {
         console.error('Error detallado:', err);
@@ -428,5 +563,6 @@ onMounted(() => {
     cargarServicio();
     cargarLugares();
     cargarDisponibilidad();
+    cargarLugaresOcupados();
 });
 </script>

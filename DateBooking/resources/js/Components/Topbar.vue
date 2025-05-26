@@ -216,6 +216,7 @@ export default {
   width: 100%;
   transition: all ease-in-out .5s;
   margin-right: -2rem;
+  overflow: hidden;
 }
 
 .search_input:hover,
@@ -226,6 +227,7 @@ export default {
 .search_input:focus {
   outline: none;
   background-color: #f0eeee;
+  border: 1px solid #2563eb;
 }
 
 .search_input::-webkit-input-placeholder {
@@ -240,7 +242,7 @@ export default {
 .btnSearch {
   border: none;
   padding: 8px;
-  border-radius: 6px;
+  border-radius: 15px;
   margin-left: -20px;
 }
 

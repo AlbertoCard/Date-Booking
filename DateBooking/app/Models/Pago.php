@@ -14,6 +14,7 @@ class Pago extends Model
 
     protected $fillable = [
         'id_usuario',
+        'id_reserva',
         'stripe_payment_intent_id',
         'stripe_customer_id',
         'monto',
@@ -32,5 +33,11 @@ class Pago extends Model
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario', 'uid');
+    }
+
+    // Relación con Reserva
+    public function reserva()
+    {
+        return $this->belongsTo(Reserva::class, 'id_reserva', 'id_reserva');
     }
 }

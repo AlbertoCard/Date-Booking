@@ -128,8 +128,7 @@
                                         class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-black focus:ring-1 focus:ring-black transition-colors appearance-none bg-white"
                                         v-model="numeroPersonas">
                                         <option disabled value="">Selecciona el número de personas</option>
-                                        <option v-for="n in 10" :key="n" :value="n">{{ n }} {{ n === 1 ? 'persona' :
-                                            'personas' }}</option>
+                                        <option v-for="n in [2, 4, 6]" :key="n" :value="n">{{ n }} personas</option>
                                     </select>
                                 </div>
 
@@ -169,6 +168,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import Loader from '../Loader.vue';
+import { loadStripe } from '@stripe/stripe-js';
 
 const router = useRouter();
 const route = useRoute();
@@ -283,11 +283,31 @@ const realizarReserva = async () => {
             personas: numeroPersonas.value
         };
 
+        // Primero creamos la reserva
         const response = await axios.post('/api/reservas/restaurante', reservaData);
 
         if (response.data.id_reserva) {
-            alert('¡Reserva realizada con éxito! Tienes 15 minutos para completar el pago.');
-            router.push(`/pago/${response.data.id_reserva}`);
+            // Iniciamos el proceso de pago con Stripe
+            try {
+                const stripeResponse = await axios.post('/api/stripe/checkout', {
+                    userId: userData.uid,
+                    reservaId: response.data.id_reserva,
+                    monto: servicio.value.costo
+                });
+
+                // Cargamos Stripe y redirigimos al checkout
+                const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+                const result = await stripe.redirectToCheckout({ 
+                    sessionId: stripeResponse.data.id 
+                });
+
+                if (result.error) {
+                    throw new Error(result.error.message);
+                }
+            } catch (stripeError) {
+                console.error('Error al procesar el pago:', stripeError);
+                alert('Error al procesar el pago. Por favor, intenta nuevamente.');
+            }
         }
     } catch (err) {
         console.error('Error al realizar la reserva:', err);

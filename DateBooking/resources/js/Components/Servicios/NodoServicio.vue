@@ -17,8 +17,9 @@
                 Volver
             </button>
 
-            <div class="flex flex-col md:flex-row gap-4">
-                <!-- Imagen del servicio -->
+            <!-- Sección superior: Imagen y Botón a la izquierda, Información a la derecha -->
+            <div class="flex flex-col md:flex-row gap-8 mb-8">
+                <!-- Columna izquierda: Imagen y Botón -->
                 <div class="w-full md:w-1/3">
                     <div class="relative aspect-square rounded-xl overflow-hidden shadow-lg">
                         <template v-if="servicio.imagen && servicio.imagen.url">
@@ -48,109 +49,92 @@
                     </div>
                 </div>
 
-                <!-- Información del servicio -->
+                <!-- Columna derecha: Información del servicio -->
                 <div class="w-full md:w-2/3">
-                    <div class="grid grid-cols-1 gap-4">
-                        <!-- Detalles principales -->
-                        <div class="space-y-4">
-                            <div>
-                                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ servicio.nombre }}</h1>
-                                <div class="bg-gray-50 p-3 rounded-lg">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Establecimiento</h3>
-                                    <p class="text-gray-600">{{ servicio.establecimiento?.nombre ||
-                                        'Establecimiento no especificado' }}
-                                    </p>
-                                </div>
-                                <div class="bg-gray-50 p-3 rounded-lg mt-4">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Descripción</h3>
-                                    <p class="text-gray-600 whitespace-pre-line">{{ servicio.descripcion }}</p>
-                                </div>
+                    <div class="space-y-6">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ servicio.nombre }}</h1>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Establecimiento</h3>
+                                <p class="text-gray-600">{{ servicio.establecimiento?.nombre ||
+                                    'Establecimiento no especificado' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Descripción</h3>
+                            <p class="text-gray-600 whitespace-pre-line">{{ servicio.descripcion }}</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Precio</h3>
+                                <div class="text-2xl font-bold text-blue-600">${{ servicio.costo }}</div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-gray-50 p-3 rounded-lg">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Precio</h3>
-                                    <div class="text-2xl font-bold text-blue-600">${{ servicio.costo }}</div>
-                                </div>
-
-                                <div class="bg-gray-50 p-3 rounded-lg">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Ubicación</h3>
-                                    <div class="flex items-center text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        <p class="font-medium">{{ servicio.ciudad?.nombre || 'Ciudad no especificada' }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">Calificación</h3>
-                                <div class="flex items-center">
-                                    <span v-for="i in 5" :key="i" class="text-yellow-400 text-xl">
-                                        {{ i <= servicio.estrellas ? '★' : '☆' }} </span>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Ubicación</h3>
+                                <div class="flex items-center text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <p class="font-medium">{{ servicio.ciudad?.nombre || 'Ciudad no especificada' }}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Disponibilidad -->
-                        <div class="space-y-4">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">Estado del Servicio</h3>
-                                <div :class="[
-                                    'estado-disponibilidad',
-                                    servicio.disponibilidad?.[0]?.activo === 1 ? 'activo' : 'inactivo'
-                                ]">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path v-if="servicio.disponibilidad?.[0]?.activo === 1" stroke-linecap="round"
-                                            stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ servicio.disponibilidad?.[0]?.activo === 1 ? 'Servicio Disponible' :
-                                        'Servicio No Disponible' }}
-                                </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Estado del Servicio</h3>
+                            <div
+                                :class="[
+                                    'estado-disponibilidad', servicio.disponibilidad?.[0]?.activo === 1 ? 'activo' : 'inactivo']">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path v-if="servicio.disponibilidad?.[0]?.activo === 1" stroke-linecap="round"
+                                        stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                {{ servicio.disponibilidad?.[0]?.activo === 1 ? 'Servicio Disponible' :
+                                    'Servicio No Disponible' }}
                             </div>
+                        </div>
 
-                            <div v-if="servicio.disponibilidad && servicio.disponibilidad.length > 0"
-                                class="bg-gray-50 p-3 rounded-lg">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">Detalles de Disponibilidad</h3>
-                                <div class="space-y-3">
-                                    <div v-for="(disp, index) in servicio.disponibilidad" :key="index"
-                                        class="border-b border-gray-200 pb-3 last:border-0">
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-500">Fecha</p>
-                                                <p class="text-gray-900">{{ new Date(disp.fecha).toLocaleDateString() }}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-500">Tipo</p>
-                                                <p class="text-gray-900">{{ disp.tipo }}</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-500">Hora Inicio</p>
-                                                <p class="text-gray-900">{{ disp.hora_inicio }}</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-medium text-gray-500">Hora Fin</p>
-                                                <p class="text-gray-900">{{ disp.hora_fin }}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Categoría</h3>
+                            <p class="text-gray-600">{{ servicio.categoria }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección inferior: Disponibilidad horizontal -->
+            <div v-if="servicio.disponibilidad && servicio.disponibilidad.length > 0" class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4">Detalles de Disponibilidad</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div v-for="(disp, index) in servicio.disponibilidad" :key="index"
+                        class="bg-white p-3 rounded-lg shadow-sm">
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Fecha</p>
+                                <p class="text-gray-900 font-medium">{{ new Date(disp.fecha).toLocaleDateString() }}</p>
                             </div>
-
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-1">Categoría</h3>
-                                <p class="text-gray-600">{{ servicio.categoria }}</p>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Tipo</p>
+                                <p class="text-gray-900">{{ disp.tipo }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Hora Inicio</p>
+                                <p class="text-gray-900">{{ disp.hora_inicio }}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Hora Fin</p>
+                                <p class="text-gray-900">{{ disp.hora_fin }}</p>
                             </div>
                         </div>
                     </div>
