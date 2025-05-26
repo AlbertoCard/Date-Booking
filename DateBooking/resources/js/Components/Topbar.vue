@@ -39,9 +39,6 @@
           <router-link to="/registro" class="dropdown-item">Registrarse</router-link>
         </template>
         <template v-else>
-          <router-link :to="userData.rol === 'establecimiento' ? '/dashboard-establecimiento' : '/dashboard-cliente'" class="dropdown-item">
-            Mi Dashboard
-          </router-link>
           <button class="dropdown-item" @click="logout">Cerrar Sesión</button>
         </template>
       </div>
