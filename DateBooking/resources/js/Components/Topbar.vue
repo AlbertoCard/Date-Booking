@@ -39,9 +39,6 @@
           <router-link to="/registro" class="dropdown-item">Registrarse</router-link>
         </template>
         <template v-else>
-          <router-link :to="userData.rol === 'establecimiento' ? '/dashboard-establecimiento' : '/dashboard-cliente'" class="dropdown-item">
-            Mi Dashboard
-          </router-link>
           <button class="dropdown-item" @click="logout">Cerrar Sesión</button>
         </template>
       </div>
@@ -116,18 +113,18 @@ export default {
         if (auth.currentUser) {
           await axios.put(`/api/usuarios/${auth.currentUser.uid}/activo`);
         }
-        
+
         // Luego cerramos sesión en Firebase
         await signOut(auth);
-        
+
         // Limpiar datos del usuario
         localStorage.removeItem('userData');
         this.userData = null;
         this.isAuthenticated = false;
-        
+
         // Redireccionar al inicio
         await this.$router.push('/');
-        
+
         // Cerrar el dropdown
         this.closeDropdown();
       } catch (error) {
@@ -187,6 +184,8 @@ export default {
   min-width: 55px;
   width: 60px;
   height: auto;
+  background: none;
+  border-radius: 0;
 }
 
 .div_search {
@@ -219,20 +218,10 @@ export default {
   overflow: hidden;
 }
 
-.search_input:hover,
-.search__input:focus {
-  box-shadow: 0 0 1em #00000013;
-}
-
 .search_input:focus {
   outline: none;
   background-color: #f0eeee;
   border: 1px solid #2563eb;
-}
-
-.search_input::-webkit-input-placeholder {
-  font-weight: 100;
-  color: #ccc;
 }
 
 .search_input:focus+.btnSearch {
@@ -253,6 +242,7 @@ export default {
 .div_user {
   flex-shrink: 0;
 }
+
 .btnUser {
   background: none;
   border: none;
@@ -300,7 +290,12 @@ export default {
   color: #2563eb;
 }
 
-
+.nombre {
+  color: inherit;
+  font-weight: normal;
+  font-size: inherit;
+  text-shadow: none;
+}
 
 @media (max-width: 700px) {
   .hero {

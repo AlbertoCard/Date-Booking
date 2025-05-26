@@ -175,6 +175,13 @@ class ServicioController extends Controller
 
     public function nuevoConsultorio(Request $request)
     {
+        if ($request->has('disponibilidad') && is_string($request->disponibilidad)) {
+            $request->merge(['disponibilidad' => json_decode($request->disponibilidad, true)]);
+        }
+        if ($request->has('medicos') && is_string($request->medicos)) {
+            $request->merge(['medicos' => json_decode($request->medicos, true)]);
+        }
+
         try {
             $request->validate([
                 'id_establecimiento' => 'required|integer',
@@ -245,6 +252,23 @@ class ServicioController extends Controller
                 ]);
             }
 
+            // Guardar la imagen si se proporciona
+            if ($request->hasFile('imagen')) {
+                try {
+                    $imagen = $request->file('imagen');
+                    $extension = $imagen->getClientOriginalExtension();
+                    $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
+                    $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
+                    $imagen->move(public_path('images'), $nombreImagen);
+                    \App\Models\Imagen::create([
+                        'id_servicio' => $id_servicio,
+                        'url' => '/images/' . $nombreImagen
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                }
+            }
+
             DB::commit();
 
             return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
@@ -265,6 +289,14 @@ class ServicioController extends Controller
 
     public function nuevoRestaurante(Request $request)
     {
+        // Decodificar si vienen como JSON string
+        if ($request->has('disponibilidad') && is_string($request->disponibilidad)) {
+            $request->merge(['disponibilidad' => json_decode($request->disponibilidad, true)]);
+        }
+        if ($request->has('mesas') && is_string($request->mesas)) {
+            $request->merge(['mesas' => json_decode($request->mesas, true)]);
+        }
+
         try {
             $request->validate([
                 'id_establecimiento' => 'required|integer',
@@ -327,6 +359,24 @@ class ServicioController extends Controller
                     'personas' => $mesa['personas']
                 ]);
             }
+
+            // Guardar la imagen si se proporciona
+            if ($request->hasFile('imagen')) {
+                try {
+                    $imagen = $request->file('imagen');
+                    $extension = $imagen->getClientOriginalExtension();
+                    $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
+                    $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
+                    $imagen->move(public_path('images'), $nombreImagen);
+                    \App\Models\Imagen::create([
+                        'id_servicio' => $id_servicio,
+                        'url' => '/images/' . $nombreImagen
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                }
+            }
+
             DB::commit();
             return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
         } catch (\Exception $e) {
@@ -346,6 +396,13 @@ class ServicioController extends Controller
 
     public function nuevoEvento(Request $request)
     {
+        if ($request->has('disponibilidad') && is_string($request->disponibilidad)) {
+            $request->merge(['disponibilidad' => json_decode($request->disponibilidad, true)]);
+        }
+        if ($request->has('lugares') && is_string($request->lugares)) {
+            $request->merge(['lugares' => json_decode($request->lugares, true)]);
+        }
+
         try {
             $request->validate([
                 'id_establecimiento' => 'required|integer',
@@ -355,6 +412,7 @@ class ServicioController extends Controller
                 'categoria' => 'required|string|max:255',
                 'id_ciudad' => 'required|exists:ciudades,id_ciudad',
                 'disponibilidad' => 'required|array|min:1',
+                'disponibilidad.*.fecha' => 'required|date',
                 'disponibilidad.*.hora_inicio' => 'required|string',
                 'disponibilidad.*.hora_fin' => 'required|string',
                 'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
@@ -396,6 +454,7 @@ class ServicioController extends Controller
             foreach ($request->disponibilidad as $disp) {
                 \App\Models\Disponibilidad::create([
                     'id_servicio' => $id_servicio,
+                    'fecha' => $disp['fecha'],
                     'hora_inicio' => $disp['hora_inicio'],
                     'hora_fin' => $disp['hora_fin'],
                     'intervalo' => $disp['intervalo'],
@@ -406,7 +465,7 @@ class ServicioController extends Controller
             }
 
             // Definir sectores y letras de filas
-            $sectores = ['VIP', 'A', 'B', 'C'];
+            $sectores = ['norte', 'sur', 'este', 'oeste'];
             $letrasFilas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
             // Crear lugares
@@ -430,6 +489,23 @@ class ServicioController extends Controller
                 }
             }
 
+            // Guardar la imagen si se proporciona
+            if ($request->hasFile('imagen')) {
+                try {
+                    $imagen = $request->file('imagen');
+                    $extension = $imagen->getClientOriginalExtension();
+                    $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
+                    $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
+                    $imagen->move(public_path('images'), $nombreImagen);
+                    \App\Models\Imagen::create([
+                        'id_servicio' => $id_servicio,
+                        'url' => '/images/' . $nombreImagen
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                }
+            }
+
             DB::commit();
             return response()->json($servicio->load(['disponibilidad', 'imagen']), 201);
         } catch (\Exception $e) {
@@ -449,6 +525,13 @@ class ServicioController extends Controller
     // - El método no tiene el modificador de visibilidad (debe ser public).    
     public function nuevoHotel(Request $request)
     {
+        if ($request->has('disponibilidad') && is_string($request->disponibilidad)) {
+            $request->merge(['disponibilidad' => json_decode($request->disponibilidad, true)]);
+        }
+        if ($request->has('habitacion') && is_string($request->habitacion)) {
+            $request->merge(['habitacion' => json_decode($request->habitacion, true)]);
+        }
+
         try {
             $request->validate([
                 'id_establecimiento' => 'required|integer',
@@ -517,6 +600,23 @@ class ServicioController extends Controller
                     'numero' => $hab['numero'],
                     'capacidad' => $hab['capacidad']
                 ]);
+            }
+
+            // Guardar la imagen si se proporciona
+            if ($request->hasFile('imagen')) {
+                try {
+                    $imagen = $request->file('imagen');
+                    $extension = $imagen->getClientOriginalExtension();
+                    $nombreLimpio = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($imagen->getClientOriginalName(), PATHINFO_FILENAME));
+                    $nombreImagen = time() . '_' . $nombreLimpio . '.' . $extension;
+                    $imagen->move(public_path('images'), $nombreImagen);
+                    \App\Models\Imagen::create([
+                        'id_servicio' => $id_servicio,
+                        'url' => '/images/' . $nombreImagen
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                }
             }
 
             DB::commit();
