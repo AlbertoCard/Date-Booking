@@ -602,6 +602,14 @@ class ReservaController extends Controller
             return response()->json(['error' => 'No se encontró la reserva.'], 404);
         }
 
+        if ($reserva->fecha < now()) {
+        return response()->json(['error' => 'La reserva ya expiró.'], 400);
+        }
+
+        if ($reserva->estado !== 'pendiente'){
+            return response()->json(['message' => 'La reserva no puede ser validada.'], 400);
+        }
+
         if ($reserva->estado === $estado) {
             return response()->json(['message' => 'La reserva ya tiene este estado.'], 200);
         }
