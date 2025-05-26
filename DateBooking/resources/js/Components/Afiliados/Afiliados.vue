@@ -71,7 +71,7 @@
   import axios from 'axios';
   import Loader from '../Loader.vue';
 
-  const API_URL = 'http://127.0.0.1:8000/api/afiliados/'
+  const API_URL = window.location.origin + '/api/afiliados/'
   
   export default {
     components: {
