@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
+        <Loader :visible="loading" />
         <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
             <div class="formulario transform-gpu">
                 <h1 class="titulo text-3xl font-bold text-gray-900 relative">
@@ -169,6 +170,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import Loader from '../Loader.vue'
 
 const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
@@ -185,6 +187,7 @@ const formData = ref({
     imagen: null,
     disponibilidad: [
         {
+            fecha: '',
             hora_inicio: '',
             hora_fin: '',
             intervalo: '00:00:00',
@@ -249,6 +252,7 @@ const handleSubmit = async () => {
             formDataToSend.append('imagen', formData.value.imagen);
         }
         formDataToSend.append('disponibilidad', JSON.stringify([{
+            fecha: formData.value.disponibilidad[0].fecha,
             hora_inicio: formatTime(formData.value.disponibilidad[0].hora_inicio) + ':00',
             hora_fin: formatTime(formData.value.disponibilidad[0].hora_fin) + ':00',
             intervalo: '00:00:00',
@@ -265,13 +269,12 @@ const handleSubmit = async () => {
         });
 
         if (response.status === 201) {
-            alert('Evento creado exitosamente');
             emit('submit', response.data);
             router.push('/servicio-agregados');
         }
     } catch (error) {
+        console.error('Error al enviar el formulario:', formData.value);
         console.error('Error al crear el evento:', error);
-        alert('Error al crear el evento: ' + (error.response?.data?.error || error.message));
     } finally {
         loading.value = false;
     }

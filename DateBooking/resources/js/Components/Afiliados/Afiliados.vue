@@ -102,7 +102,6 @@
             .then(response => {
                 this.cargando = true;
                 this.afiliados = response.data;
-                console.log("Mostrando afiliados del establecimiento: " + this.afiliados.length);
             })
             .catch(error => {
                 console.error('Error al obtener afiliados:', error);

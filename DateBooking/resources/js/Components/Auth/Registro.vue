@@ -10,38 +10,74 @@ const nombre = ref('')
 const correo = ref('')
 const telefono = ref('')
 const contrasena = ref('')
-const error = ref('')
 const loading = ref(false)
 const router = useRouter()
-const fotoUrl = ref('https://via.placeholder.com/150') // URL por defecto para la foto
+const fotoUrl = ref('https://via.placeholder.com/150')
 const activeTab = ref('cliente')
+const showModal = ref(false)
+const modalMessage = ref('')
+
+const showErrorMessage = (message) => {
+  modalMessage.value = message;
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  modalMessage.value = '';
+};
+
+// Función para validar y formatear el teléfono en tiempo real
+const validarTelefonoInput = (event) => {
+  const valor = event.target.value.replace(/\D/g, '')
+  telefono.value = valor.slice(0, 10)
+}
+
+// Función para limitar el nombre
+const validarNombreInput = (event) => {
+  nombre.value = event.target.value.slice(0, 50)
+}
+
+// Función para limitar el correo
+const validarCorreoInput = (event) => {
+  correo.value = event.target.value.slice(0, 100)
+}
+
+// Función para limitar la contraseña
+const validarContrasenaInput = (event) => {
+  contrasena.value = event.target.value.slice(0, 20)
+}
 
 // Función de registro
 const registrar = async () => {
-  error.value = ''
   loading.value = true
 
   try {
     // Validaciones básicas
     if (!nombre.value.trim()) {
-      error.value = 'El nombre es requerido'
-      return
+      showErrorMessage('Por favor, ingresa tu nombre completo');
+      loading.value = false;
+      return;
     }
     if (!correo.value.trim()) {
-      error.value = 'El correo electrónico es requerido'
-      return
+      showErrorMessage('Por favor, ingresa tu correo electrónico');
+      loading.value = false;
+      return;
     }
     if (!telefono.value.trim()) {
-      error.value = 'El teléfono es requerido'
-      return
+      showErrorMessage('Por favor, ingresa tu número de teléfono');
+      loading.value = false;
+      return;
     }
     if (telefono.value.length !== 10) {
-      error.value = 'El teléfono debe tener 10 dígitos'
-      return
+      showErrorMessage('El número de teléfono debe tener 10 dígitos');
+      loading.value = false;
+      return;
     }
     if (!contrasena.value || contrasena.value.length < 6) {
-      error.value = 'La contraseña debe tener al menos 6 caracteres'
-      return
+      showErrorMessage('La contraseña debe tener al menos 6 caracteres');
+      loading.value = false;
+      return;
     }
 
     // 1. Crear usuario en Firebase
@@ -65,7 +101,6 @@ const registrar = async () => {
         rol: activeTab.value
       })
 
-      // Primero creamos el usuario
       const usuarioResponse = await axios.post('/api/usuarios', {
         uid: user.uid,
         nombre: nombre.value,
@@ -77,7 +112,6 @@ const registrar = async () => {
 
       console.log('Respuesta del servidor (usuario):', usuarioResponse.data)
 
-      // Guardar datos del usuario en localStorage
       localStorage.setItem('userData', JSON.stringify({
         uid: user.uid,
         nombre: nombre.value,
@@ -87,7 +121,6 @@ const registrar = async () => {
         rol: activeTab.value
       }))
 
-      // Si es un establecimiento, creamos también el establecimiento
       if (activeTab.value === 'establecimiento') {
         console.log('Creando establecimiento...')
         const establecimientoResponse = await axios.post('/api/establecimientos', {
@@ -105,18 +138,16 @@ const registrar = async () => {
         console.log('Respuesta del servidor (establecimiento):', establecimientoResponse.data)
       }
 
-      // 4. Redireccionar al dashboard correspondiente
       router.push('/')
     } catch (apiError) {
       console.error('Error al guardar en la base de datos:', apiError)
       if (apiError.response) {
         console.error('Respuesta del servidor:', apiError.response.data)
-        error.value = 'Error al guardar los datos: ' + (apiError.response.data.message || apiError.response.data.error || apiError.message)
+        showErrorMessage('Lo sentimos, ha ocurrido un error al guardar tus datos. Por favor, intenta nuevamente.');
       } else {
-        error.value = 'Error al guardar los datos: ' + apiError.message
+        showErrorMessage('Lo sentimos, ha ocurrido un error al guardar tus datos. Por favor, intenta nuevamente.');
       }
 
-      // Si hay error, intentar limpiar el usuario de Firebase
       try {
         await user.delete()
       } catch (deleteError) {
@@ -127,19 +158,19 @@ const registrar = async () => {
     console.error('Error con Firebase:', firebaseError)
     switch (firebaseError.code) {
       case 'auth/email-already-in-use':
-        error.value = 'Este correo electrónico ya está registrado'
-        break
+        showErrorMessage('Este correo electrónico ya está registrado. Por favor, utiliza otro correo o inicia sesión.');
+        break;
       case 'auth/invalid-email':
-        error.value = 'El correo electrónico no es válido'
-        break
+        showErrorMessage('Por favor, ingresa un correo electrónico válido.');
+        break;
       case 'auth/operation-not-allowed':
-        error.value = 'El registro con correo y contraseña no está habilitado'
-        break
+        showErrorMessage('Lo sentimos, el registro con correo y contraseña no está habilitado en este momento.');
+        break;
       case 'auth/weak-password':
-        error.value = 'La contraseña debe tener al menos 6 caracteres'
-        break
+        showErrorMessage('Por favor, utiliza una contraseña más segura (mínimo 6 caracteres).');
+        break;
       default:
-        error.value = 'Error al registrar: ' + firebaseError.message
+        showErrorMessage('Lo sentimos, ha ocurrido un error al registrar tu cuenta. Por favor, intenta nuevamente.');
     }
   } finally {
     loading.value = false
@@ -149,25 +180,45 @@ const registrar = async () => {
 // Validación de contraseña
 const validarContrasena = () => {
   if (contrasena.value.length < 6) {
-    error.value = 'La contraseña debe tener al menos 6 caracteres'
-    return false
+    showErrorMessage('La contraseña debe tener al menos 6 caracteres');
+    return false;
   }
-  return true
+  return true;
 }
 
 // Validación de teléfono
 const validarTelefono = () => {
-  const telefonoRegex = /^\d{10}$/
+  const telefonoRegex = /^\d{10}$/;
   if (!telefonoRegex.test(telefono.value)) {
-    error.value = 'El teléfono debe tener 10 dígitos'
-    return false
+    showErrorMessage('El número de teléfono debe tener 10 dígitos');
+    return false;
   }
-  return true
+  return true;
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white flex items-center justify-center p-6">
+    <!-- Modal de error -->
+    <Transition name="fade">
+      <div v-if="showModal" class="modal-backdrop" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-icon" :class="{ 'active': true }">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="modal-title">Atención</h3>
+          <p class="modal-message">{{ modalMessage }}</p>
+          <div class="modal-actions">
+            <button class="modal-button confirm" @click="closeModal">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <div class="container">
       <div class="tab-container">
         <button class="tab" :class="{ active: activeTab === 'cliente' }" @click="activeTab = 'cliente'">
@@ -210,24 +261,52 @@ const validarTelefono = () => {
                 <label for="nombre">
                   {{ activeTab === 'cliente' ? 'Nombre completo' : 'Nombre del establecimiento' }}
                 </label>
-                <input v-model="nombre" type="text" id="nombre"
-                  :placeholder="activeTab === 'cliente' ? 'Tu nombre completo' : 'Nombre de tu negocio'" required />
+                <input 
+                  v-model="nombre" 
+                  type="text" 
+                  id="nombre"
+                  @input="validarNombreInput"
+                  :placeholder="activeTab === 'cliente' ? 'Tu nombre completo' : 'Nombre de tu negocio'" 
+                  required 
+                />
               </div>
 
               <div class="form-group">
                 <label for="correo">Correo electrónico</label>
-                <input v-model="correo" type="email" id="correo" placeholder="correo@ejemplo.com" required />
+                <input 
+                  v-model="correo" 
+                  type="email" 
+                  id="correo" 
+                  @input="validarCorreoInput"
+                  placeholder="correo@ejemplo.com" 
+                  required 
+                />
               </div>
 
               <div class="form-group">
                 <label for="telefono">Teléfono de contacto</label>
-                <input v-model="telefono" type="tel" id="telefono" placeholder="10 dígitos" required />
+                <input 
+                  v-model="telefono" 
+                  type="tel" 
+                  id="telefono" 
+                  @input="validarTelefonoInput"
+                  pattern="[0-9]*"
+                  inputmode="numeric"
+                  placeholder="10 dígitos" 
+                  required 
+                />
               </div>
 
               <div class="form-group">
                 <label for="contrasena">Contraseña</label>
-                <input v-model="contrasena" type="password" id="contrasena" placeholder="Mínimo 6 caracteres"
-                  required />
+                <input 
+                  v-model="contrasena" 
+                  type="password" 
+                  id="contrasena" 
+                  @input="validarContrasenaInput"
+                  placeholder="Mínimo 6 caracteres"
+                  required 
+                />
               </div>
 
               <div v-if="error" class="error-message">
@@ -607,7 +686,6 @@ const validarTelefono = () => {
   transform: translateX(100%);
 }
 
-
 @media (max-width: 768px) {
   .image-side {
     height: 60vh;
@@ -629,4 +707,156 @@ const validarTelefono = () => {
     height: 100vh;
   }
 }
+
+/* Estilos del Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 90%;
+  width: 400px;
+  text-align: center;
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  z-index: 10000;
+}
+
+.modal-icon {
+  margin: 0 auto 1.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-icon.active {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.modal-message {
+  color: #64748b;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.modal-button.cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.modal-button.cancel:hover {
+  background-color: #d1d5db;
+}
+
+.modal-button.confirm {
+  background-color: #2563eb;
+  color: white;
+}
+
+.modal-button.confirm:hover {
+  background-color: #1d4ed8;
+}
+
+/* Animaciones del modal */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active .modal-content {
+  animation: modal-in 0.3s ease-out;
+}
+
+.fade-leave-active .modal-content {
+  animation: modal-out 0.3s ease-in;
+}
+
+@keyframes modal-in {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modal-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* Ajustes responsive para el modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-message {
+    font-size: 0.875rem;
+  }
+
+  .modal-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
 </style>
+

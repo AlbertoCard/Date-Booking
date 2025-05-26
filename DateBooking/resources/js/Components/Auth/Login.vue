@@ -1,6 +1,26 @@
 <template>
   <Loader :visible="loading" />
   <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white flex items-center justify-center p-6">
+    <!-- Modal de error -->
+    <Transition name="fade">
+      <div v-if="showModal" class="modal-backdrop" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <div class="modal-icon" :class="{ 'active': true }">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="modal-title">Atención</h3>
+          <p class="modal-message">{{ modalMessage }}</p>
+          <div class="modal-actions">
+            <button class="modal-button confirm" @click="closeModal">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-6xl mx-auto">
       <div class="flex flex-col md:flex-row">
         <!-- Lado Izquierdo: Imagen y Mensaje -->
@@ -145,6 +165,8 @@ const email = ref('');
 const password = ref('');
 const showNotification = ref(false);
 const resetEmail = ref('');
+const showModal = ref(false);
+const modalMessage = ref('');
 
 const loading = ref(false);
 
@@ -179,27 +201,32 @@ const closeNotification = () => {
   router.replace({ query: {} });
 };
 
+const showErrorMessage = (message) => {
+  modalMessage.value = message;
+  showModal.value = true;
+};
+
+const closeModal = () => {
+  showModal.value = false;
+  modalMessage.value = '';
+};
+
 const login = async () => {
   try {
-    loading.value = true; // Mostrar el loader
+    loading.value = true;
     const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
     console.log('Usuario autenticado en Firebase:', userCredential.user.uid);
 
     try {
-      // ✅ Marcar como activo en backend
       const activarResponse = await axios.put(`/api/usuarios/${userCredential.user.uid}/activo`);
       console.log('Usuario activado:', activarResponse.data);
 
-      // Obtener el rol del usuario
       const response = await axios.get(`/api/usuarios/obtener/${userCredential.user.uid}`);
       console.log('Datos del usuario obtenidos:', response.data);
 
       const userData = response.data.usuario;
-
-      // Guardar datos del usuario
       localStorage.setItem('userData', JSON.stringify(userData));
 
-      // Redirigir según el rol
       if (userData.rol === 'establecimiento') {
         router.push('/servicio-agregados');
       } else {
@@ -207,34 +234,38 @@ const login = async () => {
       }
     } catch (apiError) {
       console.error('Error en la API:', apiError.response?.data || apiError.message);
-      alert('Error al comunicarse con el servidor. Por favor, intenta nuevamente.');
+      showErrorMessage('Lo sentimos, ha ocurrido un error al comunicarnos con el servidor. Por favor, intenta nuevamente.');
     }
   } catch (error) {
     console.error('Error de login:', error);
-    alert('No se pudo iniciar sesión');
+    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+      showErrorMessage('El correo electrónico o la contraseña que ingresaste no son correctos. Por favor, verifica tus datos e intenta nuevamente.');
+    } else if (error.code === 'auth/invalid-email') {
+      showErrorMessage('Por favor, ingresa un correo electrónico válido.');
+    } else if (error.code === 'auth/too-many-requests') {
+      showErrorMessage('Hemos detectado demasiados intentos fallidos. Por favor, espera unos minutos antes de intentar nuevamente.');
+    } else {
+      showErrorMessage('Lo sentimos, ha ocurrido un error al iniciar sesión. Por favor, intenta nuevamente.');
+    }
   } finally {
-    loading.value = false; // Ocultar el loader siempre
+    loading.value = false;
   }
 };
 
 const loginWithGoogle = async () => {
-  loading.value = true; // Mostrar el loader
+  loading.value = true;
   try {
     const result = await signInWithPopup(auth, googleProvider);
     console.log('Usuario autenticado con Google:', result.user.uid);
 
     try {
-      // Intentar obtener los datos del usuario
       const response = await axios.get(`/api/usuarios/obtener/${result.user.uid}`);
       console.log('Datos del usuario obtenidos:', response.data);
 
       const userData = response.data.usuario;
-
-      // Marcar como activo en backend
       const activarResponse = await axios.put(`/api/usuarios/${result.user.uid}/activo`);
       console.log('Usuario activado:', activarResponse.data);
 
-      // Si es un establecimiento, obtener su id_establecimiento
       if (userData.rol === 'establecimiento') {
         const estabResponse = await axios.get(`/api/establecimientos/usuario/${result.user.uid}`);
         if (estabResponse.data.establecimientos && estabResponse.data.establecimientos.length > 0) {
@@ -242,48 +273,40 @@ const loginWithGoogle = async () => {
         }
       }
 
-      // Guardar datos del usuario
       localStorage.setItem('userData', JSON.stringify(userData));
 
-      // Redirigir según el rol
       if (userData.rol === 'establecimiento') {
         router.push('/servicio-agregados');
       } else {
         router.push('/');
       }
     } catch (apiError) {
-      // Si el usuario no existe (404), crearlo
       if (apiError.response?.status === 404) {
         console.log('Usuario no encontrado, creando nuevo usuario...');
 
-        // Crear el usuario en la base de datos
         const newUserResponse = await axios.post('/api/usuarios', {
           uid: result.user.uid,
           nombre: result.user.displayName || 'Usuario Google',
           email: result.user.email,
           telefono: result.user.phoneNumber || '0000000000',
           foto_url: result.user.photoURL || 'https://via.placeholder.com/150',
-          rol: 'cliente' // Por defecto, asignamos rol de cliente
+          rol: 'cliente'
         });
 
         console.log('Nuevo usuario creado:', newUserResponse.data);
-
-        // Guardar datos del usuario
         const userData = newUserResponse.data.usuario;
         localStorage.setItem('userData', JSON.stringify(userData));
-
-        // Redirigir al dashboard de cliente
         router.push('/');
       } else {
         console.error('Error en la API:', apiError.response?.data || apiError.message);
-        alert('Error al comunicarse con el servidor. Por favor, intenta nuevamente.');
+        showErrorMessage('Lo sentimos, ha ocurrido un error al comunicarnos con el servidor. Por favor, intenta nuevamente.');
       }
     }
   } catch (error) {
     console.error('Error de Google Sign-In:', error);
-    alert('Error con Google Sign-In: ' + error.message);
+    showErrorMessage('Lo sentimos, ha ocurrido un error al iniciar sesión con Google. Por favor, intenta nuevamente.');
   } finally {
-    loading.value = false; // Ocultar el loader siempre
+    loading.value = false;
   }
 };
 
@@ -384,7 +407,6 @@ const cerrarSesion = async () => {
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0);
@@ -404,4 +426,158 @@ const cerrarSesion = async () => {
     margin: 1rem;
   }
 }
+
+/* Estilos del Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 90%;
+  width: 400px;
+  text-align: center;
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  z-index: 10000;
+}
+
+.modal-icon {
+  margin: 0 auto 1.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-icon.active {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.modal-message {
+  color: #64748b;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.modal-button.cancel {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.modal-button.cancel:hover {
+  background-color: #d1d5db;
+}
+
+.modal-button.confirm {
+  background-color: #2563eb;
+  color: white;
+}
+
+.modal-button.confirm:hover {
+  background-color: #1d4ed8;
+}
+
+/* Animaciones del modal */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-active .modal-content {
+  animation: modal-in 0.3s ease-out;
+}
+
+.fade-leave-active .modal-content {
+  animation: modal-out 0.3s ease-in;
+}
+
+@keyframes modal-in {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modal-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+/* Ajustes responsive para el modal */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 90%;
+    padding: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-message {
+    font-size: 0.875rem;
+  }
+
+  .modal-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
 </style>
+
+
+
