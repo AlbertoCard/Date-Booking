@@ -49,7 +49,7 @@
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Categoría</span>
                                         <p class="font-medium text-gray-900">{{ servicio?.categoria || 'No especificada'
-                                        }}</p>
+                                            }}</p>
                                     </div>
                                     <div class="bg-gray-50 p-4 rounded-lg">
                                         <span class="text-sm text-gray-500">Establecimiento</span>
@@ -146,11 +146,13 @@
                             </div>
 
                             <!-- Botón de reserva -->
-                            <button @click="realizarReserva" :disabled="!puedeReservar" class="w-full bg-black text-white py-4 rounded-lg font-medium 
+                            <button @click="realizarReserva" :disabled="!puedeReservar || procesandoReserva" class="w-full bg-black text-white py-4 rounded-lg font-medium 
                        hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black 
                        disabled:bg-gray-300 disabled:cursor-not-allowed
                        transition-all duration-200 transform hover:scale-[1.02]">
-                                {{ puedeReservar ? 'Realizar Reservación!' : 'Selecciona un médico' }}
+                                <span v-if="procesandoReserva">Procesando...</span>
+                                <span v-else>{{ puedeReservar ? 'Realizar Reservación!' : 'Selecciona un médico'
+                                    }}</span>
                             </button>
 
                             <!-- Nota informativa -->
@@ -163,6 +165,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Loader overlay para el proceso de reserva -->
+    <Loader :visible="procesandoReserva" />
 </template>
 
 <script setup>
@@ -183,6 +188,7 @@ const medicos = ref([]);
 const horasDisponibles = ref([]);
 const disponibilidad = ref(null);
 const fechaSeleccionada = ref('');
+const procesandoReserva = ref(false);
 
 // Computed properties
 const fechaMinima = computed(() => {
@@ -278,6 +284,7 @@ const cargarServicio = async () => {
 const realizarReserva = async () => {
     if (!puedeReservar.value) return;
 
+    procesandoReserva.value = true;
     try {
         const userData = JSON.parse(localStorage.getItem('userData'));
         if (!userData || !userData.uid) {
@@ -324,6 +331,8 @@ const realizarReserva = async () => {
     } catch (err) {
         console.error('Error al realizar la reserva:', err);
         alert(err.response?.data?.message || 'Error al realizar la reserva. Por favor, intenta nuevamente.');
+    } finally {
+        procesandoReserva.value = false;
     }
 };
 
