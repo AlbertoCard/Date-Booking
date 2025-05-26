@@ -265,7 +265,7 @@ class ServicioController extends Controller
                         'url' => '/images/' . $nombreImagen
                     ]);
                 } catch (\Exception $e) {
-                    \Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
                 }
             }
 
@@ -373,7 +373,7 @@ class ServicioController extends Controller
                         'url' => '/images/' . $nombreImagen
                     ]);
                 } catch (\Exception $e) {
-                    \Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
                 }
             }
 
@@ -412,6 +412,7 @@ class ServicioController extends Controller
                 'categoria' => 'required|string|max:255',
                 'id_ciudad' => 'required|exists:ciudades,id_ciudad',
                 'disponibilidad' => 'required|array|min:1',
+                'disponibilidad.*.fecha' => 'required|date',
                 'disponibilidad.*.hora_inicio' => 'required|string',
                 'disponibilidad.*.hora_fin' => 'required|string',
                 'disponibilidad.*.intervalo' => 'required|date_format:H:i:s',
@@ -453,6 +454,7 @@ class ServicioController extends Controller
             foreach ($request->disponibilidad as $disp) {
                 \App\Models\Disponibilidad::create([
                     'id_servicio' => $id_servicio,
+                    'fecha' => $disp['fecha'],
                     'hora_inicio' => $disp['hora_inicio'],
                     'hora_fin' => $disp['hora_fin'],
                     'intervalo' => $disp['intervalo'],
@@ -463,7 +465,7 @@ class ServicioController extends Controller
             }
 
             // Definir sectores y letras de filas
-            $sectores = ['VIP', 'A', 'B', 'C'];
+            $sectores = ['norte', 'sur', 'este', 'oeste'];
             $letrasFilas = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
             // Crear lugares
@@ -500,7 +502,7 @@ class ServicioController extends Controller
                         'url' => '/images/' . $nombreImagen
                     ]);
                 } catch (\Exception $e) {
-                    \Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
                 }
             }
 
@@ -613,7 +615,7 @@ class ServicioController extends Controller
                         'url' => '/images/' . $nombreImagen
                     ]);
                 } catch (\Exception $e) {
-                    \Log::error('Error al guardar la imagen: ' . $e->getMessage());
+                    Log::error('Error al guardar la imagen: ' . $e->getMessage());
                 }
             }
 

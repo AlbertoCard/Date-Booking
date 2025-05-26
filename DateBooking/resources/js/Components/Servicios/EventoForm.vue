@@ -187,6 +187,7 @@ const formData = ref({
     imagen: null,
     disponibilidad: [
         {
+            fecha: '',
             hora_inicio: '',
             hora_fin: '',
             intervalo: '00:00:00',
@@ -251,6 +252,7 @@ const handleSubmit = async () => {
             formDataToSend.append('imagen', formData.value.imagen);
         }
         formDataToSend.append('disponibilidad', JSON.stringify([{
+            fecha: formData.value.disponibilidad[0].fecha,
             hora_inicio: formatTime(formData.value.disponibilidad[0].hora_inicio) + ':00',
             hora_fin: formatTime(formData.value.disponibilidad[0].hora_fin) + ':00',
             intervalo: '00:00:00',
@@ -271,6 +273,7 @@ const handleSubmit = async () => {
             router.push('/servicio-agregados');
         }
     } catch (error) {
+        console.error('Error al enviar el formulario:', formData.value);
         console.error('Error al crear el evento:', error);
     } finally {
         loading.value = false;
