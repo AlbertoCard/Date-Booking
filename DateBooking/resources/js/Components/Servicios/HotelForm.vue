@@ -1,5 +1,6 @@
 <template>
     <div class="min-h-screen bg-gradient-to-br from-gray-100 to-white p-6">
+        <Loader :visible="loading" />
         <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl mx-auto">
             <div class="formulario transform-gpu">
                 <h1 class="titulo text-3xl font-bold text-gray-900 relative">
@@ -215,6 +216,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import Loader from '../Loader.vue'
 
 const router = useRouter()
 const emit = defineEmits(['submit', 'cancel'])
@@ -317,7 +319,6 @@ const handleSubmit = async () => {
 
         // Verificar que se hayan ingresado los datos de la habitación
         if (!nuevaHabitacion.value.tipo || !nuevaHabitacion.value.numeroInicial || !nuevaHabitacion.value.capacidad || !nuevaHabitacion.value.cantidad) {
-            alert('Por favor complete todos los datos de la habitación');
             loading.value = false;
             return;
         }
@@ -357,13 +358,11 @@ const handleSubmit = async () => {
         });
 
         if (response.status === 201) {
-            alert('Hotel creado exitosamente');
             emit('submit', response.data);
             router.push('/servicio-agregados');
         }
     } catch (error) {
         console.error('Error al crear el hotel:', error);
-        alert('Error al crear el hotel: ' + (error.response?.data?.error || error.message));
     } finally {
         loading.value = false;
     }
