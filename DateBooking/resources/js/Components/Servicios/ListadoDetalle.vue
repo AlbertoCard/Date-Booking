@@ -178,7 +178,6 @@ export default {
             this.mostrarModal = true;
 
             if (response.data.success) {
-              alert("Reserva validada correctamente.");
               this.obtenerReservas(this.$route.params.id);
             } else if (response.data.message) {
               alert(`${response.data.message}`);

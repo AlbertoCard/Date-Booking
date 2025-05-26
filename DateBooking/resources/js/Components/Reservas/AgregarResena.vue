@@ -101,7 +101,6 @@ export default {
                 });
 
                 // Mostrar mensaje de éxito y redirigir
-                alert('¡Gracias por tu reseña!');
                 this.$router.push("/reservas/" + user.uid);
             } catch (error) {
                 console.error('Error al enviar la reseña:', error);
