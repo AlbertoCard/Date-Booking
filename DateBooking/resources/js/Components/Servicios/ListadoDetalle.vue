@@ -30,8 +30,7 @@
 
               <div class="flex-1 space-y-1">
                 <p class="reserva font-bold text-gray-800">Reserva #{{ reserva.id_reserva }}</p>
-                <p><strong>Usuario:</strong> {{ reserva.id_usuario }}</p>
-                <p><strong>Servicio:</strong> {{ reserva.id_servicio }}</p>
+                <p><strong>Usuario:</strong> {{ reserva.nombre_usuario }}</p>
                 <p><strong>Estado:</strong>
                   <span :class="{
                     'text-green-600 font-semibold': reserva.estado === 'confirmada',
@@ -43,6 +42,12 @@
                 </p>
                 <p><strong>Fecha:</strong> {{ reserva.fecha }}</p>
                 <p><strong>Tipo:</strong> {{ reserva.tipo_servicio }}</p>
+                <p v-if="reserva.detalle_1">
+                    <strong v-if="reserva.tipo_servicio === 'restaurante'">Mesa:</strong>
+                  {{ reserva.detalle_1 }}</p>
+                <p v-if="reserva.detalle_2">
+                  <strong v-if="reserva.tipo_servicio === 'restaurante'">Cantidad de personas:</strong>
+                   {{ reserva.detalle_2 }}</p>
               </div>
             </li>
           </ul>
@@ -111,18 +116,29 @@ export default {
     this.getCamarasDisponibles();
   },
   methods: {
-    obtenerReservas(id_servicio) {
-      axios.get('/api/reservas/servicios/' + id_servicio)
-        .then(response => {
-          this.cargando = true;
-          this.reservas = response.data.reservas;
-        })
-        .catch(error => {
-          console.error('Error al obtener reservas:', error);
-        })
-        .finally(() => {
-          this.cargando = false; // Ocultar el loader al finalizar la carga
-        });
+    async obtenerReservas(id_servicio) {
+      this.cargando = true;
+      try {
+      const response = await axios.get('/api/reservas/servicios/' + id_servicio);
+      const reservas = response.data.reservas;
+
+      // Para cada reserva, obtener el nombre del usuario
+      for (let reserva of reservas) {
+        try {
+        const $uid = reserva.id_usuario;
+        const usuarioResp = await axios.get('/api/usuarios/obtener/' + $uid);
+        reserva.nombre_usuario = usuarioResp.data.usuario.nombre; // Ajusta según tu respuesta real
+        } catch (e) {
+        reserva.nombre_usuario = 'Desconocido';
+        }
+      }
+
+      this.reservas = reservas;
+      } catch (error) {
+      console.error('Error al obtener reservas:', error);
+      } finally {
+      this.cargando = false;
+      }
     },
     obtenerServicio(id_servicio) {
       axios.get('/api/servicios/' + id_servicio)

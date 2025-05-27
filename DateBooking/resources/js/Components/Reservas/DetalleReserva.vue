@@ -35,17 +35,16 @@
                             <!-- Imagen del servicio -->
                             <div class="w-full h-64 bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
                                 <template v-if="reserva.servicio.imagen && reserva.servicio.imagen.url">
-                                    <img 
-                                        :src="reserva.servicio.imagen.url" 
-                                        :alt="reserva.servicio.nombre" 
-                                        class="w-full h-full object-cover"
-                                        @error="handleImageError"
-                                        @load="handleImageLoad"
-                                    />
+                                    <img :src="reserva.servicio.imagen.url" :alt="reserva.servicio.nombre"
+                                        class="w-full h-full object-cover" @error="handleImageError"
+                                        @load="handleImageLoad" />
                                 </template>
-                                <div v-else class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <div v-else
+                                    class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                     </svg>
                                 </div>
                             </div>
@@ -60,19 +59,37 @@
                                         {{ reserva.servicio.descripcion }}
                                     </p>
                                 </div>
-
-                                <!-- Estado de la reserva -->
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <span class="text-sm text-gray-500 block mb-1">Estado de la reserva</span>
-                                    <div class="estado" :class="`estado-${reserva.estado.toLowerCase()}`">
-                                        {{ reserva.estado }}
+                                <!-- Información adicional en cuadrícula -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <!-- Estado de la reserva -->
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <span class="text-sm text-gray-500 block mb-1">Estado de la reserva</span>
+                                        <div class="estado" :class="`estado-${reserva.estado.toLowerCase()}`">
+                                            {{ reserva.estado }}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Tipo de Servicio -->
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <span class="text-sm text-gray-500 block mb-1">Tipo de Servicio</span>
-                                    <p class="font-medium text-gray-900">{{ reserva.tipo_servicio }}</p>
+                                    <!-- Tipo de Servicio -->
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <span class="text-sm text-gray-500 block mb-1">Tipo de Servicio</span>
+                                        <p class="font-medium text-gray-900">{{ reserva.tipo_servicio }}</p>
+                                    </div>
+
+                                    <!-- detalles -->
+                                    <div v-if="reserva.tipo_servicio && reserva.tipo_servicio.toLowerCase() === 'restaurante'" class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+                                        <span class="text-sm text-gray-500 block mb-1">Detalles</span>
+                                        <p class="text-gray-700">
+                                            <span class="font-medium">Número de mesa:</span>
+                                            {{ reserva.detalle_1 || 'No especificado.' }}
+                                        </p>
+                                        <p class="text-gray-700 mt-2">
+                                            <span class="font-medium">Cantidad de personas:</span>
+                                            {{ reserva.detalle_2 || 'No especificado.' }}
+                                        </p>
+                                    </div>
+
+
+                                    <!-- para consultorio -->
                                 </div>
                             </div>
                         </div>

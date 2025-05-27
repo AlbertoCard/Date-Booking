@@ -15,7 +15,7 @@ import Busqueda from "./Components/Servicios/Busqueda.vue";
 import Establecimiento from "./Components/Establecimientos/Establecimiento.vue";
 import MisReservas from "./Components/Reservas/MisReservas.vue";
 import NodoServicio from "./Components/Servicios/NodoServicio.vue";
-import AgregarResena from './Components/Reservas/AgregarResena.vue';
+import AgregarResena from './Components/Reservas/AgregarResena.vue'
 import StripePayment from './Components/StripePayment.vue';
 
 import HotelForm from './Components/Servicios/HotelForm.vue';
